@@ -1,0 +1,2 @@
+p, admin, /api/v1/*, *
+p, user, /api/v1/users/:id, read

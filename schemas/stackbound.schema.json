@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stackbound.dev/schemas/v0.0.1/stackbound.schema.json",
+  "title": "stackbound Specification",
+  "description": "Schema for stackbound executable specification files",
+  "type": "object",
+  "required": ["version", "name", "components"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Specification version (semver)"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Project name (kebab-case)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Project description"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/component"
+      },
+      "description": "List of components in the specification"
+    }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "required": ["id", "kind", "spec"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$",
+          "description": "Component ID in dot-separated format (e.g., http.server.api, middleware.authn)"
+        },
+        "kind": {
+          "$ref": "#/$defs/componentKind"
+        },
+        "spec": {
+          "oneOf": [
+            { "$ref": "#/$defs/httpServerSpec" },
+            { "$ref": "#/$defs/middlewareSpec" },
+            { "$ref": "#/$defs/postgresSpec" },
+            { "$ref": "#/$defs/usecaseSpec" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "http.server" } } },
+          "then": { "properties": { "spec": { "$ref": "#/$defs/httpServerSpec" } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "middleware" } } },
+          "then": { "properties": { "spec": { "$ref": "#/$defs/middlewareSpec" } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "postgres" } } },
+          "then": { "properties": { "spec": { "$ref": "#/$defs/postgresSpec" } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "usecase" } } },
+          "then": { "properties": { "spec": { "$ref": "#/$defs/usecaseSpec" } } }
+        }
+      ]
+    },
+    "componentKind": {
+      "type": "string",
+      "enum": ["http.server", "middleware", "postgres", "usecase"],
+      "description": "Component kind"
+    },
+    "componentRef": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$",
+      "description": "Reference to another component (e.g., middleware.authn, postgres.primary)"
+    },
+    "filePath": {
+      "type": "string",
+      "pattern": "^\\./",
+      "description": "Relative file path starting with ./"
+    },
+    "httpServerSpec": {
+      "type": "object",
+      "required": ["framework", "port"],
+      "properties": {
+        "framework": {
+          "type": "string",
+          "enum": ["hono"],
+          "description": "Web framework to use"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Port number"
+        },
+        "openapi": {
+          "$ref": "#/$defs/filePath",
+          "description": "Path to OpenAPI specification file"
+        },
+        "middleware": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentRef" },
+          "description": "Middleware chain in execution order"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentRef" },
+          "description": "Dependencies available for injection"
+        }
+      },
+      "additionalProperties": false
+    },
+    "middlewareSpec": {
+      "type": "object",
+      "required": ["provider"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["better-auth", "casbin"],
+          "description": "Middleware provider"
+        },
+        "config": {
+          "$ref": "#/$defs/filePath",
+          "description": "Path to provider configuration file"
+        },
+        "model": {
+          "$ref": "#/$defs/filePath",
+          "description": "Path to Casbin model file (casbin provider only)"
+        },
+        "policy": {
+          "$ref": "#/$defs/filePath",
+          "description": "Path to Casbin policy file (casbin provider only)"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentRef" },
+          "description": "Middleware dependencies (e.g., authz depends on authn)"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "provider": { "const": "better-auth" } } },
+          "then": { "required": ["config"] }
+        },
+        {
+          "if": { "properties": { "provider": { "const": "casbin" } } },
+          "then": { "required": ["model", "policy"] }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "postgresSpec": {
+      "type": "object",
+      "required": ["provider", "schema"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["drizzle"],
+          "description": "Database provider"
+        },
+        "schema": {
+          "$ref": "#/$defs/filePath",
+          "description": "Path to Drizzle schema file"
+        }
+      },
+      "additionalProperties": false
+    },
+    "usecaseSpec": {
+      "type": "object",
+      "required": ["binds_to", "goal"],
+      "properties": {
+        "binds_to": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+:(GET|POST|PUT|PATCH|DELETE):/[a-zA-Z0-9/{}_-]*$",
+          "description": "Route binding in format: server-id:METHOD:/path"
+        },
+        "middleware": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/componentRef" },
+          "description": "Middleware for this endpoint (empty array = public, omit = full chain)"
+        },
+        "goal": {
+          "type": "string",
+          "description": "What this usecase accomplishes"
+        },
+        "actor": {
+          "type": "string",
+          "description": "Who performs this action"
+        },
+        "preconditions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Conditions that must be true before execution"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Criteria for successful completion"
+        },
+        "postconditions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Conditions that must be true after execution"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
