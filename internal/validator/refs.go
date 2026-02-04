@@ -72,6 +72,8 @@ func findRefs(spec map[string]interface{}) []string {
 			// Check for inline refs like "{{ ref:componentName }}"
 			if strings.Contains(v, "{{ ref:") {
 				// TODO: Extract component name from template syntax
+				// This is a placeholder for future template reference extraction
+				_ = v // Acknowledge the check for linter
 			}
 		}
 	}

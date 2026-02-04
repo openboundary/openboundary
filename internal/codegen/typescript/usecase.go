@@ -110,10 +110,10 @@ func (g *UsecaseGenerator) generateUsecase(i *ir.IR, uc *ir.Component) string {
 		localInputTypeName := toPascalCase(funcName) + "Input"
 		if inputTypeName != "void" {
 			// Combine path params with request body
-			sb.WriteString(fmt.Sprintf("/** Input combining path params and request body */\n"))
+			sb.WriteString("/** Input combining path params and request body */\n")
 			sb.WriteString(fmt.Sprintf("export interface %s extends %s {\n", localInputTypeName, inputTypeName))
 		} else {
-			sb.WriteString(fmt.Sprintf("/** Input with path parameters */\n"))
+			sb.WriteString("/** Input with path parameters */\n")
 			sb.WriteString(fmt.Sprintf("export interface %s {\n", localInputTypeName))
 		}
 		for _, param := range pathParams {
@@ -197,25 +197,6 @@ func (g *UsecaseGenerator) generateUsecase(i *ir.IR, uc *ir.Component) string {
 	sb.WriteString("}\n")
 
 	return sb.String()
-}
-
-func (g *UsecaseGenerator) writeInputFields(sb *strings.Builder, uc *ir.Component) {
-	if uc.Usecase.Binding == nil {
-		sb.WriteString("  // Define input fields\n")
-		return
-	}
-
-	// Extract path parameters
-	pathParams := extractPathParams(uc.Usecase.Binding.Path)
-	for _, param := range pathParams {
-		sb.WriteString(fmt.Sprintf("  %s: string;\n", param))
-	}
-
-	// For POST/PUT/PATCH, add body fields placeholder
-	method := uc.Usecase.Binding.Method
-	if method == "POST" || method == "PUT" || method == "PATCH" {
-		sb.WriteString("  // Add request body fields from OpenAPI schema\n")
-	}
 }
 
 func (g *UsecaseGenerator) contextTypeForFields(fields []string) string {
