@@ -6,6 +6,8 @@ params:
   description: "Define architectural and security invariants that AI agents can't violate. Generate type-safe backends from specifications."
   github: https://github.com/openboundary/openboundary
   version: v0.1.0
+  supabase_url: https://qtrwxpitqfehkhuravyl.supabase.co
+  supabase_anon_key: sb_publishable_Jsa_KDN0EOKv8Zv0FV-Ekw_DKaCRGET
 
 menu:
   main:
