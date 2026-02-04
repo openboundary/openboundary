@@ -1,7 +1,17 @@
-# OpenBoundary
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="website/static/images/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="website/static/images/logo-light.svg">
+    <img alt="OpenBoundary" src="website/static/images/logo-dark.svg" width="120" height="120">
+  </picture>
+</p>
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)](https://go.dev/)
+<h1 align="center">OpenBoundary</h1>
+
+<p align="center">
+  <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License: AGPL v3"></a>
+  <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go" alt="Go Version"></a>
+</p>
 
 **AI agents run wild. Unless you set the boundaries.**
 
