@@ -727,7 +727,7 @@ $ stack-bound validate spec.yaml
 - Multi-server support
 - JSON Schema validation
 
-### 🚧 Coming Soon (v0.1.0 - Q2 2026)
+### 🚧 Coming Soon (v0.2.0 - Q2 2026)
 
 **Safezone Preservation:**
 - Mark sections of generated code as "safe zones"
@@ -744,7 +744,7 @@ $ stack-bound validate spec.yaml
 - `job` - Background job definitions
 - `cron` - Scheduled task definitions
 
-### 📋 Planned (v0.2.0+ - Q3 2026)
+### 📋 Planned (v0.3.0+ - Q3 2026)
 
 **More Frameworks:**
 - Go: `chi`, `fiber`, `echo`
@@ -894,7 +894,7 @@ Code generators create files once. stack-bound maintains a living relationship b
 
 **Currently (v0.1.0):** Regeneration overwrites all files in the output directory. Save your handler implementations separately or use version control.
 
-**Coming soon (v0.1.0):** Safezone markers let you mark sections that should be preserved across regeneration. The spec generates structure, you add implementation, and regeneration respects both.
+**Coming soon (v0.2.0):** Safezone markers let you mark sections that should be preserved across regeneration. The spec generates structure, you add implementation, and regeneration respects both.
 
 ### Can I use stack-bound for existing projects?
 
@@ -924,33 +924,9 @@ v0.1.0 is an early release. Use it for:
 Be cautious with:
 - ⚠️ Production systems with high traffic
 - ⚠️ Systems requiring custom middleware logic
-- ⚠️ Projects needing safezone preservation (coming in v0.1.0)
+- ⚠️ Projects needing safezone preservation (coming in v0.2.0)
 
 The generated code is production-quality, but the tool itself is evolving rapidly.
-
----
-
-## Enterprise & Commercial
-
-### InvarX Platform
-
-For teams needing more than code generation, **InvarX Platform** adds:
-
-- **Persistent Architecture Graphs:** Query relationships between components
-- **AI Agent Assistance:** AI implements usecases with architectural context
-- **Safezone Preservation:** Advanced code preservation across regeneration
-- **Team Collaboration:** Multi-user workspaces and approval workflows
-- **Bidirectional Sync:** Code changes update specifications automatically
-- **Visual Architecture:** Interactive graph rendering and diagrams
-- **Enterprise Support:** SLA, dedicated support, on-premise deployment
-
-Learn more: [bitwrite.io](https://bitwrite.io)
-
-### Commercial Licensing
-
-stack-bound is licensed under AGPL-3.0. If your organization cannot comply with AGPL obligations, commercial licensing is available.
-
-Contact: [max@bitwrite.io](mailto:max@bitwrite.io)
 
 ---
 
@@ -983,13 +959,13 @@ stack-bound is licensed under the [GNU Affero General Public License v3.0](LICEN
 - ⚠️ Disclose source if you run it as a service
 - ⚠️ Same license for derivatives
 
-If AGPL doesn't work for your organization, contact us about commercial licensing.
+Questions? Contact: [impermanent.architect@pm.me](mailto:impermanent.architect@pm.me)
 
 ---
 
 ## Credits
 
-Built by [Max Rochefort-Shugar](https://maxshugar.com) at [Bitwrite Labs](https://bitwrite.io).
+Built by [Max Rochefort-Shugar](https://maxshugar.com).
 
 Inspired by:
 - Peter Naur's "Programming as Theory Building" (1985)
@@ -1009,7 +985,7 @@ Special thanks to the open source communities behind:
 ```bash
 git clone https://github.com/stack-bound/stack-bound.git
 cd stack-bound
-go build -o stack-bound ./cmd/stack-bound
+go build -o stack-bound ./cmd/stackbound
 ./stack-bound init
 ```
 
