@@ -1,3 +1,6 @@
+// Copyright 2026 Open Boundary Contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // Package parser provides YAML parsing with position tracking and AST definitions.
 package parser
 
