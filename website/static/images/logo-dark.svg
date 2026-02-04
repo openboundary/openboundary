@@ -1,7 +1,6 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Outer boundary -->
-  <rect x="48" y="48" width="416" height="416" rx="64" stroke="#ffffff" stroke-width="32" fill="none"/>
-
-  <!-- Inner protected element -->
-  <rect x="176" y="176" width="160" height="160" rx="24" fill="#ffffff"/>
+  <rect x="40" y="40" width="432" height="432" rx="48" stroke="#ffffff" stroke-width="24" fill="none"/>
+  <rect x="104" y="104" width="304" height="304" rx="36" stroke="#ffffff" stroke-width="24" fill="none"/>
+  <rect x="168" y="168" width="176" height="176" rx="24" stroke="#ffffff" stroke-width="24" fill="none"/>
+  <rect x="232" y="232" width="48" height="48" rx="8" fill="#ffffff"/>
 </svg>
