@@ -30,6 +30,7 @@
             --font-mono: 'Geist Mono', 'SF Mono', Consolas, monospace;
 
             --sidebar-width: 240px;
+            --content-width: 860px;
         }
 
         * {
@@ -211,9 +212,9 @@
         }
 
         .content {
-            max-width: 720px;
+            max-width: var(--content-width);
             margin: 0 auto;
-            padding: 48px 24px 100px;
+            padding: 48px 40px 100px;
         }
 
         /* Typography */
@@ -338,6 +339,7 @@
 
         /* Code blocks */
         .code-block {
+            position: relative;
             background: var(--bg-subtle);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -359,13 +361,33 @@
             color: var(--text-secondary);
         }
 
-        .code-tag {
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
             font-family: var(--font-mono);
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-tertiary);
             background: var(--bg-elevated);
-            padding: 2px 6px;
-            border-radius: 3px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .copy-btn:hover {
+            color: var(--text);
+            border-color: var(--border-hover);
+        }
+
+        .copy-btn.copied {
+            color: #22c55e;
+        }
+
+        .copy-btn svg {
+            width: 14px;
+            height: 14px;
         }
 
         .code-body {
@@ -378,6 +400,7 @@
 
         .code-body pre {
             margin: 0;
+            white-space: pre;
         }
 
         /* Syntax */
@@ -516,15 +539,19 @@
             color: var(--text);
         }
 
-        /* Quick start */
+        /* Quick start steps */
         .steps {
             margin: 24px 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .step {
             display: flex;
             gap: 16px;
-            padding: 16px 0;
+            padding: 20px;
+            background: var(--bg-subtle);
             border-bottom: 1px solid var(--border);
         }
 
@@ -533,41 +560,77 @@
         }
 
         .step-num {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             background: var(--bg-elevated);
+            border: 1px solid var(--border);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--text-tertiary);
+            font-size: 13px;
+            color: var(--text-secondary);
             flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+            min-width: 0;
         }
 
         .step-content h4 {
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 4px;
         }
 
         .step-content p {
             font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .step-code {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            background: var(--bg-subtle);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 6px;
+            margin-bottom: 12px;
             color: var(--text-secondary);
         }
 
+        .step-code-block {
+            position: relative;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .step-code-block .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+
+        .step-code-lines {
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .step-code-lines code {
+            display: block;
+            background: none;
+            padding: 0;
+            color: var(--text-secondary);
+        }
+
+        .step-code-lines code + code {
+            margin-top: 4px;
+        }
+
         /* Responsive */
+        @media (max-width: 1100px) {
+            .content {
+                padding: 48px 24px 100px;
+            }
+        }
+
         @media (max-width: 900px) {
             .sidebar {
                 display: none;
@@ -597,7 +660,8 @@
 
             <div class="nav-links">
                 <a href="docs.html" class="active">Docs</a>
-                <a href="docs.html#components">Components</a>
+                <a href="#roadmap">Roadmap</a>
+                <a href="https://github.com/openboundary/openboundary/releases">Releases</a>
                 <a href="https://github.com/openboundary/openboundary">GitHub</a>
             </div>
 
@@ -629,6 +693,12 @@
                 <a href="#cli" class="sidebar-link">CLI</a>
                 <a href="https://github.com/openboundary/openboundary/blob/main/schemas/openboundary.schema.json" class="sidebar-link">Schema</a>
             </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Project</div>
+                <a href="#roadmap" class="sidebar-link">Roadmap</a>
+                <a href="https://github.com/openboundary/openboundary/releases" class="sidebar-link">Releases</a>
+            </div>
         </aside>
 
         <main class="main">
@@ -645,7 +715,17 @@
                                 <div class="step-content">
                                     <h4>Install</h4>
                                     <p>Clone and build from source</p>
-                                    <div class="step-code">git clone https://github.com/openboundary/openboundary.git && cd openboundary && go build -o openboundary ./cmd/openboundary</div>
+                                    <div class="step-code-block">
+                                        <button class="copy-btn" onclick="copyCode(this)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            Copy
+                                        </button>
+                                        <div class="step-code-lines">
+                                            <code>git clone https://github.com/openboundary/openboundary.git</code>
+                                            <code>cd openboundary</code>
+                                            <code>go build -o openboundary ./cmd/openboundary</code>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="step">
@@ -653,7 +733,15 @@
                                 <div class="step-content">
                                     <h4>Create spec</h4>
                                     <p>Initialize a project</p>
-                                    <div class="step-code">openboundary init basic -o my-project</div>
+                                    <div class="step-code-block">
+                                        <button class="copy-btn" onclick="copyCode(this)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            Copy
+                                        </button>
+                                        <div class="step-code-lines">
+                                            <code>openboundary init basic -o my-project</code>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="step">
@@ -661,7 +749,15 @@
                                 <div class="step-content">
                                     <h4>Generate</h4>
                                     <p>Compile to TypeScript</p>
-                                    <div class="step-code">openboundary compile spec.yaml -o generated</div>
+                                    <div class="step-code-block">
+                                        <button class="copy-btn" onclick="copyCode(this)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            Copy
+                                        </button>
+                                        <div class="step-code-lines">
+                                            <code>openboundary compile spec.yaml -o generated</code>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="step">
@@ -669,7 +765,17 @@
                                 <div class="step-content">
                                     <h4>Run</h4>
                                     <p>Start the server</p>
-                                    <div class="step-code">cd generated && npm install && npm run dev</div>
+                                    <div class="step-code-block">
+                                        <button class="copy-btn" onclick="copyCode(this)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            Copy
+                                        </button>
+                                        <div class="step-code-lines">
+                                            <code>cd generated</code>
+                                            <code>npm install</code>
+                                            <code>npm run dev</code>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -796,18 +902,22 @@
                     <div class="code-block">
                         <div class="code-header">
                             <span class="code-file">spec.yaml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre>- <span class="sy-p">id:</span> <span class="sy-s">http.server.api</span>
-  <span class="sy-p">kind:</span> <span class="sy-s">http.server</span>
-  <span class="sy-p">spec:</span>
-    <span class="sy-p">framework:</span> <span class="sy-s">hono</span>
-    <span class="sy-p">port:</span> <span class="sy-n">3000</span>
-    <span class="sy-p">openapi:</span> <span class="sy-s">./openapi.yaml</span>
-    <span class="sy-p">middleware:</span>
-      - <span class="sy-s">middleware.authn</span>
-    <span class="sy-p">depends_on:</span>
-      - <span class="sy-s">postgres.primary</span></pre>
+<pre>- id: http.server.api
+  kind: http.server
+  spec:
+    framework: hono
+    port: 3000
+    openapi: ./openapi.yaml
+    middleware:
+      - middleware.authn
+    depends_on:
+      - postgres.primary</pre>
                         </div>
                     </div>
                 </section>
@@ -866,13 +976,17 @@
                     <div class="code-block">
                         <div class="code-header">
                             <span class="code-file">spec.yaml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre>- <span class="sy-p">id:</span> <span class="sy-s">postgres.primary</span>
-  <span class="sy-p">kind:</span> <span class="sy-s">postgres</span>
-  <span class="sy-p">spec:</span>
-    <span class="sy-p">provider:</span> <span class="sy-s">drizzle</span>
-    <span class="sy-p">schema:</span> <span class="sy-s">./src/db/schema.ts</span></pre>
+<pre>- id: postgres.primary
+  kind: postgres
+  spec:
+    provider: drizzle
+    schema: ./src/db/schema.ts</pre>
                         </div>
                     </div>
 
@@ -945,33 +1059,41 @@
                         </table>
                     </div>
 
-                    <h3>Example</h3>
+                    <h3>Examples</h3>
                     <div class="code-block">
                         <div class="code-header">
                             <span class="code-file">Authentication</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre>- <span class="sy-p">id:</span> <span class="sy-s">middleware.authn</span>
-  <span class="sy-p">kind:</span> <span class="sy-s">middleware</span>
-  <span class="sy-p">spec:</span>
-    <span class="sy-p">provider:</span> <span class="sy-s">better-auth</span>
-    <span class="sy-p">config:</span> <span class="sy-s">./src/auth/auth.config.ts</span></pre>
+<pre>- id: middleware.authn
+  kind: middleware
+  spec:
+    provider: better-auth
+    config: ./src/auth/auth.config.ts</pre>
                         </div>
                     </div>
 
                     <div class="code-block">
                         <div class="code-header">
                             <span class="code-file">Authorization</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre>- <span class="sy-p">id:</span> <span class="sy-s">middleware.authz</span>
-  <span class="sy-p">kind:</span> <span class="sy-s">middleware</span>
-  <span class="sy-p">spec:</span>
-    <span class="sy-p">provider:</span> <span class="sy-s">casbin</span>
-    <span class="sy-p">depends_on:</span>
-      - <span class="sy-s">middleware.authn</span>
-    <span class="sy-p">model:</span> <span class="sy-s">./src/auth/model.conf</span>
-    <span class="sy-p">policy:</span> <span class="sy-s">./src/auth/policy.csv</span></pre>
+<pre>- id: middleware.authz
+  kind: middleware
+  spec:
+    provider: casbin
+    depends_on:
+      - middleware.authn
+    model: ./src/auth/model.conf
+    policy: ./src/auth/policy.csv</pre>
                         </div>
                     </div>
                 </section>
@@ -1036,20 +1158,24 @@
                     <div class="code-block">
                         <div class="code-header">
                             <span class="code-file">spec.yaml</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre>- <span class="sy-p">id:</span> <span class="sy-s">usecase.create-user</span>
-  <span class="sy-p">kind:</span> <span class="sy-s">usecase</span>
-  <span class="sy-p">spec:</span>
-    <span class="sy-p">binds_to:</span> <span class="sy-s">http.server.api:POST:/users</span>
-    <span class="sy-p">middleware:</span> []  <span class="sy-c"># Public endpoint</span>
-    <span class="sy-p">goal:</span> <span class="sy-s">Register a new user</span>
-    <span class="sy-p">actor:</span> <span class="sy-s">anonymous</span>
-    <span class="sy-p">preconditions:</span>
-      - <span class="sy-s">Email not already registered</span>
-    <span class="sy-p">acceptance_criteria:</span>
-      - <span class="sy-s">User created with email</span>
-      - <span class="sy-s">Password hashed</span></pre>
+<pre>- id: usecase.create-user
+  kind: usecase
+  spec:
+    binds_to: http.server.api:POST:/users
+    middleware: []  # Public endpoint
+    goal: Register a new user
+    actor: anonymous
+    preconditions:
+      - Email not already registered
+    acceptance_criteria:
+      - User created with email
+      - Password hashed</pre>
                         </div>
                     </div>
 
@@ -1062,44 +1188,166 @@
                 <section id="cli" class="component-header">
                     <h2>CLI Reference</h2>
 
+                    <h3>openboundary compile</h3>
+                    <p>Compile a specification to code.</p>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-file">openboundary compile</span>
+                            <span class="code-file">Usage</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre><span class="sy-c"># Compile spec to code</span>
-openboundary compile &lt;spec-file&gt; [options]
+<pre>openboundary compile &lt;spec-file&gt; [options]
 
+Options:
   -o, --output &lt;dir&gt;   Output directory (default: ./generated)
   --dry-run            Show what would be generated
   --force              Overwrite existing files</pre>
                         </div>
                     </div>
 
+                    <h3>openboundary validate</h3>
+                    <p>Validate a specification without generating code.</p>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-file">openboundary validate</span>
+                            <span class="code-file">Usage</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre><span class="sy-c"># Validate without generating</span>
-openboundary validate &lt;spec-file&gt; [options]
+<pre>openboundary validate &lt;spec-file&gt; [options]
 
+Options:
   --strict    Warnings become errors
   --json      Output as JSON</pre>
                         </div>
                     </div>
 
+                    <h3>openboundary init</h3>
+                    <p>Create a new specification from a template.</p>
                     <div class="code-block">
                         <div class="code-header">
-                            <span class="code-file">openboundary init</span>
+                            <span class="code-file">Usage</span>
+                            <button class="copy-btn" onclick="copyCode(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                Copy
+                            </button>
                         </div>
                         <div class="code-body">
-<pre><span class="sy-c"># Create from template</span>
-openboundary init [template] [options]
+<pre>openboundary init [template] [options]
 
-  Templates: basic, crud, multiservice
+Templates:
+  basic         Basic HTTP API (default)
+  crud          CRUD API with auth
+  multiservice  Multiple servers
+
+Options:
   -o, --output &lt;dir&gt;   Output directory</pre>
                         </div>
+                    </div>
+                </section>
+
+                <!-- Roadmap -->
+                <section id="roadmap" class="component-header">
+                    <h2>Roadmap</h2>
+                    <p>Planned features and standards support for upcoming releases.</p>
+
+                    <h3>v0.2.0</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Status</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>gRPC</code></td>
+                                    <td><span class="soon-badge">Planned</span></td>
+                                    <td>Protocol buffer service definitions</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Fastify</code></td>
+                                    <td><span class="soon-badge">Planned</span></td>
+                                    <td>Alternative HTTP framework for TypeScript</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Prisma</code></td>
+                                    <td><span class="soon-badge">Planned</span></td>
+                                    <td>Alternative ORM provider</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>v0.3.0</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Status</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>CloudEvents</code></td>
+                                    <td><span class="soon-badge">Planned</span></td>
+                                    <td>Event-driven architecture support</td>
+                                </tr>
+                                <tr>
+                                    <td><code>AsyncAPI</code></td>
+                                    <td><span class="soon-badge">Planned</span></td>
+                                    <td>Async messaging specifications</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Chi (Go)</code></td>
+                                    <td><span class="soon-badge">Planned</span></td>
+                                    <td>Go language target support</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Future</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>GraphQL</code></td>
+                                    <td>GraphQL schema and resolver generation</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Rust targets</code></td>
+                                    <td>Axum and Actix framework support</td>
+                                </tr>
+                                <tr>
+                                    <td><code>IDE extensions</code></td>
+                                    <td>VS Code and JetBrains plugins for spec editing</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Test generation</code></td>
+                                    <td>Generate tests from acceptance criteria</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="note">
+                        <p><strong>Want to contribute?</strong> Check out the <a href="https://github.com/openboundary/openboundary" style="color: var(--text); text-decoration: underline;">GitHub repository</a> to get involved. See <a href="https://github.com/openboundary/openboundary/releases" style="color: var(--text); text-decoration: underline;">releases</a> for the latest version.</p>
                     </div>
                 </section>
             </div>
@@ -1107,6 +1355,31 @@ openboundary init [template] [options]
     </div>
 
     <script>
+        // Copy button functionality
+        function copyCode(btn) {
+            const block = btn.closest('.code-block') || btn.closest('.step-code-block');
+            let text;
+
+            if (block.querySelector('.step-code-lines')) {
+                // Multi-line step code
+                const codes = block.querySelectorAll('.step-code-lines code');
+                text = Array.from(codes).map(c => c.textContent).join('\n');
+            } else {
+                // Regular code block
+                text = block.querySelector('pre').textContent;
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied`;
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Sidebar active state
         const links = document.querySelectorAll('.sidebar-link');
         const sections = document.querySelectorAll('section[id]');
 
