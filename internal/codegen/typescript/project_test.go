@@ -164,8 +164,9 @@ func TestProjectGenerator_Generate_OrvalConfig(t *testing.T) {
 	}
 
 	content := string(orvalContent)
-	if !strings.Contains(content, "./openapi.yaml") {
-		t.Error("orval.config.ts should contain the OpenAPI path")
+	// Generator creates its own schema path colocated with server
+	if !strings.Contains(content, "./src/components/servers/http-server-api.schema.yaml") {
+		t.Error("orval.config.ts should contain the generated schema path")
 	}
 	if !strings.Contains(content, "defineConfig") {
 		t.Error("orval.config.ts should use defineConfig")
