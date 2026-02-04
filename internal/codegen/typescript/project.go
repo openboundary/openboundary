@@ -194,37 +194,6 @@ func (g *ProjectGenerator) generatePackageJSON(i *ir.IR) ([]byte, error) {
 	return json.MarshalIndent(pkg, "", "  ")
 }
 
-func (g *ProjectGenerator) generatePackageLock(i *ir.IR) ([]byte, error) {
-	// Get package name and version
-	name := "generated-api"
-	version := "0.1.0"
-	if i.Spec != nil {
-		if i.Spec.Name != "" {
-			name = i.Spec.Name
-		}
-		if i.Spec.Version != "" {
-			version = i.Spec.Version
-		}
-	}
-
-	// Create minimal package-lock.json v3 format
-	// This ensures npm ci works but actual dependency resolution happens at install time
-	lockFile := map[string]interface{}{
-		"name":            name,
-		"version":         version,
-		"lockfileVersion": 3,
-		"requires":        true,
-		"packages": map[string]interface{}{
-			"": map[string]interface{}{
-				"name":    name,
-				"version": version,
-			},
-		},
-	}
-
-	return json.MarshalIndent(lockFile, "", "  ")
-}
-
 func (g *ProjectGenerator) generateTSConfig() ([]byte, error) {
 	config := TSConfig{
 		CompilerOptions: TSConfigCompilerOptions{
