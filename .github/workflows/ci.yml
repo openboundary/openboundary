@@ -127,6 +127,10 @@ jobs:
         working-directory: generated
         run: npm ci
 
+      - name: Generate TypeScript types from OpenAPI
+        working-directory: generated
+        run: npm run generate:types
+
       - name: Run linter
         working-directory: generated
         run: npm run lint
@@ -238,6 +242,10 @@ jobs:
       - name: Install Playwright browsers
         working-directory: generated
         run: npx playwright install --with-deps chromium
+
+      - name: Generate TypeScript types from OpenAPI
+        working-directory: generated
+        run: npm run generate:types
 
       - name: Build project
         working-directory: generated
