@@ -88,6 +88,15 @@ jobs:
           test -f generated/playwright.config.ts || (echo "playwright.config.ts not found" && exit 1)
           test -d generated/e2e || (echo "e2e directory not found" && exit 1)
 
+      - name: Set up Node.js for lock file generation
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate package-lock.json
+        working-directory: generated
+        run: npm install --package-lock-only
+
       - name: Upload generated project
         uses: actions/upload-artifact@v4
         with:
@@ -111,10 +120,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: generated/package-lock.json
 
       - name: Install dependencies
         working-directory: generated
-        run: npm install
+        run: npm ci
 
       - name: Run linter
         working-directory: generated
@@ -217,10 +228,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: generated/package-lock.json
 
       - name: Install dependencies
         working-directory: generated
-        run: npm install
+        run: npm ci
 
       - name: Install Playwright browsers
         working-directory: generated
