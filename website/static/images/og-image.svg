@@ -1,0 +1,14 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#000000"/>
+
+  <!-- Logo centered -->
+  <g transform="translate(520, 185)">
+    <rect x="24" y="24" width="208" height="208" rx="32" stroke="#ffffff" stroke-width="20" fill="none"/>
+    <rect x="88" y="88" width="80" height="80" rx="12" fill="#ffffff"/>
+  </g>
+
+  <!-- Text -->
+  <text x="600" y="480" text-anchor="middle" fill="#ffffff" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="600">OpenBoundary</text>
+  <text x="600" y="530" text-anchor="middle" fill="#888888" font-family="Inter, system-ui, sans-serif" font-size="24">AI agents run wild. Unless you set the boundaries.</text>
+</svg>
