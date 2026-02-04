@@ -43,3 +43,10 @@ dist/
 .env
 .env.local
 .env.*.local
+
+# Hugo
+website/public/
+website/.hugo_build.lock
+
+# Build binaries
+bin/
