@@ -1,3 +1,6 @@
+// Copyright 2026 Open Boundary Contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // Package typescript provides TypeScript code generation.
 package typescript
 
