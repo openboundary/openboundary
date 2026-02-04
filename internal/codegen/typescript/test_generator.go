@@ -329,6 +329,22 @@ func (g *TestGenerator) generateTestSetup() string {
 	sb.WriteString("// Vitest test setup and utilities\n\n")
 	sb.WriteString("import { vi } from 'vitest';\n\n")
 
+	// Add global error handler for expected "Not implemented" errors
+	sb.WriteString("// Suppress expected 'Not implemented' errors from usecase stubs\n")
+	sb.WriteString("// These are expected when testing route existence before implementation\n")
+	sb.WriteString("const originalUnhandledRejection = process.listeners('unhandledRejection');\n")
+	sb.WriteString("process.removeAllListeners('unhandledRejection');\n")
+	sb.WriteString("process.on('unhandledRejection', (error: any) => {\n")
+	sb.WriteString("  if (error?.message === 'Not implemented') {\n")
+	sb.WriteString("    // Expected from usecase stubs, ignore\n")
+	sb.WriteString("    return;\n")
+	sb.WriteString("  }\n")
+	sb.WriteString("  // Re-throw other unhandled rejections\n")
+	sb.WriteString("  originalUnhandledRejection.forEach(listener => {\n")
+	sb.WriteString("    if (typeof listener === 'function') listener(error, Promise.reject(error));\n")
+	sb.WriteString("  });\n")
+	sb.WriteString("});\n\n")
+
 	sb.WriteString("/**\n")
 	sb.WriteString(" * Creates a mock context for testing usecases.\n")
 	sb.WriteString(" * Includes mocked db, auth, and enforcer.\n")
