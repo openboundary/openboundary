@@ -1,0 +1,602 @@
+{{ define "styles" }}
+<style>
+:root {
+    --sidebar-width: 240px;
+    --content-width: 860px;
+}
+
+/* Layout */
+main {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 64px;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - 64px);
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 0;
+}
+
+.sidebar-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+}
+
+.sidebar-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0 12px;
+    margin-bottom: 8px;
+}
+
+.sidebar-link {
+    display: block;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+}
+
+.sidebar-link:hover {
+    color: var(--text);
+    background: var(--bg-elevated);
+}
+
+.sidebar-link.active {
+    color: var(--text);
+    background: var(--bg-elevated);
+}
+
+/* Main content */
+.docs-main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-width: 0;
+}
+
+.docs-content {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 48px 40px 100px;
+}
+
+/* Typography */
+.docs-content h1 {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+}
+
+.docs-content h2 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-top: 64px;
+    margin-bottom: 16px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+
+.docs-content h2:first-of-type {
+    margin-top: 48px;
+    border-top: none;
+    padding-top: 0;
+}
+
+.docs-content h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 12px;
+}
+
+.docs-content h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 8px;
+}
+
+.docs-content p {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.docs-content ul {
+    color: var(--text-secondary);
+    margin: 12px 0 16px 20px;
+    line-height: 1.8;
+}
+
+.docs-content ul strong {
+    color: var(--text);
+}
+
+.lead {
+    font-size: 17px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+}
+
+/* Section styling */
+section {
+    scroll-margin-top: 100px;
+}
+
+.component-kind-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    background: var(--bg-elevated);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+/* Cards grid */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 24px 0;
+}
+
+.card {
+    background: var(--bg-subtle);
+    padding: 20px;
+    transition: background 0.15s;
+}
+
+.card:hover {
+    background: var(--bg-muted);
+}
+
+.card-kind {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
+}
+
+.card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+}
+
+.card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 12px 0;
+}
+
+.card-tags {
+    display: flex;
+    gap: 6px;
+}
+
+.tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-elevated);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Code blocks */
+.code-block {
+    position: relative;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0 24px;
+}
+
+.code-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.code-file {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.copy-btn:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+}
+
+.copy-btn.copied {
+    color: #22c55e;
+}
+
+.copy-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.code-body {
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+}
+
+.code-body pre {
+    margin: 0;
+    white-space: pre;
+}
+
+/* Syntax */
+.sy-k { color: #f472b6; }
+.sy-s { color: #a5f3fc; }
+.sy-n { color: #c4b5fd; }
+.sy-c { color: #555; }
+.sy-p { color: #888; }
+.sy-f { color: #86efac; }
+
+/* Inline code */
+code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: var(--bg-elevated);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Tables */
+.table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0 24px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+}
+
+td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+td code {
+    color: var(--text);
+}
+
+.required {
+    font-size: 10px;
+    font-weight: 500;
+    color: #f59e0b;
+    margin-left: 4px;
+}
+
+.type {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #c4b5fd;
+}
+
+/* Support grid */
+.support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin: 16px 0 24px;
+}
+
+.support-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.support-icon {
+    font-size: 18px;
+}
+
+.support-text {
+    flex: 1;
+}
+
+.support-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.support-text span {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.support-item.soon {
+    opacity: 0.5;
+}
+
+.soon-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+/* Note */
+.note {
+    background: var(--bg-subtle);
+    border-left: 2px solid var(--text-tertiary);
+    padding: 16px 20px;
+    margin: 16px 0 24px;
+    border-radius: 0 6px 6px 0;
+}
+
+.note p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.note strong {
+    color: var(--text);
+}
+
+.note a {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+/* Quick start steps */
+.steps {
+    margin: 24px 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.step {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+}
+
+.step:last-child {
+    border-bottom: none;
+}
+
+.step-num {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.step-content h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    margin-top: 0;
+}
+
+.step-content p {
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+}
+
+.step-code-block {
+    position: relative;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.step-code-block .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+.step-code-lines {
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+}
+
+.step-code-lines code {
+    display: block;
+    background: none;
+    padding: 0;
+    color: var(--text-secondary);
+}
+
+.step-code-lines code + code {
+    margin-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .docs-content {
+        padding: 48px 24px 100px;
+    }
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        display: none;
+    }
+
+    .docs-main {
+        margin-left: 0;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{{ end }}
+
+{{ define "main" }}
+<aside class="sidebar">
+    <div class="sidebar-section">
+        <div class="sidebar-label">Getting Started</div>
+        <a href="#overview" class="sidebar-link active">Overview</a>
+        <a href="#philosophy" class="sidebar-link">Philosophy</a>
+        <a href="#quick-start" class="sidebar-link">Quick Start</a>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-label">Components</div>
+        <a href="#http-server" class="sidebar-link">http.server</a>
+        <a href="#postgres" class="sidebar-link">postgres</a>
+        <a href="#middleware" class="sidebar-link">middleware</a>
+        <a href="#usecase" class="sidebar-link">usecase</a>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-label">Reference</div>
+        <a href="#cli" class="sidebar-link">CLI</a>
+        <a href="{{ .Site.Params.github }}/blob/main/schemas/openboundary.schema.json" class="sidebar-link">Schema</a>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="sidebar-label">Project</div>
+        <a href="#roadmap" class="sidebar-link">Roadmap</a>
+        <a href="{{ .Site.Params.github }}/releases" class="sidebar-link">Releases</a>
+    </div>
+</aside>
+
+<div class="docs-main">
+    <div class="docs-content">
+        {{ .Content }}
+    </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script>
+// Copy button functionality
+function copyCode(btn) {
+    const block = btn.closest('.code-block') || btn.closest('.step-code-block');
+    let text;
+
+    if (block.querySelector('.step-code-lines')) {
+        const codes = block.querySelectorAll('.step-code-lines code');
+        text = Array.from(codes).map(c => c.textContent).join('\n');
+    } else {
+        text = block.querySelector('pre').textContent;
+    }
+
+    navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied`;
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+// Sidebar active state
+const links = document.querySelectorAll('.sidebar-link');
+const sections = document.querySelectorAll('section[id]');
+
+function setActive() {
+    let current = '';
+    sections.forEach(section => {
+        if (window.scrollY >= section.offsetTop - 100) {
+            current = section.getAttribute('id');
+        }
+    });
+    links.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+}
+
+window.addEventListener('scroll', setActive);
+setActive();
+</script>
+{{ end }}

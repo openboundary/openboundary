@@ -3,8 +3,8 @@ package ir
 import (
 	"fmt"
 
-	"github.com/stack-bound/stack-bound/internal/openapi"
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/openapi"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 // Builder builds a typed IR from a parsed spec.

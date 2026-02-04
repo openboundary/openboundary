@@ -1,4 +1,4 @@
-module github.com/stack-bound/stack-bound
+module github.com/openboundary/openboundary
 
 go 1.22
 

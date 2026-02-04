@@ -4,8 +4,8 @@ package validator
 import (
 	"fmt"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
-	"github.com/stack-bound/stack-bound/internal/schema"
+	"github.com/openboundary/openboundary/internal/parser"
+	"github.com/openboundary/openboundary/internal/schema"
 )
 
 // SchemaValidator validates components against their schemas.

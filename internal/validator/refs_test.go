@@ -3,7 +3,7 @@ package validator
 import (
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 func TestNewRefValidator(t *testing.T) {

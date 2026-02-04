@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/parser"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-//go:embed stackbound.schema.json
+//go:embed openboundary.schema.json
 var schemaJSON []byte
 
-// JSONSchemaValidator validates specifications against the stackbound JSON Schema.
+// JSONSchemaValidator validates specifications against the openboundary JSON Schema.
 type JSONSchemaValidator struct {
 	schema *jsonschema.Schema
 }
@@ -27,11 +27,11 @@ func NewJSONSchemaValidator() (*JSONSchemaValidator, error) {
 	}
 
 	compiler := jsonschema.NewCompiler()
-	if err := compiler.AddResource("stackbound.schema.json", schemaDoc); err != nil {
+	if err := compiler.AddResource("openboundary.schema.json", schemaDoc); err != nil {
 		return nil, fmt.Errorf("failed to add schema resource: %w", err)
 	}
 
-	schema, err := compiler.Compile("stackbound.schema.json")
+	schema, err := compiler.Compile("openboundary.schema.json")
 	if err != nil {
 		return nil, fmt.Errorf("failed to compile schema: %w", err)
 	}

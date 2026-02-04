@@ -3,7 +3,7 @@ package ir
 import (
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 func TestValidationError_Error(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/stack-bound/stack-bound/internal/codegen"
-	"github.com/stack-bound/stack-bound/internal/ir"
+	"github.com/openboundary/openboundary/internal/codegen"
+	"github.com/openboundary/openboundary/internal/ir"
 )
 
 // ProjectGenerator generates project configuration files.

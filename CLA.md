@@ -1,28 +1,28 @@
-# Stack Bound Contributor License Agreement
+# OpenBoundary Contributor License Agreement
 
-Thank you for your interest in contributing to Stack Bound. This Contributor License Agreement ("Agreement") documents the rights granted by contributors to Stack Bound.
+Thank you for your interest in contributing to OpenBoundary. This Contributor License Agreement ("Agreement") documents the rights granted by contributors to OpenBoundary.
 
 ## 1. Definitions
 
 **"You"** means the individual or entity submitting a Contribution.
 
-**"Contribution"** means any original work of authorship, including any modifications or additions to existing work, submitted by You to Stack Bound for inclusion in the project.
+**"Contribution"** means any original work of authorship, including any modifications or additions to existing work, submitted by You to OpenBoundary for inclusion in the project.
 
-**"Project"** means the Stack Bound software and associated documentation.
+**"Project"** means the OpenBoundary software and associated documentation.
 
 ## 2. Grant of Copyright License
 
-You hereby grant to Stack Bound and to recipients of software distributed by Stack Bound a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to:
+You hereby grant to OpenBoundary and to recipients of software distributed by OpenBoundary a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to:
 
 - Reproduce, prepare derivative works of, publicly display, publicly perform, and distribute Your Contributions and such derivative works
 - Sublicense the foregoing rights through multiple tiers of sublicensees
 - **Re-license Your Contributions under different license terms**, including proprietary licenses, without further permission from You
 
-This re-licensing right is essential to Stack Bound's dual-licensing business model.
+This re-licensing right is essential to OpenBoundary's dual-licensing business model.
 
 ## 3. Grant of Patent License
 
-You hereby grant to Stack Bound and to recipients of software distributed by Stack Bound a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer the Project, where such license applies only to those patent claims licensable by You that are necessarily infringed by Your Contribution(s) alone or by combination of Your Contribution(s) with the Project.
+You hereby grant to OpenBoundary and to recipients of software distributed by OpenBoundary a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer the Project, where such license applies only to those patent claims licensable by You that are necessarily infringed by Your Contribution(s) alone or by combination of Your Contribution(s) with the Project.
 
 ## 4. Representations
 
@@ -45,7 +45,7 @@ You are not expected to provide support for Your Contributions, except to the ex
 
 ## 6. Notification
 
-You agree to notify Stack Bound of any facts or circumstances of which you become aware that would make these representations inaccurate in any respect.
+You agree to notify OpenBoundary of any facts or circumstances of which you become aware that would make these representations inaccurate in any respect.
 
 ## 7. Effective Date
 
@@ -55,12 +55,12 @@ This Agreement is effective upon Your submission of a Contribution to the Projec
 
 ## How to Sign
 
-By submitting a pull request to the Stack Bound repository, you indicate your agreement to this CLA. Your GitHub username serves as your electronic signature.
+By submitting a pull request to the OpenBoundary repository, you indicate your agreement to this CLA. Your GitHub username serves as your electronic signature.
 
-For contributions from organizations, please contact licensing@stack-bound.dev to establish a Corporate CLA.
+For contributions from organizations, please contact licensing@openboundary.org to establish a Corporate CLA.
 
 ---
 
 ## Questions?
 
-If you have questions about this CLA, please open an issue or contact legal@stack-bound.dev.
+If you have questions about this CLA, please open an issue or contact legal@openboundary.org.

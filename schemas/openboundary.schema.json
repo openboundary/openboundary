@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://stackbound.dev/schemas/v0.0.1/stackbound.schema.json",
-  "title": "stackbound Specification",
-  "description": "Schema for stackbound executable specification files",
+  "$id": "https://openboundary.org/schemas/v0.0.1/openboundary.schema.json",
+  "title": "openboundary Specification",
+  "description": "Schema for openboundary executable specification files",
   "type": "object",
   "required": ["version", "name", "components"],
   "properties": {

@@ -1,4 +1,4 @@
-# stackbound Specification Example
+# openboundary Specification Example
 version: "0.1.0"
 name: user-api
 description: User management API example
