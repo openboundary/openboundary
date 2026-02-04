@@ -52,9 +52,7 @@ description: "OpenBoundary documentation. Define components, configure middlewar
                             Copy
                         </button>
                         <div class="step-code-lines">
-                            <code>git clone https://github.com/openboundary/openboundary.git</code>
-                            <code>cd openboundary</code>
-                            <code>go build -o openboundary ./cmd/openboundary</code>
+                            <code>curl -fsSL https://openboundary.org/install.sh | sh</code>
                         </div>
                     </div>
                 </div>
@@ -70,7 +68,7 @@ description: "OpenBoundary documentation. Define components, configure middlewar
                             Copy
                         </button>
                         <div class="step-code-lines">
-                            <code>openboundary init basic -o my-project</code>
+                            <code>bound init basic -o my-project</code>
                         </div>
                     </div>
                 </div>
@@ -86,7 +84,7 @@ description: "OpenBoundary documentation. Define components, configure middlewar
                             Copy
                         </button>
                         <div class="step-code-lines">
-                            <code>openboundary compile spec.yaml -o generated</code>
+                            <code>bound compile spec.yaml -o generated</code>
                         </div>
                     </div>
                 </div>
@@ -519,7 +517,7 @@ description: "OpenBoundary documentation. Define components, configure middlewar
 <section id="cli">
     <h2>CLI Reference</h2>
 
-    <h3>openboundary compile</h3>
+    <h3>bound compile</h3>
     <p>Compile a specification to code.</p>
     <div class="code-block">
         <div class="code-header">
@@ -530,7 +528,7 @@ description: "OpenBoundary documentation. Define components, configure middlewar
             </button>
         </div>
         <div class="code-body">
-<pre>openboundary compile &lt;spec-file&gt; [options]
+<pre>bound compile &lt;spec-file&gt; [options]
 
 Options:
   -o, --output &lt;dir&gt;   Output directory (default: ./generated)
@@ -539,7 +537,7 @@ Options:
         </div>
     </div>
 
-    <h3>openboundary validate</h3>
+    <h3>bound validate</h3>
     <p>Validate a specification without generating code.</p>
     <div class="code-block">
         <div class="code-header">
@@ -550,7 +548,7 @@ Options:
             </button>
         </div>
         <div class="code-body">
-<pre>openboundary validate &lt;spec-file&gt; [options]
+<pre>bound validate &lt;spec-file&gt; [options]
 
 Options:
   --strict    Warnings become errors
@@ -558,7 +556,7 @@ Options:
         </div>
     </div>
 
-    <h3>openboundary init</h3>
+    <h3>bound init</h3>
     <p>Create a new specification from a template.</p>
     <div class="code-block">
         <div class="code-header">
@@ -569,7 +567,7 @@ Options:
             </button>
         </div>
         <div class="code-body">
-<pre>openboundary init [template] [options]
+<pre>bound init [template] [options]
 
 Templates:
   basic         Basic HTTP API (default)

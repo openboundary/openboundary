@@ -35,7 +35,7 @@ components:
 ```
 
 ```bash
-$ openboundary compile spec.yaml
+$ bound compile spec.yaml
 ✓ Validated security boundaries
 ✓ Enforced middleware invariants
 ✓ Generated TypeScript project
@@ -44,11 +44,17 @@ $ openboundary compile spec.yaml
 ## Quick Start
 
 ```bash
+# Install the CLI
+curl -fsSL https://openboundary.org/install.sh | sh
+
+# Or build from source
 git clone https://github.com/openboundary/openboundary.git
 cd openboundary
-go build -o openboundary ./cmd/openboundary
-./openboundary init basic -o my-project
-./openboundary compile my-project/spec.yaml
+go build -o bound ./cmd/bound
+
+# Create and compile a project
+bound init basic -o my-project
+bound compile my-project/spec.yaml
 ```
 
 **[Read the full documentation →](https://openboundary.org/docs/)**

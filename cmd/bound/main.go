@@ -1,4 +1,4 @@
-// Package main provides the CLI entry point for the openboundary compiler.
+// Package main provides the CLI entry point for the OpenBoundary compiler.
 package main
 
 import (
@@ -21,9 +21,9 @@ var (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "openboundary",
-		Short: "openboundary specification compiler",
-		Long: `openboundary compiles executable specifications into runnable code.
+		Use:   "bound",
+		Short: "OpenBoundary specification compiler",
+		Long: `bound compiles executable specifications into runnable code.
 
 It reads YAML specification files and generates type-safe code
 for various target platforms.`,
@@ -31,7 +31,7 @@ for various target platforms.`,
 
 	// Version flag
 	rootCmd.Version = version
-	rootCmd.SetVersionTemplate("openboundary version {{.Version}}\n")
+	rootCmd.SetVersionTemplate("bound version {{.Version}}\n")
 
 	// compile command
 	compileCmd := &cobra.Command{
@@ -47,7 +47,7 @@ for various target platforms.`,
 	validateCmd := &cobra.Command{
 		Use:   "validate [spec-file]",
 		Short: "Validate a specification file",
-		Long:  `Validate a specification file against the openboundary schema and semantic rules.`,
+		Long:  `Validate a specification file against the OpenBoundary schema and semantic rules.`,
 		Args:  cobra.ExactArgs(1),
 		RunE:  runValidate,
 	}
