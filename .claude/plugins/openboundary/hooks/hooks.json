@@ -1,0 +1,16 @@
+{
+  "hooks": [
+    {
+      "name": "pre-edit-boundary-check",
+      "path": "pre-edit-boundary-check.md",
+      "triggerEvent": "Start",
+      "matchQuery": ".*"
+    },
+    {
+      "name": "post-compile-validate",
+      "path": "post-compile-validate.md",
+      "triggerEvent": "Stop",
+      "matchQuery": "compile|generate|build"
+    }
+  ]
+}
