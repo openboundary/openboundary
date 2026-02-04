@@ -80,7 +80,7 @@ jobs:
       - name: Verify Docker files exist
         run: |
           test -f generated/Dockerfile || (echo "Dockerfile not found" && exit 1)
-          test -f generated/docker compose.yml || (echo "docker compose.yml not found" && exit 1)
+          test -f generated/docker-compose.yml || (echo "docker-compose.yml not found" && exit 1)
           test -f generated/.dockerignore || (echo ".dockerignore not found" && exit 1)
 
       - name: Verify E2E files exist
