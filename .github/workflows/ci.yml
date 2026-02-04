@@ -88,6 +88,15 @@ jobs:
           test -f generated/playwright.config.ts || (echo "playwright.config.ts not found" && exit 1)
           test -d generated/e2e || (echo "e2e directory not found" && exit 1)
 
+      - name: Set up Node.js for lock file generation
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate package-lock.json
+        working-directory: generated
+        run: npm install --package-lock-only
+
       - name: Upload generated project
         uses: actions/upload-artifact@v4
         with:
@@ -117,6 +126,10 @@ jobs:
       - name: Install dependencies
         working-directory: generated
         run: npm ci
+
+      - name: Generate TypeScript types from OpenAPI
+        working-directory: generated
+        run: npm run generate:types
 
       - name: Run linter
         working-directory: generated
@@ -154,21 +167,21 @@ jobs:
         working-directory: generated
         run: docker build -t test-app:latest .
 
-      - name: Start services with docker-compose
+      - name: Start services with docker compose
         working-directory: generated
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for services to be healthy
         working-directory: generated
         run: |
           echo "Waiting for services to start..."
-          timeout 60 bash -c 'until docker-compose ps | grep -q "healthy\|Up"; do sleep 2; done'
-          docker-compose ps
+          timeout 60 bash -c 'until docker compose ps | grep -q "healthy\|Up"; do sleep 2; done'
+          docker compose ps
 
       - name: Check Postgres health
         working-directory: generated
         run: |
-          docker-compose exec -T postgres pg_isready -U postgres || true
+          docker compose exec -T postgres pg_isready -U postgres || true
 
       - name: Test API endpoint
         working-directory: generated
@@ -181,12 +194,12 @@ jobs:
       - name: Show logs
         if: always()
         working-directory: generated
-        run: docker-compose logs
+        run: docker compose logs
 
       - name: Stop services
         if: always()
         working-directory: generated
-        run: docker-compose down -v
+        run: docker compose down -v
 
   # Job 5: Run E2E tests
   test-e2e:
@@ -229,6 +242,10 @@ jobs:
       - name: Install Playwright browsers
         working-directory: generated
         run: npx playwright install --with-deps chromium
+
+      - name: Generate TypeScript types from OpenAPI
+        working-directory: generated
+        run: npm run generate:types
 
       - name: Build project
         working-directory: generated

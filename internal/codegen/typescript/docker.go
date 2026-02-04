@@ -60,6 +60,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Generate TypeScript types from OpenAPI
+RUN npm run generate:types
+
 # Build the application
 RUN npm run build
 

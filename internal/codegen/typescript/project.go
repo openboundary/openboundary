@@ -93,6 +93,9 @@ func (g *ProjectGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		break // Only one orval config needed
 	}
 
+	// Generate vitest.config.ts
+	output.AddFile("vitest.config.ts", []byte(g.generateVitestConfig()))
+
 	// Generate .gitignore
 	output.AddFile(".gitignore", []byte(gitignoreContent))
 
@@ -237,6 +240,24 @@ export default defineConfig({
   },
 });
 `, serverFilename)
+}
+
+func (g *ProjectGenerator) generateVitestConfig() string {
+	return `import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**',  // E2E tests run with Playwright
+      '**/.{idea,git,cache,output,temp}/**',
+    ],
+  },
+});
+`
 }
 
 const gitignoreContent = `# Dependencies

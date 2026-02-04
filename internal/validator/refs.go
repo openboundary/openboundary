@@ -2,7 +2,6 @@ package validator
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/stack-bound/stack-bound/internal/parser"
 )
@@ -69,10 +68,8 @@ func findRefs(spec map[string]interface{}) []string {
 				}
 			}
 		case string:
-			// Check for inline refs like "{{ ref:componentName }}"
-			if strings.Contains(v, "{{ ref:") {
-				// TODO: Extract component name from template syntax
-			}
+			// String values without $ref are not references
+			// TODO: Future support for template syntax like "{{ ref:componentName }}"
 		}
 	}
 

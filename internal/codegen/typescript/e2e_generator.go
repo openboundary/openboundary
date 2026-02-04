@@ -201,7 +201,7 @@ func (g *E2ETestGenerator) generatePlaywrightConfig(i *ir.IR) string {
 	sb.WriteString("    },\n")
 	sb.WriteString("  ],\n")
 	sb.WriteString("  webServer: {\n")
-	sb.WriteString(fmt.Sprintf("    command: 'npm run dev',\n"))
+	sb.WriteString("    command: 'npm run dev',\n")
 	sb.WriteString(fmt.Sprintf("    url: 'http://localhost:%d/health',\n", port))
 	sb.WriteString("    reuseExistingServer: !process.env.CI,\n")
 	sb.WriteString("    timeout: 120 * 1000,\n")
