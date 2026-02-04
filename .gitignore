@@ -1,0 +1,45 @@
+# Binaries (in root directory)
+/stack-bound
+/stackbound
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated/test output directories
+generated/
+test-*/
+verify-output/
+
+# Node modules (if testing generated output)
+node_modules/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
