@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/codegen"
-	"github.com/stack-bound/stack-bound/internal/ir"
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/codegen"
+	"github.com/openboundary/openboundary/internal/ir"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 func TestNewHonoServerGenerator(t *testing.T) {

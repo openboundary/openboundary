@@ -1,7 +1,7 @@
 // Package codegen provides code generation from the IR.
 package codegen
 
-import "github.com/stack-bound/stack-bound/internal/ir"
+import "github.com/openboundary/openboundary/internal/ir"
 
 // Generator is the interface for code generators.
 type Generator interface {

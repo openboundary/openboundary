@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/ir"
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/ir"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 func TestNewProjectGenerator(t *testing.T) {

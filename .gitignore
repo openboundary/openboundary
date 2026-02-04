@@ -1,6 +1,6 @@
 # Binaries (in root directory)
-/stack-bound
-/stackbound
+/openboundary
+/openboundary
 *.exe
 *.dll
 *.so

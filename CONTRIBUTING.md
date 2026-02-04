@@ -1,16 +1,16 @@
-# Contributing to Stack Bound
+# Contributing to OpenBoundary
 
-Thank you for your interest in contributing to Stack Bound! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing to OpenBoundary! This document provides guidelines for contributing to the project.
 
 ## Contributor License Agreement (CLA)
 
 **Before your contribution can be accepted, you must agree to our [Contributor License Agreement](CLA.md).**
 
-By submitting a pull request, you indicate your agreement to the CLA. This agreement grants Stack Bound the right to use your contribution under the project's open source license (AGPL-3.0) as well as under commercial licenses.
+By submitting a pull request, you indicate your agreement to the CLA. This agreement grants OpenBoundary the right to use your contribution under the project's open source license (AGPL-3.0) as well as under commercial licenses.
 
 ### Why a CLA?
 
-Stack Bound uses a dual-licensing model:
+OpenBoundary uses a dual-licensing model:
 - **Community Edition**: AGPL-3.0 (open source)
 - **Enterprise Edition**: Commercial license (proprietary)
 
@@ -29,17 +29,17 @@ The CLA ensures we can continue to offer both options. Without it, we would be u
 
 ```bash
 # Clone the repository
-git clone https://github.com/stack-bound/stack-bound.git
-cd stack-bound
+git clone https://github.com/openboundary/openboundary.git
+cd openboundary
 
 # Build the project
-go build -o stack-bound ./cmd/stack-bound
+go build -o openboundary ./cmd/openboundary
 
 # Run tests
 go test ./...
 
 # Validate example spec
-./stack-bound validate examples/basic/spec.yaml
+./openboundary validate examples/basic/spec.yaml
 ```
 
 ## Code Guidelines
@@ -53,8 +53,8 @@ go test ./...
 
 ### Specification Schema
 
-- Update `schemas/stack-bound.schema.json` for spec changes
-- Copy changes to `internal/validator/stack-bound.schema.json`
+- Update `schemas/openboundary.schema.json` for spec changes
+- Copy changes to `internal/validator/openboundary.schema.json`
 - Update examples to reflect schema changes
 - Add tests for new validation rules
 
@@ -102,8 +102,8 @@ This prevents wasted effort on features that may not align with the project dire
 ## Questions?
 
 - Open an issue for technical questions
-- Email community@stack-bound.dev for other inquiries
+- Email community@openboundary.org for other inquiries
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the AGPL-3.0 license and that Stack Bound may also distribute them under commercial licenses as described in the CLA.
+By contributing, you agree that your contributions will be licensed under the AGPL-3.0 license and that OpenBoundary may also distribute them under commercial licenses as described in the CLA.

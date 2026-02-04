@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
-	"github.com/stack-bound/stack-bound/internal/schema"
+	"github.com/openboundary/openboundary/internal/parser"
+	"github.com/openboundary/openboundary/internal/schema"
 )
 
 func TestNewSchemaValidator(t *testing.T) {

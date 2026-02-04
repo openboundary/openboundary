@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/stack-bound/stack-bound/internal/ir"
+	"github.com/openboundary/openboundary/internal/ir"
 )
 
 func getUsecasesBoundToServer(i *ir.IR, serverID string) []*ir.Component {

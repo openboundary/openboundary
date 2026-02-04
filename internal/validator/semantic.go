@@ -3,7 +3,7 @@ package validator
 import (
 	"fmt"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 // SemanticValidator performs semantic validation beyond schema compliance.

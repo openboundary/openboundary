@@ -1,4 +1,4 @@
-// Package main provides the CLI entry point for the stack-bound compiler.
+// Package main provides the CLI entry point for the openboundary compiler.
 package main
 
 import (
@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/stack-bound/stack-bound/internal/codegen"
-	"github.com/stack-bound/stack-bound/internal/codegen/typescript"
-	"github.com/stack-bound/stack-bound/internal/ir"
-	"github.com/stack-bound/stack-bound/internal/parser"
-	"github.com/stack-bound/stack-bound/internal/validator"
+	"github.com/openboundary/openboundary/internal/codegen"
+	"github.com/openboundary/openboundary/internal/codegen/typescript"
+	"github.com/openboundary/openboundary/internal/ir"
+	"github.com/openboundary/openboundary/internal/parser"
+	"github.com/openboundary/openboundary/internal/validator"
 	"github.com/spf13/cobra"
 )
 
@@ -21,9 +21,9 @@ var (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "stack-bound",
-		Short: "stack-bound specification compiler",
-		Long: `stack-bound compiles executable specifications into runnable code.
+		Use:   "openboundary",
+		Short: "openboundary specification compiler",
+		Long: `openboundary compiles executable specifications into runnable code.
 
 It reads YAML specification files and generates type-safe code
 for various target platforms.`,
@@ -31,7 +31,7 @@ for various target platforms.`,
 
 	// Version flag
 	rootCmd.Version = version
-	rootCmd.SetVersionTemplate("stack-bound version {{.Version}}\n")
+	rootCmd.SetVersionTemplate("openboundary version {{.Version}}\n")
 
 	// compile command
 	compileCmd := &cobra.Command{
@@ -47,7 +47,7 @@ for various target platforms.`,
 	validateCmd := &cobra.Command{
 		Use:   "validate [spec-file]",
 		Short: "Validate a specification file",
-		Long:  `Validate a specification file against the stack-bound schema and semantic rules.`,
+		Long:  `Validate a specification file against the openboundary schema and semantic rules.`,
 		Args:  cobra.ExactArgs(1),
 		RunE:  runValidate,
 	}

@@ -4,9 +4,9 @@ filename: "{{.InterfaceName | snakecase}}_mock.go"
 mockname: "Mock{{.InterfaceName}}"
 outpkg: mocks
 packages:
-  github.com/stackbound/stackbound/internal/schema:
+  github.com/openboundary/openboundary/internal/schema:
     interfaces:
       Schema:
-  github.com/stackbound/stackbound/internal/parser:
+  github.com/openboundary/openboundary/internal/parser:
     interfaces:
       Node:

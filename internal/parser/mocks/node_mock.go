@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	parser "github.com/stack-bound/stack-bound/internal/parser"
+	parser "github.com/openboundary/openboundary/internal/parser"
 	mock "github.com/stretchr/testify/mock"
 )
 

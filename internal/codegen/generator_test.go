@@ -3,7 +3,7 @@ package codegen
 import (
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/ir"
+	"github.com/openboundary/openboundary/internal/ir"
 )
 
 func TestNewOutput(t *testing.T) {

@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	schema "github.com/stack-bound/stack-bound/internal/schema"
+	schema "github.com/openboundary/openboundary/internal/schema"
 	mock "github.com/stretchr/testify/mock"
 )
 

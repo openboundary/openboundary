@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/stack-bound/stack-bound/internal/codegen"
-	"github.com/stack-bound/stack-bound/internal/ir"
+	"github.com/openboundary/openboundary/internal/codegen"
+	"github.com/openboundary/openboundary/internal/ir"
 )
 
 // DockerGenerator generates Docker-related files for the project.

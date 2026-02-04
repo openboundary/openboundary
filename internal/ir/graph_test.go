@@ -3,7 +3,7 @@ package ir
 import (
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 func TestIR_DetectCycles_NoCycles(t *testing.T) {

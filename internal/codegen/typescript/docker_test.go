@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/ir"
+	"github.com/openboundary/openboundary/internal/ir"
 )
 
 func TestDockerGenerator_Name(t *testing.T) {

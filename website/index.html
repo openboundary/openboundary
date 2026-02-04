@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenBoundary - Architecture Compiler</title>
+    <meta name="description" content="Compile YAML specifications into production-ready TypeScript backends.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #000;
+            --bg-subtle: #0a0a0a;
+            --bg-muted: #111;
+            --bg-elevated: #171717;
+
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(255,255,255,0.15);
+
+            --text: #ededed;
+            --text-secondary: #888;
+            --text-tertiary: #555;
+
+            --accent: #fff;
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'Geist Mono', 'SF Mono', Consolas, monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-mark {
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid var(--text);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-mark span {
+            width: 8px;
+            height: 8px;
+            background: var(--text);
+            border-radius: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: color 0.15s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.15s;
+            border: 1px solid transparent;
+        }
+
+        .btn-secondary {
+            color: var(--text-secondary);
+            border-color: var(--border);
+            background: transparent;
+        }
+
+        .btn-secondary:hover {
+            color: var(--text);
+            border-color: var(--border-hover);
+            background: var(--bg-elevated);
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Hero */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 160px 24px 100px;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .hero-label-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 7vw, 64px);
+            font-weight: 600;
+            letter-spacing: -0.035em;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            max-width: 720px;
+        }
+
+        .hero-sub {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 540px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 80px;
+        }
+
+        .hero-actions .btn {
+            padding: 10px 18px;
+            font-size: 14px;
+        }
+
+        /* Terminal */
+        .terminal {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            max-width: 640px;
+        }
+
+        .terminal-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .terminal-body {
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .terminal-line {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-prompt {
+            color: var(--text-tertiary);
+            user-select: none;
+        }
+
+        .terminal-cmd {
+            color: var(--text);
+        }
+
+        .terminal-out {
+            color: var(--text-secondary);
+            padding-left: 16px;
+        }
+
+        .terminal-success {
+            color: #22c55e;
+        }
+
+        .terminal-muted {
+            color: var(--text-tertiary);
+        }
+
+        /* Sections */
+        .section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 24px;
+        }
+
+        .section-header {
+            margin-bottom: 48px;
+        }
+
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+
+        .section-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 480px;
+        }
+
+        /* Code comparison */
+        .code-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-panel {
+            background: var(--bg-subtle);
+        }
+
+        .code-panel-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-panel-file {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .code-panel-tag {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-tertiary);
+            padding: 2px 6px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+        }
+
+        .code-panel-body {
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .code-panel-body pre {
+            margin: 0;
+        }
+
+        /* Syntax */
+        .sy-k { color: #f472b6; }
+        .sy-s { color: #a5f3fc; }
+        .sy-n { color: #c4b5fd; }
+        .sy-c { color: #555; }
+        .sy-p { color: #888; }
+        .sy-f { color: #86efac; }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .feature {
+            background: var(--bg-subtle);
+            padding: 32px;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 20px;
+            color: var(--text-tertiary);
+        }
+
+        .feature h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Components */
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .component-card {
+            background: var(--bg-subtle);
+            padding: 28px;
+            transition: background 0.15s;
+        }
+
+        .component-card:hover {
+            background: var(--bg-muted);
+        }
+
+        .component-kind {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .component-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .component-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .component-tags {
+            display: flex;
+            gap: 6px;
+        }
+
+        .component-tag {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-tertiary);
+            padding: 3px 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+        }
+
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 100px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .cta h2 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .cta p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .cta-code {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 32px;
+        }
+
+        .cta-code .cmd {
+            color: var(--text-tertiary);
+        }
+
+        .cta-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 32px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            transition: color 0.15s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .code-grid,
+            .components-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .hero-actions .btn {
+                justify-content: center;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="logo">
+                <div class="logo-mark"><span></span></div>
+                OpenBoundary
+            </a>
+
+            <div class="nav-links">
+                <a href="docs.html">Docs</a>
+                <a href="docs.html#components">Components</a>
+                <a href="https://github.com/openboundary/openboundary">GitHub</a>
+            </div>
+
+            <div class="nav-right">
+                <a href="https://github.com/openboundary/openboundary" class="btn btn-secondary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    Star
+                </a>
+                <a href="docs.html" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-label">
+                <span class="hero-label-dot"></span>
+                v0.1.0
+            </div>
+
+            <h1>Compile specifications into production code</h1>
+
+            <p class="hero-sub">
+                Define your architecture in YAML. OpenBoundary generates type-safe TypeScript backends with middleware, routing, and dependency injection.
+            </p>
+
+            <div class="hero-actions">
+                <a href="docs.html" class="btn btn-primary">
+                    Get Started
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="https://github.com/openboundary/openboundary" class="btn btn-secondary">
+                    View on GitHub
+                </a>
+            </div>
+
+            <div class="terminal">
+                <div class="terminal-header">Terminal</div>
+                <div class="terminal-body">
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">$</span>
+                        <span class="terminal-cmd">openboundary compile spec.yaml</span>
+                    </div>
+                    <div class="terminal-out terminal-success">✓ Parsed specification (4 components)</div>
+                    <div class="terminal-out terminal-success">✓ Validated schemas and references</div>
+                    <div class="terminal-out terminal-success">✓ Generated TypeScript project</div>
+                    <div class="terminal-out terminal-muted">→ src/server.ts</div>
+                    <div class="terminal-out terminal-muted">→ src/middleware/authn.ts</div>
+                    <div class="terminal-out terminal-muted">→ src/handlers/users.ts</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <div class="section-label">How it works</div>
+                <h2 class="section-title">Specification to code</h2>
+                <p class="section-desc">Write a YAML spec. Get a complete, type-safe backend.</p>
+            </div>
+
+            <div class="code-grid">
+                <div class="code-panel">
+                    <div class="code-panel-header">
+                        <span class="code-panel-file">spec.yaml</span>
+                        <span class="code-panel-tag">input</span>
+                    </div>
+                    <div class="code-panel-body">
+<pre><span class="sy-p">version:</span> <span class="sy-s">"0.1.0"</span>
+<span class="sy-p">name:</span> <span class="sy-s">user-api</span>
+
+<span class="sy-p">components:</span>
+  - <span class="sy-p">id:</span> <span class="sy-s">http.server.api</span>
+    <span class="sy-p">kind:</span> <span class="sy-s">http.server</span>
+    <span class="sy-p">spec:</span>
+      <span class="sy-p">framework:</span> <span class="sy-s">hono</span>
+      <span class="sy-p">port:</span> <span class="sy-n">3000</span>
+      <span class="sy-p">middleware:</span>
+        - <span class="sy-s">middleware.authn</span>
+
+  - <span class="sy-p">id:</span> <span class="sy-s">usecase.create-user</span>
+    <span class="sy-p">kind:</span> <span class="sy-s">usecase</span>
+    <span class="sy-p">spec:</span>
+      <span class="sy-p">binds_to:</span> <span class="sy-s">http.server.api:POST:/users</span>
+      <span class="sy-p">goal:</span> <span class="sy-s">Register a new user</span></pre>
+                    </div>
+                </div>
+
+                <div class="code-panel">
+                    <div class="code-panel-header">
+                        <span class="code-panel-file">generated/src/server.ts</span>
+                        <span class="code-panel-tag">output</span>
+                    </div>
+                    <div class="code-panel-body">
+<pre><span class="sy-c">// Generated by OpenBoundary</span>
+<span class="sy-k">import</span> { Hono } <span class="sy-k">from</span> <span class="sy-s">'hono'</span>
+<span class="sy-k">import</span> { authn } <span class="sy-k">from</span> <span class="sy-s">'./middleware/authn'</span>
+<span class="sy-k">import</span> { createUser } <span class="sy-k">from</span> <span class="sy-s">'./handlers/users'</span>
+
+<span class="sy-k">const</span> app = <span class="sy-k">new</span> <span class="sy-f">Hono</span>()
+
+app.<span class="sy-f">use</span>(<span class="sy-s">'*'</span>, authn)
+app.<span class="sy-f">post</span>(<span class="sy-s">'/users'</span>, createUser)
+
+<span class="sy-k">export default</span> app</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <div class="section-label">Features</div>
+                <h2 class="section-title">Why OpenBoundary</h2>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <h3>Type-safe by default</h3>
+                    <p>Generated code is fully typed. OpenAPI schemas become TypeScript types.</p>
+                </div>
+
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                    <h3>Minutes, not hours</h3>
+                    <p>Skip the boilerplate. Declare your architecture once, generate everywhere.</p>
+                </div>
+
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <h3>Spec = documentation</h3>
+                    <p>Your specification is always accurate because it generates the code.</p>
+                </div>
+
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <h3>Real frameworks</h3>
+                    <p>Uses Hono, Drizzle, better-auth. No abstractions, no lock-in.</p>
+                </div>
+
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    <h3>Validation built-in</h3>
+                    <p>Schema validation, cross-reference checking, circular dependency detection.</p>
+                </div>
+
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                    </svg>
+                    <h3>Open source</h3>
+                    <p>AGPL-3.0 licensed. Read the code, contribute features, fork for your needs.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="components">
+            <div class="section-header">
+                <div class="section-label">Components</div>
+                <h2 class="section-title">Building blocks</h2>
+                <p class="section-desc">Define your system as composable components.</p>
+            </div>
+
+            <div class="components-grid">
+                <a href="docs.html#http-server" class="component-card">
+                    <div class="component-kind">http.server</div>
+                    <h3>HTTP Server</h3>
+                    <p>Server with middleware chains, routing, and dependency injection.</p>
+                    <div class="component-tags">
+                        <span class="component-tag">Hono</span>
+                        <span class="component-tag">TypeScript</span>
+                    </div>
+                </a>
+
+                <a href="docs.html#postgres" class="component-card">
+                    <div class="component-kind">postgres</div>
+                    <h3>PostgreSQL</h3>
+                    <p>Database connection with schema imports and connection pooling.</p>
+                    <div class="component-tags">
+                        <span class="component-tag">Drizzle</span>
+                        <span class="component-tag">TypeScript</span>
+                    </div>
+                </a>
+
+                <a href="docs.html#middleware" class="component-card">
+                    <div class="component-kind">middleware</div>
+                    <h3>Middleware</h3>
+                    <p>Authentication and authorization with proper ordering.</p>
+                    <div class="component-tags">
+                        <span class="component-tag">better-auth</span>
+                        <span class="component-tag">Casbin</span>
+                    </div>
+                </a>
+
+                <a href="docs.html#usecase" class="component-card">
+                    <div class="component-kind">usecase</div>
+                    <h3>Use Case</h3>
+                    <p>Business requirements bound to routes with acceptance criteria.</p>
+                    <div class="component-tags">
+                        <span class="component-tag">Route Binding</span>
+                        <span class="component-tag">Handlers</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Get started</h2>
+            <p>Clone the repository and build from source.</p>
+            <div class="cta-code">
+                <span class="cmd">$</span> git clone https://github.com/openboundary/openboundary.git
+            </div>
+            <div class="cta-actions">
+                <a href="docs.html" class="btn btn-primary">
+                    Read the Docs
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="https://github.com/openboundary/openboundary" class="btn btn-secondary">
+                    View on GitHub
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="logo-mark" style="width:18px;height:18px;"><span style="width:6px;height:6px;"></span></div>
+                OpenBoundary
+            </div>
+            <div class="footer-links">
+                <a href="docs.html">Docs</a>
+                <a href="https://github.com/openboundary/openboundary">GitHub</a>
+                <a href="https://github.com/openboundary/openboundary/blob/main/LICENSE">License</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

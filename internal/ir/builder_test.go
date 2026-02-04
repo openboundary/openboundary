@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stack-bound/stack-bound/internal/parser"
+	"github.com/openboundary/openboundary/internal/parser"
 )
 
 func TestNewBuilder(t *testing.T) {
