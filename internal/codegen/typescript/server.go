@@ -311,8 +311,8 @@ func (g *HonoServerGenerator) generateIndex(i *ir.IR) string {
 		}
 
 		sb.WriteString(fmt.Sprintf("  // Start %s\n", server.ID))
-		contextVar := toCamelCase(server.ID) + "Context"
-		sb.WriteString(fmt.Sprintf("  const %s = {\n", contextVar))
+		serverContextVar := toCamelCase(server.ID) + "Context"
+		sb.WriteString(fmt.Sprintf("  const %s = {\n", serverContextVar))
 
 		// Add dependencies to context
 		for _, dep := range getServerPostgresDependencies(i, server) {
@@ -342,24 +342,24 @@ func (g *HonoServerGenerator) generateIndex(i *ir.IR) string {
 		sb.WriteString("  };\n\n")
 
 		appVar := toCamelCase(server.ID) + "App"
-		sb.WriteString(fmt.Sprintf("  const %s = create%sApp(%s);\n", appVar, toPascalCase(server.ID), contextVar))
+		sb.WriteString(fmt.Sprintf("  const %s = create%sApp(%s);\n", appVar, toPascalCase(server.ID), serverContextVar))
 
 		// If we have better-auth, create a root app that mounts auth routes
 		if betterAuthMw != nil {
-			rootAppVar := toCamelCase(server.ID) + "RootApp"
+			serverRootAppVar := toCamelCase(server.ID) + "RootApp"
 			sb.WriteString("\n  // Create root app with auth routes\n")
-			sb.WriteString(fmt.Sprintf("  const %s = new Hono();\n\n", rootAppVar))
+			sb.WriteString(fmt.Sprintf("  const %s = new Hono();\n\n", serverRootAppVar))
 			sb.WriteString("  // CORS for auth routes\n")
-			sb.WriteString(fmt.Sprintf("  %s.use('/api/auth/*', cors({\n", rootAppVar))
+			sb.WriteString(fmt.Sprintf("  %s.use('/api/auth/*', cors({\n", serverRootAppVar))
 			sb.WriteString("    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',\n")
 			sb.WriteString("    allowHeaders: ['Content-Type', 'Authorization'],\n")
 			sb.WriteString("    allowMethods: ['POST', 'GET', 'OPTIONS'],\n")
 			sb.WriteString("    credentials: true,\n")
 			sb.WriteString("  }));\n\n")
 			sb.WriteString("  // Mount better-auth routes\n")
-			sb.WriteString(fmt.Sprintf("  %s.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));\n\n", rootAppVar))
-			sb.WriteString(fmt.Sprintf("  // Mount API routes\n  %s.route('/', %s);\n\n", rootAppVar, appVar))
-			sb.WriteString(fmt.Sprintf("  serve({ fetch: %s.fetch, port: %d }, (info) => {\n", rootAppVar, port))
+			sb.WriteString(fmt.Sprintf("  %s.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));\n\n", serverRootAppVar))
+			sb.WriteString(fmt.Sprintf("  // Mount API routes\n  %s.route('/', %s);\n\n", serverRootAppVar, appVar))
+			sb.WriteString(fmt.Sprintf("  serve({ fetch: %s.fetch, port: %d }, (info) => {\n", serverRootAppVar, port))
 		} else {
 			sb.WriteString(fmt.Sprintf("  serve({ fetch: %s.fetch, port: %d }, (info) => {\n", appVar, port))
 		}
