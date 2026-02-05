@@ -6,6 +6,8 @@
 *.so
 *.dylib
 
+.claude
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -44,9 +46,8 @@ dist/
 .env.local
 .env.*.local
 
-# Hugo
-website/public/
-website/.hugo_build.lock
+# Astro
+website/.astro/
 
 # Build binaries
 bin/

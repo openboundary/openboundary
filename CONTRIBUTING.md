@@ -33,13 +33,13 @@ git clone https://github.com/openboundary/openboundary.git
 cd openboundary
 
 # Build the project
-go build -o openboundary ./cmd/openboundary
+go build -o bound ./cmd/bound
 
 # Run tests
 go test ./...
 
 # Validate example spec
-./openboundary validate examples/basic/spec.yaml
+./bound validate examples/basic/spec.yaml
 ```
 
 ## Code Guidelines
@@ -102,7 +102,7 @@ This prevents wasted effort on features that may not align with the project dire
 ## Questions?
 
 - Open an issue for technical questions
-- Email community@openboundary.org for other inquiries
+- Email impermanent.architect@pm.me for other inquiries
 
 ## License
 

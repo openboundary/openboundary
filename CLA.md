@@ -57,10 +57,10 @@ This Agreement is effective upon Your submission of a Contribution to the Projec
 
 By submitting a pull request to the OpenBoundary repository, you indicate your agreement to this CLA. Your GitHub username serves as your electronic signature.
 
-For contributions from organizations, please contact licensing@openboundary.org to establish a Corporate CLA.
+For contributions from organizations, please contact impermanent.architect@pm.me to establish a Corporate CLA.
 
 ---
 
 ## Questions?
 
-If you have questions about this CLA, please open an issue or contact legal@openboundary.org.
+If you have questions about this CLA, please open an issue or contact impermanent.architect@pm.me.

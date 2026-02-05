@@ -1,0 +1,50 @@
+---
+title: Getting Started
+description: Install OpenBoundary and compile your first specification.
+---
+
+Install the CLI and compile a specification in four steps.
+
+## 1. Install
+
+```bash
+curl -fsSL https://openboundary.org/install.sh | sh
+```
+
+Or with Go:
+
+```bash
+go install github.com/openboundary/openboundary/cmd/bound@latest
+```
+
+## 2. Create spec
+
+Generate a YAML specification defining routes, middleware, and database schema:
+
+```bash
+bound init basic -o my-project
+```
+
+## 3. Generate
+
+Compile spec to a TypeScript/Hono server with type-safe routing and middleware:
+
+```bash
+bound compile my-project/spec.yaml
+```
+
+## 4. Run
+
+Install dependencies and start the generated server:
+
+```bash
+cd my-project/generated
+npm install
+npm run dev
+```
+
+## Next Steps
+
+- Explore the [Component Catalog](/docs/components/) to see what you can define
+- Learn about [HTTP Servers](/docs/components/http-server) for routing and middleware
+- Check the [CLI Reference](/docs/cli) for all available commands

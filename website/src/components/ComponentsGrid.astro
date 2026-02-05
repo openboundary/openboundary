@@ -1,0 +1,62 @@
+---
+import ComponentCard from './ComponentCard.astro';
+
+const components = [
+  {
+    kind: 'http.server',
+    name: 'HTTP Server',
+    description: 'Server-level middleware chains. Dependencies for injection. Framework configuration.',
+    tags: ['Hono', 'TypeScript'],
+    status: 'stable' as const,
+    href: '/docs/components/http-server',
+  },
+  {
+    kind: 'postgres',
+    name: 'PostgreSQL',
+    description: 'Database connection with schema imports. Type-safe queries. Connection pooling.',
+    tags: ['Drizzle', 'TypeScript'],
+    status: 'stable' as const,
+    href: '/docs/components/postgres',
+  },
+  {
+    kind: 'middleware',
+    name: 'Middleware',
+    description: 'Authentication and authorization. Dependency ordering. Security boundaries.',
+    tags: ['better-auth', 'Casbin'],
+    status: 'stable' as const,
+    href: '/docs/components/middleware',
+  },
+  {
+    kind: 'usecase',
+    name: 'Use Case',
+    description: 'Business requirements bound to routes. Middleware overrides. Acceptance criteria.',
+    tags: ['Route Binding', 'Handlers'],
+    status: 'stable' as const,
+    href: '/docs/components/usecase',
+  },
+];
+---
+
+<div class="components-grid">
+  {components.map((component) => (
+    <ComponentCard {...component} />
+  ))}
+</div>
+
+<style>
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--ob-border);
+    border: 1px solid var(--ob-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  @media (max-width: 900px) {
+    .components-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

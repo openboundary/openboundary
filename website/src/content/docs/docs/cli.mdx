@@ -1,0 +1,134 @@
+---
+title: CLI Reference
+description: Complete reference for the bound CLI.
+---
+
+The OpenBoundary CLI provides commands for initializing, validating, and compiling specifications.
+
+## bound compile
+
+Compile a specification to code.
+
+```bash
+bound compile <spec-file> [options]
+
+Options:
+  -o, --output <dir>   Output directory (default: ./generated)
+  --dry-run            Show what would be generated
+  --force              Overwrite existing files
+```
+
+### Examples
+
+```bash
+# Generate to default directory
+bound compile spec.yaml
+
+# Generate to specific directory
+bound compile spec.yaml -o ./src/generated
+
+# Preview without writing files
+bound compile spec.yaml --dry-run
+
+# Overwrite existing files
+bound compile spec.yaml --force
+```
+
+## bound validate
+
+Validate a specification without generating code.
+
+```bash
+bound validate <spec-file> [options]
+
+Options:
+  --strict    Warnings become errors
+  --json      Output as JSON
+```
+
+### Examples
+
+```bash
+# Validate spec
+bound validate spec.yaml
+
+# Strict mode (fail on warnings)
+bound validate spec.yaml --strict
+
+# JSON output for CI integration
+bound validate spec.yaml --json
+```
+
+### Validation Checks
+
+The validator checks:
+
+- **Schema validity** - YAML structure matches OpenBoundary schema
+- **Component references** - All `depends_on` and `middleware` references exist
+- **Route bindings** - Use case `binds_to` references valid servers and paths
+- **OpenAPI alignment** - Routes match OpenAPI operation definitions
+- **Middleware order** - Dependencies form a valid DAG (no cycles)
+
+## bound init
+
+Create a new specification from a template.
+
+```bash
+bound init [template] [options]
+
+Templates:
+  basic         Basic HTTP API (default)
+  crud          CRUD API with auth
+  multiservice  Multiple servers
+
+Options:
+  -o, --output <dir>   Output directory
+```
+
+### Examples
+
+```bash
+# Create basic API spec
+bound init basic -o my-api
+
+# Create CRUD API with authentication
+bound init crud -o my-app
+
+# Create multi-service architecture
+bound init multiservice -o my-platform
+```
+
+### Template Contents
+
+**basic** template includes:
+- Single HTTP server
+- One middleware (authentication)
+- Example use cases
+
+**crud** template includes:
+- HTTP server with full middleware chain
+- PostgreSQL database
+- Authentication and authorization
+- CRUD use cases for a resource
+
+**multiservice** template includes:
+- Multiple HTTP servers
+- Shared database
+- Inter-service dependencies
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Validation error |
+| 2 | File not found |
+| 3 | Parse error |
+| 4 | Generation error |
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `BOUND_DEBUG` | Enable debug logging |
+| `BOUND_NO_COLOR` | Disable colored output |

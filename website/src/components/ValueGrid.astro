@@ -1,0 +1,108 @@
+---
+const values = [
+  {
+    icon: 'shield',
+    title: 'Centralized security definitions',
+    description: 'Authentication, authorization, and validation rules declared once in YAML. The compiler generates code that enforces them at every endpoint.',
+  },
+  {
+    icon: 'layout',
+    title: 'Separation of concerns',
+    description: 'Infrastructure code (routing, middleware, guards) is generated from specs. Business logic lives in handler files. Each changes independently.',
+  },
+  {
+    icon: 'clock',
+    title: 'Reduced review surface',
+    description: 'Specifications are the source of truth for architectural decisions. Generated code is deterministic. Reviews focus on business logic.',
+  },
+];
+---
+
+<div class="value-grid">
+  {values.map((value) => (
+    <div class="value-item">
+      <h3>
+        {value.icon === 'shield' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        )}
+        {value.icon === 'layout' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 9h18M9 21V9" />
+          </svg>
+        )}
+        {value.icon === 'clock' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+        )}
+        {value.title}
+      </h3>
+      <p>{value.description}</p>
+    </div>
+  ))}
+</div>
+
+<style>
+  .value-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ob-border);
+    border: 1px solid var(--ob-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 80px;
+  }
+
+  .value-item {
+    background: var(--ob-bg-subtle);
+    padding: 32px;
+  }
+
+  .value-item h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ob-text);
+  }
+
+  .value-item h3 svg {
+    width: 20px;
+    height: 20px;
+    color: var(--ob-text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .value-item p {
+    font-size: 14px;
+    color: var(--ob-text-secondary);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 900px) {
+    .value-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .value-item {
+      padding: 24px;
+    }
+
+    .value-item h3 {
+      font-size: 15px;
+    }
+
+    .value-item p {
+      font-size: 13px;
+    }
+  }
+</style>

@@ -1,0 +1,187 @@
+---
+import WaitlistForm from './WaitlistForm.astro';
+
+const features = [
+  {
+    title: 'Constraint-aware code generation',
+    description: 'AI agents that understand your architectural boundaries. Generated code respects middleware chains, auth requirements, and schema contracts.',
+  },
+  {
+    title: 'Scoped context injection',
+    description: 'Agents receive only the relevant boundaries, dependencies, and constraints for each task. Reduces context noise and improves generation accuracy.',
+  },
+  {
+    title: 'Persistent architecture definitions',
+    description: 'Specifications remain stable as implementations evolve. New team members and AI tools work from the same architectural source of truth.',
+  },
+];
+---
+
+<section class="stableboundary">
+  <span class="coming-soon-badge">In Development</span>
+
+  <div class="stableboundary-header">
+    <div class="stableboundary-logo">
+      <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 70 L40 10 L110 10 L80 70 Z" stroke="currentColor" stroke-width="2" fill="none" opacity="0.3"/>
+        <path d="M20 62 L42 18 L100 18 L78 62 Z" stroke="currentColor" stroke-width="2" fill="none" opacity="0.5"/>
+        <path d="M30 54 L46 26 L90 26 L74 54 Z" stroke="currentColor" stroke-width="2" fill="none" opacity="0.7"/>
+        <path d="M40 46 L50 34 L80 34 L70 46 Z" stroke="currentColor" stroke-width="2" fill="none" opacity="0.9"/>
+        <rect x="52" y="38" width="16" height="6" fill="currentColor"/>
+      </svg>
+    </div>
+    <h2>StableBoundary</h2>
+  </div>
+
+  <p class="tagline">Hosted infrastructure for specification-driven development with AI coding tools.</p>
+
+  <div class="features-grid">
+    {features.map((feature) => (
+      <div class="feature">
+        <h4>{feature.title}</h4>
+        <p>{feature.description}</p>
+      </div>
+    ))}
+  </div>
+
+  <WaitlistForm />
+</section>
+
+<style>
+  .stableboundary {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 120px 24px;
+    text-align: center;
+    border-top: 1px solid var(--ob-border);
+  }
+
+  .coming-soon-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--ob-font-mono);
+    font-size: 10px;
+    color: var(--ob-amber);
+    background: rgba(245, 158, 11, 0.08);
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .coming-soon-badge::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    background: var(--ob-amber);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .stableboundary-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stableboundary-logo {
+    width: 72px;
+    height: 48px;
+    color: var(--ob-text-secondary);
+    flex-shrink: 0;
+  }
+
+  .stableboundary-logo svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  h2 {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--ob-text);
+    margin: 0;
+  }
+
+  .tagline {
+    font-size: 17px;
+    color: var(--ob-text-secondary);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto 56px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ob-border);
+    border: 1px solid var(--ob-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 56px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .feature {
+    padding: 28px 24px;
+    background: var(--ob-bg-subtle);
+    text-align: left;
+  }
+
+  .feature h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--ob-text);
+    letter-spacing: -0.01em;
+  }
+
+  .feature p {
+    font-size: 13px;
+    color: var(--ob-text-secondary);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stableboundary {
+      padding: 80px 20px;
+    }
+
+    h2 {
+      font-size: 28px;
+    }
+
+    .stableboundary-header {
+      margin-bottom: 40px;
+    }
+
+    .tagline {
+      margin-bottom: 40px;
+    }
+
+    .features-grid {
+      margin-bottom: 40px;
+    }
+  }
+</style>

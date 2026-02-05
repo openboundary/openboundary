@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="website/static/images/logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="website/static/images/logo-light.svg">
-    <img alt="OpenBoundary" src="website/static/images/logo-dark.svg" width="120" height="120">
+    <source media="(prefers-color-scheme: dark)" srcset="website/public/images/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="website/public/images/logo-light.svg">
+    <img alt="OpenBoundary" src="website/public/images/logo-dark.svg" width="120" height="120">
   </picture>
 </p>
 
@@ -13,9 +13,9 @@
   <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go" alt="Go Version"></a>
 </p>
 
-**AI agents run wild. Unless you set the boundaries.**
+**Architectural guardrails for AI-assisted development.**
 
-OpenBoundary compiles YAML specifications into type-safe TypeScript backends. Define your architecture once — security requirements, middleware chains, database schemas — and let AI write the business logic while OpenBoundary enforces the rules.
+OpenBoundary compiles YAML specifications into type-safe TypeScript backends. Define your architecture once—routes, middleware chains, database schemas, security policies—and generate code that enforces these constraints. Business logic stays flexible; architectural invariants stay fixed.
 
 ```yaml
 components:
@@ -35,7 +35,7 @@ components:
 ```
 
 ```bash
-$ openboundary compile spec.yaml
+$ bound compile spec.yaml
 ✓ Validated security boundaries
 ✓ Enforced middleware invariants
 ✓ Generated TypeScript project
@@ -44,11 +44,17 @@ $ openboundary compile spec.yaml
 ## Quick Start
 
 ```bash
+# Install the CLI
+curl -fsSL https://openboundary.org/install.sh | sh
+
+# Or build from source
 git clone https://github.com/openboundary/openboundary.git
 cd openboundary
-go build -o openboundary ./cmd/openboundary
-./openboundary init basic -o my-project
-./openboundary compile my-project/spec.yaml
+go build -o bound ./cmd/bound
+
+# Create and compile a project
+bound init basic -o my-project
+bound compile my-project/spec.yaml
 ```
 
 **[Read the full documentation →](https://openboundary.org/docs/)**

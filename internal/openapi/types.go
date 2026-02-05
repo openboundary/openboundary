@@ -1,3 +1,6 @@
+// Copyright 2026 Open Boundary Contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // Package openapi provides OpenAPI specification parsing for code generation.
 package openapi
 

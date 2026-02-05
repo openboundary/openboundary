@@ -1,0 +1,423 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Compile YAML specifications into type-safe TypeScript backends. Define routes, middleware, auth, and database schemas once—generate code that enforces architectural constraints." } = Astro.props;
+
+const navLinks = [
+  { name: 'Docs', url: '/docs/' },
+  { name: 'Roadmap', url: '/docs/roadmap' },
+  { name: 'Releases', url: 'https://github.com/openboundary/openboundary/releases' },
+  { name: 'GitHub', url: 'https://github.com/openboundary/openboundary' },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <meta name="theme-color" content="#000000">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://openboundary.org/images/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  <meta name="twitter:description" content={description}>
+  <meta name="twitter:image" content="https://openboundary.org/images/og-image.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style is:global>
+    :root {
+      --ob-bg: #000;
+      --ob-bg-subtle: #0a0a0a;
+      --ob-bg-muted: #111;
+      --ob-bg-elevated: #171717;
+      --ob-border: rgba(255, 255, 255, 0.08);
+      --ob-border-hover: rgba(255, 255, 255, 0.15);
+      --ob-text: #ededed;
+      --ob-text-secondary: #888;
+      --ob-text-tertiary: #555;
+      --ob-accent: #fff;
+      --ob-green: #22c55e;
+      --ob-amber: #f59e0b;
+      --ob-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --ob-font-mono: 'Geist Mono', 'SF Mono', Consolas, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--ob-font-sans);
+      background: var(--ob-bg);
+      color: var(--ob-text);
+      line-height: 1.6;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: var(--ob-font-sans);
+    }
+
+    .btn-secondary {
+      color: var(--ob-text-secondary);
+      border-color: var(--ob-border);
+      background: transparent;
+    }
+
+    .btn-secondary:hover {
+      color: var(--ob-text);
+      border-color: var(--ob-border-hover);
+      background: var(--ob-bg-elevated);
+    }
+
+    .btn-primary {
+      background: var(--ob-text);
+      color: var(--ob-bg);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OpenBoundary logo">
+            <title>OpenBoundary logo</title>
+            <rect x="40" y="40" width="432" height="432" rx="48" stroke="currentColor" stroke-width="28" fill="none"/>
+            <rect x="104" y="104" width="304" height="304" rx="36" stroke="currentColor" stroke-width="28" fill="none"/>
+            <rect x="168" y="168" width="176" height="176" rx="24" stroke="currentColor" stroke-width="28" fill="none"/>
+            <rect x="232" y="232" width="48" height="48" rx="8" fill="currentColor"/>
+          </svg>
+        </div>
+        OpenBoundary
+      </a>
+
+      <div class="nav-links">
+        {navLinks.map((link) => (
+          <a href={link.url}>{link.name}</a>
+        ))}
+      </div>
+
+      <div class="nav-right">
+        <a href="https://github.com/openboundary/openboundary" class="btn btn-secondary nav-desktop-only">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          Star
+        </a>
+        <a href="/docs/" class="btn btn-primary nav-desktop-only">Docs</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+          <svg class="menu-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          <svg class="close-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-inner">
+      {navLinks.map((link) => (
+        <a href={link.url} class="mobile-menu-link">{link.name}</a>
+      ))}
+      <hr class="mobile-menu-divider" />
+      <a href="https://github.com/openboundary/openboundary" class="mobile-menu-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="/docs/" class="btn btn-primary mobile-menu-cta">Documentation</a>
+    </div>
+  </div>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo-mark" style="width:18px;height:18px;">
+          <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OpenBoundary logo">
+            <title>OpenBoundary logo</title>
+            <rect x="40" y="40" width="432" height="432" rx="48" stroke="currentColor" stroke-width="36" fill="none"/>
+            <rect x="104" y="104" width="304" height="304" rx="36" stroke="currentColor" stroke-width="36" fill="none"/>
+            <rect x="168" y="168" width="176" height="176" rx="24" stroke="currentColor" stroke-width="36" fill="none"/>
+            <rect x="232" y="232" width="48" height="48" rx="8" fill="currentColor"/>
+          </svg>
+        </div>
+        OpenBoundary
+      </div>
+      <div class="footer-links">
+        <a href="/docs/">Docs</a>
+        <a href="https://github.com/openboundary/openboundary">GitHub</a>
+        <a href="https://github.com/openboundary/openboundary/releases">Releases</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMobileMenu() {
+      const btn = document.getElementById('mobileMenuBtn');
+      const menu = document.getElementById('mobileMenu');
+      if (!btn || !menu) return;
+
+      const isActive = menu.classList.contains('active');
+      btn.classList.toggle('active', !isActive);
+      menu.classList.toggle('active', !isActive);
+      document.body.style.overflow = isActive ? '' : 'hidden';
+    }
+
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', toggleMobileMenu);
+
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('mobileMenu');
+      const btn = document.getElementById('mobileMenuBtn');
+      const target = e.target as HTMLElement;
+
+      if (menu && menu.classList.contains('active')) {
+        if (target.closest('.mobile-menu-link') || target.closest('.mobile-menu-cta')) {
+          btn?.classList.remove('active');
+          menu.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--ob-border);
+  }
+
+  .nav-inner {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .logo-mark {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .nav-links a {
+    font-size: 14px;
+    color: var(--ob-text-secondary);
+    transition: color 0.15s;
+  }
+
+  .nav-links a:hover {
+    color: var(--ob-text);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid var(--ob-border);
+    border-radius: 6px;
+    color: var(--ob-text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .mobile-menu-btn:hover {
+    border-color: var(--ob-border-hover);
+    background: var(--ob-bg-elevated);
+  }
+
+  .mobile-menu-btn .close-icon { display: none; }
+  .mobile-menu-btn.active .menu-icon { display: none; }
+  .mobile-menu-btn.active .close-icon { display: block; }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--ob-bg);
+    z-index: 99;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+  }
+
+  .mobile-menu.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .mobile-menu-inner {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mobile-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    font-size: 16px;
+    color: var(--ob-text-secondary);
+    border-radius: 8px;
+    transition: all 0.15s;
+  }
+
+  .mobile-menu-link:hover {
+    color: var(--ob-text);
+    background: var(--ob-bg-elevated);
+  }
+
+  .mobile-menu-divider {
+    border: none;
+    height: 1px;
+    background: var(--ob-border);
+    margin: 12px 0;
+  }
+
+  .mobile-menu-cta {
+    margin-top: 12px;
+    padding: 14px 20px;
+    font-size: 15px;
+    justify-content: center;
+  }
+
+  .footer {
+    border-top: 1px solid var(--ob-border);
+    padding: 32px 24px;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ob-text-tertiary);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    font-size: 13px;
+    color: var(--ob-text-tertiary);
+    transition: color 0.15s;
+  }
+
+  .footer-links a:hover {
+    color: var(--ob-text-secondary);
+  }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .nav-desktop-only { display: none; }
+    .mobile-menu-btn { display: flex; }
+    .mobile-menu { display: block; }
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
