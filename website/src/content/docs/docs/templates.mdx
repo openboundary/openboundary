@@ -1,0 +1,225 @@
+---
+title: Templates
+description: Production-ready application templates with pre-configured boundaries.
+---
+
+import ComponentCard from '../../../components/ComponentCard.astro';
+
+Templates are complete specifications for common application types. Each template includes pre-configured authentication, authorization policies, database schemas, and API contracts.
+
+## Available Now
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Basic API"
+    description="REST API with authentication, authorization, and PostgreSQL. User management endpoints included."
+    tags={['Auth', 'CRUD', 'PostgreSQL']}
+    status="stable"
+  />
+</div>
+
+```bash
+bound init basic -o my-project
+```
+
+---
+
+## Coming Soon
+
+Production-ready templates for common application patterns. Each includes complete specs, OpenAPI contracts, database schemas, and authorization policies.
+
+### Business Applications
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="CRM"
+    description="Customer relationship management with contacts, companies, deals pipeline, and activity tracking."
+    tags={['Sales', 'Pipeline', 'Multi-tenant']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Project Management"
+    description="Projects, tasks, sprints, and team collaboration. Kanban and list views with real-time updates."
+    tags={['Teams', 'Tasks', 'Collaboration']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Invoice & Billing"
+    description="Invoices, payments, subscriptions, and revenue tracking. Stripe integration included."
+    tags={['Payments', 'Stripe', 'Subscriptions']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Inventory Management"
+    description="Products, stock levels, warehouses, and order fulfillment. Barcode and SKU support."
+    tags={['E-commerce', 'Stock', 'Orders']}
+    status="soon"
+  />
+</div>
+
+### Platforms
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Booking Platform"
+    description="Appointments, availability, calendars, and reminders. Supports multiple providers and locations."
+    tags={['Scheduling', 'Calendar', 'Notifications']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Marketplace"
+    description="Multi-vendor marketplace with listings, orders, reviews, and seller payouts."
+    tags={['Multi-vendor', 'Payments', 'Reviews']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="LMS (Learning Management)"
+    description="Courses, lessons, enrollments, progress tracking, and certificates. Video and quiz support."
+    tags={['Education', 'Courses', 'Progress']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Job Board"
+    description="Job listings, applications, candidate tracking, and employer dashboards."
+    tags={['Hiring', 'Applications', 'Search']}
+    status="soon"
+  />
+</div>
+
+### Compliance-Ready
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Healthcare (HIPAA)"
+    description="Patient records, appointments, and messaging with HIPAA-compliant audit logging and access controls."
+    tags={['HIPAA', 'Healthcare', 'Audit Logs']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Finance (SOC 2)"
+    description="Financial data management with SOC 2 controls, encryption at rest, and comprehensive audit trails."
+    tags={['SOC 2', 'Finance', 'Encryption']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Multi-tenant SaaS"
+    description="Tenant isolation, subscription tiers, usage metering, and admin dashboards. White-label ready."
+    tags={['SaaS', 'Multi-tenant', 'Billing']}
+    status="soon"
+  />
+</div>
+
+### Developer Tools
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="API Gateway"
+    description="Rate limiting, API keys, usage tracking, and developer portal. OpenAPI documentation included."
+    tags={['Gateway', 'Rate Limits', 'API Keys']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Webhook Service"
+    description="Webhook delivery with retries, signatures, and delivery logs. Fan-out to multiple endpoints."
+    tags={['Webhooks', 'Events', 'Retries']}
+    status="soon"
+  />
+</div>
+
+---
+
+## What's in a Template
+
+Each template includes:
+
+| Component | Description |
+|-----------|-------------|
+| `spec.yaml` | Complete OpenBoundary specification |
+| `openapi.yaml` | Full API contract with request/response schemas |
+| `src/db/schema.ts` | Drizzle database schema with all tables |
+| `src/auth/model.conf` | Casbin authorization model |
+| `src/auth/policy.csv` | Role-based access policies |
+| `README.md` | Setup instructions and customization guide |
+
+### Example: CRM Template Structure
+
+```
+crm-template/
+├── spec.yaml              # 15+ components defined
+├── openapi.yaml           # 40+ endpoints
+├── src/
+│   ├── auth/
+│   │   ├── auth.config.ts # Session-based auth
+│   │   ├── model.conf     # RBAC with teams
+│   │   └── policy.csv     # Sales, manager, admin roles
+│   └── db/
+│       └── schema.ts      # contacts, companies, deals, activities
+└── README.md
+```
+
+---
+
+## Request a Template
+
+Have a use case we haven't covered? [Open an issue](https://github.com/openboundary/openboundary/issues/new?template=template-request.md) with:
+
+1. Application type and domain
+2. Key entities and relationships
+3. Authentication/authorization requirements
+4. Compliance requirements (if any)
+
+---
+
+## Contributing Templates
+
+Templates are community-driven. To contribute:
+
+1. Fork the repository
+2. Create a new template in `templates/`
+3. Include all required files (spec, openapi, schema, auth)
+4. Add documentation
+5. Submit a pull request
+
+See [CONTRIBUTING.md](https://github.com/openboundary/openboundary/blob/main/CONTRIBUTING.md) for guidelines.
+
+<style>{`
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--ob-border);
+    border: 1px solid var(--ob-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+
+  @media (max-width: 900px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+`}</style>

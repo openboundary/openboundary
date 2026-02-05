@@ -46,6 +46,10 @@ export default defineConfig({
           slug: 'docs/getting-started',
         },
         {
+          label: 'Templates',
+          slug: 'docs/templates',
+        },
+        {
           label: 'Components',
           items: [
             { label: 'Catalog', slug: 'docs/components' },
