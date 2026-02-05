@@ -64,12 +64,21 @@ detect_arch() {
     esac
 }
 
+# Parse tag_name from JSON (use jq if available, fallback to grep/sed)
+parse_tag_name() {
+    if command -v jq >/dev/null 2>&1; then
+        jq -r '.tag_name'
+    else
+        grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+    fi
+}
+
 # Get latest release version from GitHub
 get_latest_version() {
     if command -v curl >/dev/null 2>&1; then
-        curl -sL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+        curl -sL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | parse_tag_name
     elif command -v wget >/dev/null 2>&1; then
-        wget -qO- "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+        wget -qO- "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | parse_tag_name
     else
         error "Neither curl nor wget found. Please install one of them."
     fi
