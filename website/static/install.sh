@@ -174,8 +174,12 @@ main() {
         cp "$BINARY_PATH" "$INSTALL_DIR/$BINARY_NAME"
         chmod +x "$INSTALL_DIR/$BINARY_NAME"
     else
-        sudo cp "$BINARY_PATH" "$INSTALL_DIR/$BINARY_NAME"
-        sudo chmod +x "$INSTALL_DIR/$BINARY_NAME"
+        if command -v sudo >/dev/null 2>&1; then
+            sudo cp "$BINARY_PATH" "$INSTALL_DIR/$BINARY_NAME"
+            sudo chmod +x "$INSTALL_DIR/$BINARY_NAME"
+        else
+            error "Cannot write to $INSTALL_DIR and sudo is not available. Please run as root or install to a writable directory."
+        fi
     fi
 
     success "Installed ${BINARY_NAME} to $INSTALL_DIR/$BINARY_NAME"
@@ -201,7 +205,8 @@ main() {
     echo "    ${BLUE}bound compile my-project/spec.yaml${NC}"
     echo ""
     echo "  Documentation: https://openboundary.org/docs/"
-    echo ""
+
+    go_install_hint
 }
 
 # Alternative: Go install
