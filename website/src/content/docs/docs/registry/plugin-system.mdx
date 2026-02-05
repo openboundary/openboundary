@@ -1,0 +1,102 @@
+---
+title: Plugin System
+description: How the OpenBoundary compiler uses a registry-driven plugin architecture and centralized artifact planning.
+---
+
+OpenBoundary compiles specs through a registry of generator plugins instead of a hardcoded generator chain. This keeps code generation modular and makes new component kinds straightforward to add.
+
+## Compile Pipeline
+
+`bound compile` runs these phases:
+
+1. Parse and validate `spec.yaml`
+2. Build a typed IR (`internal/ir`)
+3. Resolve active generator plugins from the TypeScript registry
+4. Run each plugin to produce file artifacts in memory
+5. Merge artifacts through a centralized planner
+6. Write planned artifacts to disk
+
+The key architectural point is phase 5: no file is written until all plugin outputs are conflict-checked.
+
+## Plugin Registry Model
+
+Plugins are registered with metadata and activation rules:
+
+| Field | Purpose |
+| --- | --- |
+| `Name` | Stable plugin identity |
+| `NewGenerator` | Constructor for the generator instance |
+| `Supports` | Component kinds that activate the plugin (`[]` means always active) |
+
+Example registration pattern:
+
+```go
+registry.Register(codegen.GeneratorPlugin{
+  Name: "typescript-usecase",
+  NewGenerator: func() codegen.Generator { return NewUsecaseGenerator() },
+  Supports: []ir.Kind{ir.KindUsecase},
+})
+```
+
+Reference implementation:
+
+- `internal/codegen/plugin_registry.go`
+- `internal/codegen/typescript/plugins.go`
+
+## Centralized Artifact Planner
+
+All plugin output is sent into one planner before any writes occur. The planner:
+
+- Deduplicates by output path
+- Raises a typed conflict error if two plugins target the same path
+- Sorts artifacts for deterministic output
+
+This prevents subtle last-write-wins bugs and makes plugin interactions auditable.
+
+Reference implementation:
+
+- `internal/codegen/planner.go`
+
+## Flat Component Artifact Naming
+
+Generated component files are flattened under `src/components` and keyed by component ID. Component IDs are sanitized into file-safe slugs.
+
+Examples:
+
+- `http.server.api` -> `src/components/http-server-api.server.ts`
+- `middleware.authn` -> `src/components/middleware-authn.middleware.ts`
+- `usecase.create-contact` -> `src/components/usecase-create-contact.usecase.ts`
+
+This naming model is important for multi-server projects: unique component IDs map to unique artifact paths, so server-local naming collisions are avoided.
+
+Reference implementation:
+
+- `internal/codegen/typescript/paths.go`
+
+## Config As Source of Truth
+
+Configuration artifacts come from source files specified in the spec before generation. The compiler copies them into generated output instead of synthesizing replacement configs.
+
+Current examples:
+
+- Postgres schema files
+- `better-auth` config files
+- Casbin model and policy files
+
+Paths are resolved relative to the spec base directory when not absolute.
+
+Reference implementation:
+
+- `internal/codegen/typescript/schema.go`
+
+## Adding a New Registry Entry
+
+For a new component kind, the typical path is:
+
+1. Add schema + IR support for the new `kind`
+2. Implement a generator (or generator set) for the target language
+3. Register the plugin with explicit `Supports` kinds
+4. Use deterministic, component-ID-based artifact paths
+5. Add tests for activation, output planning, and conflict behavior
+
+This keeps new capabilities isolated and predictable without expanding compile-time conditionals in the CLI entrypoint.
