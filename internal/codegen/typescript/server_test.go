@@ -113,6 +113,11 @@ func TestHonoServerGenerator_Generate_Routes(t *testing.T) {
 	if !strings.Contains(content, "app.get('/users/:id'") {
 		t.Error("server should have GET /users/:id route")
 	}
+
+	// Check for health endpoint
+	if !strings.Contains(content, "app.get('/health'") {
+		t.Error("server should have GET /health route")
+	}
 }
 
 func TestHonoServerGenerator_Generate_MiddlewareFile(t *testing.T) {
@@ -139,6 +144,12 @@ func TestHonoServerGenerator_Generate_MiddlewareFile(t *testing.T) {
 	}
 	if !strings.Contains(content, "middlewareAuthnMiddleware") {
 		t.Error("middleware file should export middleware function")
+	}
+	if strings.Contains(content, "type Session") || strings.Contains(content, "type User") {
+		t.Error("middleware file should not require Session/User exports from auth config")
+	}
+	if !strings.Contains(content, "export type AuthContext") {
+		t.Error("middleware file should export AuthContext type")
 	}
 }
 

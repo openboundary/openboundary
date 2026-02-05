@@ -114,8 +114,12 @@ func (g *ContextGenerator) collectImports(i *ir.IR, server *ir.Component) []stri
 
 		switch mwComp.Middleware.Provider {
 		case "better-auth":
-			// Import types from the colocated auth config
-			imports[fmt.Sprintf("import type { Session, User } from './%s.middleware.config';", componentIDSlug(mwComp.ID))] = true
+			// Import auth context type from the generated middleware module.
+			imports[fmt.Sprintf(
+				"import type { AuthContext as %s } from './%s.middleware';",
+				g.betterAuthContextAlias(mwComp.ID),
+				componentIDSlug(mwComp.ID),
+			)] = true
 		case "casbin":
 			imports["import type { Enforcer } from 'casbin';"] = true
 		}
@@ -138,12 +142,16 @@ func (g *ContextGenerator) getMiddlewareContextField(mw *ir.Component) (name, ty
 	// Make middleware context fields optional (?) since they're populated at runtime
 	switch mw.Middleware.Provider {
 	case "better-auth":
-		return "auth?", "{ session: Session | null; user: User | null } | null"
+		return "auth?", fmt.Sprintf("%s | null", g.betterAuthContextAlias(mw.ID))
 	case "casbin":
 		return "enforcer?", "Enforcer | null"
 	default:
 		return "", ""
 	}
+}
+
+func (g *ContextGenerator) betterAuthContextAlias(componentID string) string {
+	return toPascalCase(componentID) + "AuthContext"
 }
 
 func (g *ContextGenerator) extractFieldName(componentID, fallback string) string {

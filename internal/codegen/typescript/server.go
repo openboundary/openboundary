@@ -135,6 +135,10 @@ func (g *HonoServerGenerator) generateServer(i *ir.IR, server *ir.Component) str
 	sb.WriteString("    await next();\n")
 	sb.WriteString("  });\n\n")
 
+	// Generate health endpoint for readiness checks and E2E tests.
+	sb.WriteString("  // Health check\n")
+	sb.WriteString("  app.get('/health', (c) => c.json({ status: 'ok' }));\n\n")
+
 	// Apply server-level middleware only when required by the route
 	if len(middlewareRefs) > 0 {
 		sb.WriteString("  // Apply server-level middleware only when required by the route\n")
@@ -383,7 +387,11 @@ func (g *HonoServerGenerator) generateMiddleware(mw *ir.Component) string {
 	switch mw.Middleware.Provider {
 	case "better-auth":
 		mwFilename := sanitizeFilename(mw.ID)
-		sb.WriteString(fmt.Sprintf("import { auth, type Session, type User } from './%s.middleware.config';\n\n", mwFilename))
+		sb.WriteString(fmt.Sprintf("import { auth } from './%s.middleware.config';\n\n", mwFilename))
+		sb.WriteString("type AuthSessionResult = Awaited<ReturnType<typeof auth.api.getSession>>;\n")
+		sb.WriteString("export type AuthContext = AuthSessionResult extends { session: infer S; user: infer U }\n")
+		sb.WriteString("  ? { session: S | null; user: U | null }\n")
+		sb.WriteString("  : { session: unknown; user: unknown };\n\n")
 		sb.WriteString(fmt.Sprintf("export const %sMiddleware = createMiddleware(async (c, next) => {\n", toCamelCase(mw.ID)))
 		sb.WriteString("  const session = await auth.api.getSession({ headers: c.req.raw.headers });\n\n")
 		sb.WriteString("  if (!session) {\n")

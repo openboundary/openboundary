@@ -131,8 +131,11 @@ func TestContextGenerator_Generate_WithBetterAuthMiddleware(t *testing.T) {
 	if !strings.Contains(content, "auth?:") {
 		t.Error("context file should have auth field for better-auth")
 	}
-	if !strings.Contains(content, "Session") {
-		t.Error("context file should reference session property")
+	if !strings.Contains(content, "MiddlewareAuthnAuthContext") {
+		t.Error("context file should reference middleware auth context type alias")
+	}
+	if !strings.Contains(content, "import type { AuthContext as MiddlewareAuthnAuthContext }") {
+		t.Error("context file should import AuthContext from middleware module")
 	}
 }
 
