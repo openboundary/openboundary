@@ -1,0 +1,23 @@
+{
+  "hooks": [
+    {
+      "name": "pre-edit-boundary-check",
+      "path": "pre-edit-boundary-check.md",
+      "triggerEvent": "Start",
+      "matchQuery": ".*"
+    },
+    {
+      "name": "post-edit-enforce",
+      "path": "post-edit-enforce.md",
+      "triggerEvent": "Stop",
+      "matchQuery": ".*",
+      "description": "ENFORCEMENT: Validates no protected files were modified using git diff"
+    },
+    {
+      "name": "post-compile-validate",
+      "path": "post-compile-validate.md",
+      "triggerEvent": "Stop",
+      "matchQuery": "compile|generate|build|openboundary|ob-compile|bound|transform|create.*typescript"
+    }
+  ]
+}

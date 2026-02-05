@@ -46,6 +46,10 @@ export default defineConfig({
           slug: 'docs/getting-started',
         },
         {
+          label: 'Templates',
+          slug: 'docs/templates',
+        },
+        {
           label: 'Components',
           items: [
             { label: 'Catalog', slug: 'docs/components' },
@@ -56,8 +60,16 @@ export default defineConfig({
           ],
         },
         {
-          label: 'CLI Reference',
-          slug: 'docs/cli',
+          label: 'Reference',
+          items: [
+            { label: 'CLI', slug: 'docs/reference/cli' },
+            { label: 'Schema', slug: 'docs/reference/schema' },
+            { label: 'Troubleshooting', slug: 'docs/reference/troubleshooting' },
+          ],
+        },
+        {
+          label: 'Agents',
+          slug: 'docs/agents',
         },
         {
           label: 'Architectures',
