@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
   site: 'https://openboundary.org',
+  prefetch: false,
   integrations: [
     starlight({
       title: 'OpenBoundary',
@@ -14,10 +15,14 @@ export default defineConfig({
         github: 'https://github.com/openboundary/openboundary',
       },
       customCss: [
-        '@fontsource/inter/400.css',
-        '@fontsource/inter/500.css',
-        '@fontsource/inter/600.css',
-        '@fontsource-variable/geist-mono',
+        '@fontsource/ibm-plex-sans/400.css',
+        '@fontsource/ibm-plex-sans/500.css',
+        '@fontsource/ibm-plex-sans/600.css',
+        '@fontsource/jetbrains-mono/400.css',
+        '@fontsource/jetbrains-mono/500.css',
+        '@fontsource/jetbrains-mono/600.css',
+        '@fontsource/ibm-plex-mono/400.css',
+        '@fontsource/ibm-plex-mono/500.css',
         './src/styles/global.css',
       ],
       head: [
@@ -38,21 +43,24 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: 'Overview',
+          label: 'Introduction',
           slug: 'docs',
         },
         {
-          label: 'Getting Started',
+          label: 'Quick Start',
           slug: 'docs/getting-started',
         },
         {
-          label: 'Templates',
-          slug: 'docs/templates',
+          label: 'Guides',
+          items: [
+            { label: 'Templates', slug: 'docs/templates' },
+            { label: 'Claude Code Agent', slug: 'docs/agents' },
+          ],
         },
         {
           label: 'Components',
           items: [
-            { label: 'Catalog', slug: 'docs/components' },
+            { label: 'Overview', slug: 'docs/components' },
             { label: 'HTTP Server', slug: 'docs/components/http-server' },
             { label: 'PostgreSQL', slug: 'docs/components/postgres' },
             { label: 'Middleware', slug: 'docs/components/middleware' },
@@ -63,26 +71,20 @@ export default defineConfig({
           label: 'Reference',
           items: [
             { label: 'CLI', slug: 'docs/reference/cli' },
-            { label: 'Schema', slug: 'docs/reference/schema' },
+            { label: 'Specification Schema', slug: 'docs/reference/schema' },
             { label: 'Troubleshooting', slug: 'docs/reference/troubleshooting' },
           ],
         },
         {
-          label: 'Agents',
-          slug: 'docs/agents',
-        },
-        {
-          label: 'Architectures',
-          slug: 'docs/architectures',
-          badge: { text: 'Soon', variant: 'caution' },
-        },
-        {
           label: 'Roadmap',
-          slug: 'docs/roadmap',
+          items: [
+            { label: 'Architectures', slug: 'docs/architectures', badge: { text: 'Soon', variant: 'caution' } },
+            { label: 'Changelog', slug: 'docs/roadmap' },
+          ],
         },
       ],
       components: {
-        Header: './src/components/Header.astro',
+        // Using Starlight's default header for stability
         Footer: './src/components/Footer.astro',
       },
       expressiveCode: {

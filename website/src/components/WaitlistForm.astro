@@ -21,14 +21,14 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'sb_publisha
   .waitlist-form input {
     flex: 1;
     padding: 11px 14px;
-    font-size: 14px;
+    font-size: 13px;
     background: var(--ob-bg-subtle);
     border: 1px solid var(--ob-border);
-    border-radius: 6px;
+    border-radius: 4px;
     color: var(--ob-text);
     outline: none;
-    transition: border-color 0.15s;
-    font-family: var(--ob-font-sans);
+    transition: border-color 0.15s ease;
+    font-family: var(--ob-font-mono);
   }
 
   .waitlist-form input::placeholder {
@@ -41,16 +41,17 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'sb_publisha
 
   .waitlist-form button {
     padding: 11px 20px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     background: var(--ob-text);
     color: var(--ob-bg);
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: all 0.15s ease;
     white-space: nowrap;
-    font-family: var(--ob-font-sans);
+    font-family: var(--ob-font-display);
+    letter-spacing: 0.01em;
   }
 
   .waitlist-form button:hover {
@@ -110,7 +111,7 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'sb_publisha
 
         if (response.ok) {
           message.textContent = "You're on the list. We'll be in touch.";
-          message.style.color = 'var(--ob-green)';
+          message.style.color = 'var(--ob-accent)';
           emailInput.value = '';
         } else if (response.status === 409) {
           message.textContent = "You're already on the waitlist.";

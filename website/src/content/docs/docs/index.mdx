@@ -1,38 +1,59 @@
 ---
-title: Documentation
-description: Define components in YAML, generate type-safe TypeScript backends.
+title: Introduction
+description: Architectural guardrails for AI-assisted backend development.
 ---
 
-Define components in YAML, generate type-safe TypeScript backends.
+OpenBoundary is a specification compiler. You define architectural constraints in YAML—authentication, authorization, database schemas, route bindings—and the compiler generates type-safe TypeScript that enforces those constraints.
 
-## Philosophy
+```bash
+bound compile spec.yaml
+```
 
-AI code generation speeds up development but introduces architectural consistency risks. Without constraints, generated code may skip middleware, bypass authentication checks, or violate schema contracts.
+The generated code wires up middleware chains, injects dependencies, and creates handler stubs. You implement business logic. The architecture stays locked.
 
-The root cause: architectural decisions live in your head, scattered across code comments, and buried in documentation that drifts from implementation.
+---
 
-**OpenBoundary separates architectural constraints from implementation logic.** Security requirements, middleware chains, database schemas, and route bindings are declared in a machine-readable specification. The compiler validates these constraints and enforces them in generated code. You define invariants once; the compiler ensures they hold.
+## The Problem
 
-### Boundaries vs. Logic
+AI code generation speeds up development but introduces consistency risks. Without constraints, generated code may skip middleware, bypass authentication, or violate schema contracts.
 
-Software has two parts that change at different rates:
+The root cause: architectural decisions live in your head, scattered across code comments, buried in documentation that drifts from implementation.
 
-- **Boundaries** — auth, routing, middleware, database schemas. These are structural. They change rarely and require careful review when they do.
-- **Logic** — business rules, handlers, domain operations. These are behavioral. They change constantly as requirements evolve.
+---
 
-OpenBoundary separates these concerns. You define boundaries in specs. AI (or you) implements logic in handlers. Regenerate anytime—your boundaries are enforced, your logic is preserved.
+## How OpenBoundary Works
 
-### Specification-First Development
+**Separate what changes rarely from what changes constantly.**
+
+| Boundaries | Logic |
+|------------|-------|
+| Auth, routing, middleware, schemas | Business rules, handlers, domain operations |
+| Structural — change rarely, review carefully | Behavioral — change constantly as requirements evolve |
+| Defined in `spec.yaml` | Implemented in handler functions |
+
+You define boundaries in specs. AI (or you) implements logic in handlers. Regenerate anytime—boundaries are enforced, logic is preserved.
+
+---
+
+## Standards, Not Lock-in
 
 Your spec references existing ecosystem tools in their native formats:
 
-- **OpenAPI** for HTTP routes and request/response schemas
-- **Drizzle schemas** for database structure
-- **Casbin policies** for authorization rules
-- **better-auth configs** for authentication
+- **OpenAPI** for routes and request/response schemas
+- **Drizzle** for database structure
+- **Casbin** for authorization policies
+- **better-auth** for authentication
 
-No lock-in. No proprietary formats. OpenBoundary orchestrates standards you already use.
+No proprietary formats. OpenBoundary orchestrates standards you already use.
+
+---
+
+## Next Steps
+
+- **[Quick Start](/docs/getting-started)** — Install and compile your first spec
+- **[Templates](/docs/templates)** — Pre-built specs for common patterns
+- **[Components](/docs/components)** — HTTP servers, databases, middleware
 
 :::note
-**Future:** A TypeScript DSL for defining specs programmatically. Same boundaries, better ergonomics for complex configurations.
+A TypeScript DSL for defining specs programmatically is planned. Same boundaries, better ergonomics for complex configurations.
 :::

@@ -26,9 +26,9 @@ import type { Props } from '@astrojs/starlight/props';
 
 <style>
   .ob-footer {
-    border-top: 1px solid var(--ob-border);
+    border-top: 1px solid var(--sl-color-hairline);
     padding: 32px 24px;
-    background: var(--ob-bg);
+    background: var(--sl-color-bg);
   }
 
   .footer-inner {
@@ -44,12 +44,13 @@ import type { Props } from '@astrojs/starlight/props';
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: var(--ob-text-tertiary);
+    color: var(--sl-color-gray-3);
   }
 
   .logo-mark {
     width: 18px;
     height: 18px;
+    color: var(--sl-color-accent);
   }
 
   .logo-mark svg {
@@ -64,12 +65,12 @@ import type { Props } from '@astrojs/starlight/props';
 
   .footer-links a {
     font-size: 13px;
-    color: var(--ob-text-tertiary);
+    color: var(--sl-color-gray-3);
     transition: color 0.15s;
   }
 
   .footer-links a:hover {
-    color: var(--ob-text-secondary);
+    color: var(--sl-color-gray-2);
   }
 
   @media (max-width: 640px) {

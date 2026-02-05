@@ -3,15 +3,14 @@ const currentPath = Astro.url.pathname;
 
 const navLinks = [
   { name: 'Docs', url: '/docs/' },
-  { name: 'Roadmap', url: '/docs/roadmap' },
-  { name: 'Releases', url: 'https://github.com/openboundary/openboundary/releases' },
+  { name: 'Templates', url: '/docs/templates' },
   { name: 'GitHub', url: 'https://github.com/openboundary/openboundary' },
 ];
 ---
 
-<header class="ob-header">
+<div class="ob-header">
   <div class="nav-inner">
-    <a href="/" class="logo">
+    <a href="/" class="logo" data-astro-reload>
       <div class="logo-mark">
         <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OpenBoundary logo">
           <title>OpenBoundary logo</title>
@@ -29,6 +28,7 @@ const navLinks = [
         <a
           href={link.url}
           class={currentPath.startsWith(link.url) && link.url !== '/' ? 'active' : ''}
+          data-astro-reload
         >
           {link.name}
         </a>
@@ -40,47 +40,30 @@ const navLinks = [
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
         Star
       </a>
-      <a href="/docs/" class="btn btn-primary nav-desktop-only">Docs</a>
-      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+      <button class="mobile-menu-btn" id="docsMenuBtn" aria-label="Toggle menu">
         <svg class="menu-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
         <svg class="close-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>
   </div>
-</header>
+</div>
 
-<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu" id="docsMobileMenu">
   <div class="mobile-menu-inner">
     {navLinks.map((link) => (
-      <a href={link.url} class="mobile-menu-link">{link.name}</a>
+      <a href={link.url} class="mobile-menu-link" data-astro-reload>{link.name}</a>
     ))}
     <hr class="mobile-menu-divider" />
     <a href="https://github.com/openboundary/openboundary" class="mobile-menu-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-      GitHub
+      Star on GitHub
     </a>
-    <a href="/docs/" class="btn btn-primary mobile-menu-cta">Documentation</a>
   </div>
 </div>
 
 <style>
-  .ob-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--ob-border);
-  }
-
   .nav-inner {
-    max-width: 1400px;
+    max-width: var(--ob-nav-max-width, 1400px);
     width: 100%;
     margin: 0 auto;
     display: flex;
@@ -92,17 +75,20 @@ const navLinks = [
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 600;
-    font-size: 14px;
+    font-family: var(--ob-font-display);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: -0.01em;
     color: var(--ob-text);
   }
 
   .logo-mark {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--ob-accent);
   }
 
   .logo-mark svg {
@@ -113,16 +99,20 @@ const navLinks = [
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 28px;
   }
 
   .nav-links a {
-    font-size: 14px;
-    color: var(--ob-text-secondary);
-    transition: color 0.15s;
+    font-family: var(--ob-font-sans);
+    font-size: 13px;
+    color: var(--ob-text-tertiary);
+    transition: color 0.15s ease;
   }
 
-  .nav-links a:hover,
+  .nav-links a:hover {
+    color: var(--ob-text-secondary);
+  }
+
   .nav-links a.active {
     color: var(--ob-text);
   }
@@ -130,26 +120,20 @@ const navLinks = [
   .nav-right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
   }
 
   .mobile-menu-btn {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     background: transparent;
     border: 1px solid var(--ob-border);
-    border-radius: 6px;
+    border-radius: 4px;
     color: var(--ob-text);
     cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .mobile-menu-btn:hover {
-    border-color: var(--ob-border-hover);
-    background: var(--ob-bg-elevated);
   }
 
   .mobile-menu-btn .close-icon {
@@ -167,7 +151,7 @@ const navLinks = [
   .mobile-menu {
     display: none;
     position: fixed;
-    top: 64px;
+    top: var(--ob-header-height, 56px);
     left: 0;
     right: 0;
     bottom: 0;
@@ -176,7 +160,7 @@ const navLinks = [
     overflow-y: auto;
     opacity: 0;
     transform: translateY(-10px);
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.2s ease, transform 0.2s ease;
     pointer-events: none;
   }
 
@@ -187,26 +171,21 @@ const navLinks = [
   }
 
   .mobile-menu-inner {
-    padding: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
   }
 
   .mobile-menu-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px;
-    font-size: 16px;
+    padding: 14px 16px;
+    font-family: var(--ob-font-sans);
+    font-size: 14px;
     color: var(--ob-text-secondary);
-    border-radius: 8px;
-    transition: all 0.15s;
-  }
-
-  .mobile-menu-link:hover {
-    color: var(--ob-text);
-    background: var(--ob-bg-elevated);
+    border-radius: 4px;
   }
 
   .mobile-menu-divider {
@@ -214,13 +193,6 @@ const navLinks = [
     height: 1px;
     background: var(--ob-border);
     margin: 12px 0;
-  }
-
-  .mobile-menu-cta {
-    margin-top: 12px;
-    padding: 14px 20px;
-    font-size: 15px;
-    justify-content: center;
   }
 
   @media (max-width: 900px) {
@@ -243,30 +215,27 @@ const navLinks = [
 </style>
 
 <script>
-  function toggleMobileMenu() {
-    const btn = document.getElementById('mobileMenuBtn');
-    const menu = document.getElementById('mobileMenu');
+  function initDocsMenu() {
+    const btn = document.getElementById('docsMenuBtn');
+    const menu = document.getElementById('docsMobileMenu');
     if (!btn || !menu) return;
 
-    const isActive = menu.classList.contains('active');
-    btn.classList.toggle('active', !isActive);
-    menu.classList.toggle('active', !isActive);
-    document.body.style.overflow = isActive ? '' : 'hidden';
-  }
+    btn.addEventListener('click', () => {
+      const isActive = menu.classList.contains('active');
+      btn.classList.toggle('active', !isActive);
+      menu.classList.toggle('active', !isActive);
+      document.body.style.overflow = isActive ? '' : 'hidden';
+    });
 
-  document.getElementById('mobileMenuBtn')?.addEventListener('click', toggleMobileMenu);
-
-  document.addEventListener('click', (e) => {
-    const menu = document.getElementById('mobileMenu');
-    const btn = document.getElementById('mobileMenuBtn');
-    const target = e.target as HTMLElement;
-
-    if (menu && menu.classList.contains('active')) {
-      if (target.closest('.mobile-menu-link') || target.closest('.mobile-menu-cta')) {
-        btn?.classList.remove('active');
+    menu.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('.mobile-menu-link')) {
+        btn.classList.remove('active');
         menu.classList.remove('active');
         document.body.style.overflow = '';
       }
-    }
-  });
+    });
+  }
+
+  initDocsMenu();
 </script>

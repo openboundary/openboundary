@@ -1,270 +1,228 @@
-/* OpenBoundary Design System */
+/* OpenBoundary Theme for Starlight
+   Uses Starlight's CSS custom properties for proper integration
+*/
+
+/* ============================================
+   THEME: Override Starlight CSS Variables
+   ============================================ */
 
 :root {
-  /* Colors */
-  --ob-bg: #000;
-  --ob-bg-subtle: #0a0a0a;
-  --ob-bg-muted: #111;
-  --ob-bg-elevated: #171717;
-  --ob-border: rgba(255, 255, 255, 0.08);
-  --ob-border-hover: rgba(255, 255, 255, 0.15);
-  --ob-text: #ededed;
-  --ob-text-secondary: #888;
-  --ob-text-tertiary: #555;
-  --ob-accent: #fff;
-  --ob-green: #22c55e;
-  --ob-amber: #f59e0b;
+  /* Colors - Dark theme */
+  --sl-color-white: #e8e8e8;
+  --sl-color-gray-1: #e8e8e8;
+  --sl-color-gray-2: #a0a0a0;
+  --sl-color-gray-3: #8a8a8a;
+  --sl-color-gray-4: #525252;
+  --sl-color-gray-5: rgba(255, 255, 255, 0.12);
+  --sl-color-gray-6: rgba(255, 255, 255, 0.06);
+  --sl-color-gray-7: #0c0c0c;
+  --sl-color-black: #0c0c0c;
+
+  /* Accent - Teal */
+  --sl-color-accent-low: rgba(94, 234, 212, 0.1);
+  --sl-color-accent: #5eead4;
+  --sl-color-accent-high: #5eead4;
+
+  /* Backgrounds */
+  --sl-color-bg: #0c0c0c;
+  --sl-color-bg-nav: #0c0c0c;
+  --sl-color-bg-sidebar: #0c0c0c;
+  --sl-color-bg-inline-code: #1a1a1a;
+
+  /* Borders */
+  --sl-color-hairline: rgba(255, 255, 255, 0.06);
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.06);
 
   /* Typography */
-  --ob-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --ob-font-mono: 'Geist Mono Variable', 'SF Mono', Consolas, monospace;
+  --sl-font-system: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --sl-font-system-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
 
-  /* Syntax highlighting */
-  --ob-sy-keyword: #f472b6;
-  --ob-sy-string: #a5f3fc;
-  --ob-sy-number: #c4b5fd;
-  --ob-sy-comment: #555;
-  --ob-sy-punctuation: #888;
-  --ob-sy-function: #86efac;
-}
+  /* Navigation - match homepage header (56px) */
+  --sl-nav-height: 3.5rem;
+  --sl-nav-pad-y: 1rem;
 
-/* Override Starlight theme */
-:root {
-  --sl-color-accent-low: #1a1a2e;
-  --sl-color-accent: var(--ob-green);
-  --sl-color-accent-high: #22c55e;
-  --sl-color-white: var(--ob-text);
-  --sl-color-gray-1: var(--ob-text);
-  --sl-color-gray-2: var(--ob-text-secondary);
-  --sl-color-gray-3: var(--ob-text-tertiary);
-  --sl-color-gray-4: var(--ob-border-hover);
-  --sl-color-gray-5: var(--ob-border);
-  --sl-color-gray-6: var(--ob-bg-elevated);
-  --sl-color-black: var(--ob-bg);
-  --sl-color-bg: var(--ob-bg);
-  --sl-color-bg-nav: rgba(0, 0, 0, 0.8);
-  --sl-color-bg-sidebar: var(--ob-bg);
-  --sl-color-hairline-light: var(--ob-border);
-  --sl-color-hairline: var(--ob-border);
-  --sl-color-bg-inline-code: var(--ob-bg-elevated);
-  --sl-font-system: var(--ob-font-sans);
-  --sl-font-system-mono: var(--ob-font-mono);
-  --sl-text-body: var(--ob-font-sans);
-  --sl-text-code: var(--ob-font-mono);
-}
+  /* Custom properties for our design */
+  --ob-font-display: 'JetBrains Mono', monospace;
+  --ob-accent: #5eead4;
+  --ob-amber: #fbbf24;
 
-/* Force dark mode */
-:root {
   color-scheme: dark;
 }
 
-/* Base reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ============================================
+   HEADER / NAVIGATION
+   ============================================ */
+
+/* Consistent nav height - 56px to match homepage
+   Using !important to override Starlight's media query specificity */
+:root {
+  --sl-nav-height: 3.5rem !important;
 }
 
-html {
-  scroll-behavior: smooth;
+/* Logo sizing - match homepage (22px) */
+.site-title img {
+  height: 22px !important;
+  width: 22px !important;
 }
 
-body {
-  font-family: var(--ob-font-sans);
-  background: var(--ob-bg);
-  color: var(--ob-text);
-  line-height: 1.6;
-  font-size: 15px;
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+/* Site title text styling */
+.site-title {
+  font-family: var(--ob-font-display);
   font-size: 13px;
   font-weight: 500;
-  border-radius: 6px;
-  transition: all 0.15s;
-  border: 1px solid transparent;
-  cursor: pointer;
-  font-family: var(--ob-font-sans);
 }
 
-.btn-secondary {
-  color: var(--ob-text-secondary);
-  border-color: var(--ob-border);
-  background: transparent;
+/* Header fixed at 56px - prevent layout shift */
+header.header {
+  height: 3.5rem !important;
 }
 
-.btn-secondary:hover {
-  color: var(--ob-text);
-  border-color: var(--ob-border-hover);
-  background: var(--ob-bg-elevated);
+/* Prevent scrollbar-related layout shift */
+html {
+  overflow-y: scroll;
 }
 
-.btn-primary {
-  background: var(--ob-text);
-  color: var(--ob-bg);
-  border: none;
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+/* Use display font for headings */
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--ob-font-display);
+  letter-spacing: -0.01em;
 }
 
-.btn-primary:hover {
-  opacity: 0.9;
+/* Page title */
+h1#_top {
+  font-family: var(--ob-font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
-/* Code blocks overrides */
-.expressive-code {
-  margin: 16px 0 24px;
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+/* Group labels */
+.sidebar-content summary {
+  font-family: var(--ob-font-display);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
+
+/* Active page - subtle highlight */
+nav.sidebar a[aria-current="page"] {
+  color: var(--sl-color-white);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================
+   TABLE OF CONTENTS
+   ============================================ */
+
+starlight-toc h2 {
+  font-family: var(--ob-font-display);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ============================================
+   CODE BLOCKS
+   ============================================ */
 
 .expressive-code .frame {
-  border: 1px solid var(--ob-border) !important;
-  border-radius: 8px !important;
-  background: var(--ob-bg-subtle) !important;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 6px;
 }
 
-.expressive-code pre {
-  background: var(--ob-bg-subtle) !important;
-}
+/* ============================================
+   CALLOUTS / ASIDES
+   ============================================ */
 
-/* Inline code */
-code:not(pre code) {
-  font-family: var(--ob-font-mono);
-  font-size: 13px;
-  background: var(--ob-bg-elevated);
-  padding: 2px 6px;
+.starlight-aside {
   border-radius: 4px;
 }
 
-/* Tables in docs */
-.sl-markdown-content table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  margin: 16px 0 24px;
-  border: 1px solid var(--ob-border);
-  border-radius: 8px;
-  overflow: hidden;
+.starlight-aside__title {
+  font-family: var(--ob-font-display);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.sl-markdown-content th,
-.sl-markdown-content td {
-  text-align: left;
-  padding: 12px 16px !important;
-}
+/* ============================================
+   TABLES
+   ============================================ */
 
 .sl-markdown-content th {
-  font-size: 12px;
+  font-family: var(--ob-font-display);
+  font-size: 11px;
   font-weight: 500;
-  color: var(--ob-text-tertiary);
-  background: var(--ob-bg-subtle);
-  border-bottom: 1px solid var(--ob-border);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.sl-markdown-content td {
-  border-bottom: 1px solid var(--ob-border);
-  color: var(--ob-text-secondary);
-}
+/* ============================================
+   BADGES
+   ============================================ */
 
-.sl-markdown-content th:first-child,
-.sl-markdown-content td:first-child {
-  padding-left: 16px !important;
-}
-
-.sl-markdown-content tr:last-child td {
-  border-bottom: none;
-}
-
-.sl-markdown-content td code {
-  color: var(--ob-text);
-}
-
-/* Starlight sidebar overrides */
-.sidebar-content {
-  background: var(--ob-bg);
-}
-
-starlight-menu-button {
-  --sl-color-white: var(--ob-text);
-}
-
-/* Mobile menu */
-@media (max-width: 50rem) {
-  nav.sidebar {
-    background: var(--ob-bg);
-  }
-}
-
-/* Note/callout styling */
-.sl-markdown-content .note,
-.starlight-aside {
-  background: var(--ob-bg-subtle);
-  border-left: 2px solid var(--ob-text-tertiary);
-  padding: 16px 20px;
-  margin: 16px 0 24px;
-  border-radius: 0 6px 6px 0;
-}
-
-.starlight-aside p {
-  margin: 0;
-  font-size: 14px;
-}
-
-/* Badge styles */
 .badge {
   display: inline-block;
-  font-family: var(--ob-font-mono);
-  font-size: 10px;
+  font-family: var(--ob-font-display);
+  font-size: 9px;
+  font-weight: 500;
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: 2px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .badge-stable {
-  color: var(--ob-green);
-  background: rgba(34, 197, 94, 0.1);
+  color: var(--ob-accent);
+  background: rgba(94, 234, 212, 0.1);
 }
 
-.badge-beta {
-  color: var(--ob-amber);
-  background: rgba(245, 158, 11, 0.1);
-}
-
+.badge-beta,
 .badge-soon {
   color: var(--ob-amber);
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(251, 191, 36, 0.1);
 }
 
-/* Required indicator */
-.required {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--ob-amber);
-  margin-left: 4px;
+/* ============================================
+   CATALOG GRID (for component pages)
+   ============================================ */
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--sl-color-hairline);
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1.5rem 0 2rem;
 }
 
-/* Type indicator */
-.type {
-  font-family: var(--ob-font-mono);
-  font-size: 12px;
-  color: #c4b5fd;
+@media (max-width: 50rem) {
+  .catalog-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* Support grid for providers */
+/* ============================================
+   SUPPORT GRID
+   ============================================ */
+
 .support-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 8px;
-  margin: 16px 0 24px;
+  margin: 1rem 0 1.5rem;
 }
 
 .support-item {
@@ -272,45 +230,57 @@ starlight-menu-button {
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  background: var(--ob-bg-subtle);
-  border: 1px solid var(--ob-border);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 4px;
 }
 
 .support-item.soon {
   opacity: 0.5;
 }
 
-.support-text {
-  flex: 1;
-}
-
 .support-text strong {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .support-text span {
-  font-size: 12px;
-  color: var(--ob-text-tertiary);
+  font-size: 11px;
+  color: var(--sl-color-gray-3);
 }
 
-/* Component kind badge */
+/* ============================================
+   COMPONENT KIND BADGE
+   ============================================ */
+
 .component-kind-badge {
   display: inline-block;
-  font-family: var(--ob-font-mono);
-  font-size: 12px;
-  color: var(--ob-text-tertiary);
-  background: var(--ob-bg-elevated);
-  padding: 4px 10px;
-  border-radius: 4px;
+  font-family: var(--ob-font-display);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--sl-color-gray-3);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px 8px;
+  border-radius: 2px;
   margin-bottom: 12px;
 }
 
-/* Hide Starlight header in favor of custom */
-header.header {
-  background: rgba(0, 0, 0, 0.8) !important;
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--ob-border);
+/* ============================================
+   MISC UTILITIES
+   ============================================ */
+
+.required {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--ob-amber);
+  margin-left: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.type {
+  font-family: var(--sl-font-system-mono);
+  font-size: 12px;
+  color: #c4b5fd;
 }
