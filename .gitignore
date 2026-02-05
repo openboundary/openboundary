@@ -46,9 +46,8 @@ dist/
 .env.local
 .env.*.local
 
-# Hugo
-website/public/
-website/.hugo_build.lock
+# Astro
+website/.astro/
 
 # Build binaries
 bin/
