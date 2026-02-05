@@ -1,0 +1,114 @@
+---
+interface Props {
+  kind: string;
+  name: string;
+  description: string;
+  tags: string[];
+  status?: 'stable' | 'beta' | 'soon';
+  href?: string;
+}
+
+const { kind, name, description, tags, status = 'stable', href } = Astro.props;
+
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag href={href} class={`component-card ${status === 'soon' ? 'soon' : ''}`} data-status={status}>
+  <div class="component-header">
+    <div class="component-kind">{kind}</div>
+    {status !== 'stable' && (
+      <span class={`status-badge badge-${status}`}>{status}</span>
+    )}
+  </div>
+  <h3>{name}</h3>
+  <p>{description}</p>
+  <div class="component-tags">
+    {tags.map((tag) => (
+      <span class="component-tag">{tag}</span>
+    ))}
+  </div>
+</Tag>
+
+<style>
+  .component-card {
+    display: block;
+    background: var(--ob-bg-subtle);
+    padding: 28px;
+    transition: background 0.15s;
+  }
+
+  a.component-card:hover {
+    background: var(--ob-bg-muted);
+  }
+
+  .component-card.soon {
+    opacity: 0.6;
+  }
+
+  .component-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .component-kind {
+    font-family: var(--ob-font-mono);
+    font-size: 11px;
+    color: var(--ob-text-tertiary);
+  }
+
+  .status-badge {
+    font-family: var(--ob-font-mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-beta {
+    color: var(--ob-amber);
+    background: rgba(245, 158, 11, 0.1);
+  }
+
+  .badge-soon {
+    color: var(--ob-amber);
+    background: rgba(245, 158, 11, 0.1);
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--ob-text);
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--ob-text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .component-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .component-tag {
+    font-family: var(--ob-font-mono);
+    font-size: 11px;
+    color: var(--ob-text-tertiary);
+    padding: 3px 8px;
+    background: var(--ob-bg-elevated);
+    border-radius: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .component-card {
+      padding: 20px;
+    }
+  }
+</style>

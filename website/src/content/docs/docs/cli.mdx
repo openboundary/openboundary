@@ -1,0 +1,134 @@
+---
+title: CLI Reference
+description: Complete reference for OpenBoundary command-line interface.
+---
+
+The OpenBoundary CLI provides commands for initializing, validating, and compiling specifications.
+
+## openboundary compile
+
+Compile a specification to code.
+
+```bash
+openboundary compile <spec-file> [options]
+
+Options:
+  -o, --output <dir>   Output directory (default: ./generated)
+  --dry-run            Show what would be generated
+  --force              Overwrite existing files
+```
+
+### Examples
+
+```bash
+# Generate to default directory
+openboundary compile spec.yaml
+
+# Generate to specific directory
+openboundary compile spec.yaml -o ./src/generated
+
+# Preview without writing files
+openboundary compile spec.yaml --dry-run
+
+# Overwrite existing files
+openboundary compile spec.yaml --force
+```
+
+## openboundary validate
+
+Validate a specification without generating code.
+
+```bash
+openboundary validate <spec-file> [options]
+
+Options:
+  --strict    Warnings become errors
+  --json      Output as JSON
+```
+
+### Examples
+
+```bash
+# Validate spec
+openboundary validate spec.yaml
+
+# Strict mode (fail on warnings)
+openboundary validate spec.yaml --strict
+
+# JSON output for CI integration
+openboundary validate spec.yaml --json
+```
+
+### Validation Checks
+
+The validator checks:
+
+- **Schema validity** - YAML structure matches OpenBoundary schema
+- **Component references** - All `depends_on` and `middleware` references exist
+- **Route bindings** - Use case `binds_to` references valid servers and paths
+- **OpenAPI alignment** - Routes match OpenAPI operation definitions
+- **Middleware order** - Dependencies form a valid DAG (no cycles)
+
+## openboundary init
+
+Create a new specification from a template.
+
+```bash
+openboundary init [template] [options]
+
+Templates:
+  basic         Basic HTTP API (default)
+  crud          CRUD API with auth
+  multiservice  Multiple servers
+
+Options:
+  -o, --output <dir>   Output directory
+```
+
+### Examples
+
+```bash
+# Create basic API spec
+openboundary init basic -o my-api
+
+# Create CRUD API with authentication
+openboundary init crud -o my-app
+
+# Create multi-service architecture
+openboundary init multiservice -o my-platform
+```
+
+### Template Contents
+
+**basic** template includes:
+- Single HTTP server
+- One middleware (authentication)
+- Example use cases
+
+**crud** template includes:
+- HTTP server with full middleware chain
+- PostgreSQL database
+- Authentication and authorization
+- CRUD use cases for a resource
+
+**multiservice** template includes:
+- Multiple HTTP servers
+- Shared database
+- Inter-service dependencies
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Validation error |
+| 2 | File not found |
+| 3 | Parse error |
+| 4 | Generation error |
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `OPENBOUNDARY_DEBUG` | Enable debug logging |
+| `OPENBOUNDARY_NO_COLOR` | Disable colored output |

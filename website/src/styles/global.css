@@ -1,0 +1,316 @@
+/* OpenBoundary Design System */
+
+:root {
+  /* Colors */
+  --ob-bg: #000;
+  --ob-bg-subtle: #0a0a0a;
+  --ob-bg-muted: #111;
+  --ob-bg-elevated: #171717;
+  --ob-border: rgba(255, 255, 255, 0.08);
+  --ob-border-hover: rgba(255, 255, 255, 0.15);
+  --ob-text: #ededed;
+  --ob-text-secondary: #888;
+  --ob-text-tertiary: #555;
+  --ob-accent: #fff;
+  --ob-green: #22c55e;
+  --ob-amber: #f59e0b;
+
+  /* Typography */
+  --ob-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ob-font-mono: 'Geist Mono Variable', 'SF Mono', Consolas, monospace;
+
+  /* Syntax highlighting */
+  --ob-sy-keyword: #f472b6;
+  --ob-sy-string: #a5f3fc;
+  --ob-sy-number: #c4b5fd;
+  --ob-sy-comment: #555;
+  --ob-sy-punctuation: #888;
+  --ob-sy-function: #86efac;
+}
+
+/* Override Starlight theme */
+:root {
+  --sl-color-accent-low: #1a1a2e;
+  --sl-color-accent: var(--ob-green);
+  --sl-color-accent-high: #22c55e;
+  --sl-color-white: var(--ob-text);
+  --sl-color-gray-1: var(--ob-text);
+  --sl-color-gray-2: var(--ob-text-secondary);
+  --sl-color-gray-3: var(--ob-text-tertiary);
+  --sl-color-gray-4: var(--ob-border-hover);
+  --sl-color-gray-5: var(--ob-border);
+  --sl-color-gray-6: var(--ob-bg-elevated);
+  --sl-color-black: var(--ob-bg);
+  --sl-color-bg: var(--ob-bg);
+  --sl-color-bg-nav: rgba(0, 0, 0, 0.8);
+  --sl-color-bg-sidebar: var(--ob-bg);
+  --sl-color-hairline-light: var(--ob-border);
+  --sl-color-hairline: var(--ob-border);
+  --sl-color-bg-inline-code: var(--ob-bg-elevated);
+  --sl-font-system: var(--ob-font-sans);
+  --sl-font-system-mono: var(--ob-font-mono);
+  --sl-text-body: var(--ob-font-sans);
+  --sl-text-code: var(--ob-font-mono);
+}
+
+/* Force dark mode */
+:root {
+  color-scheme: dark;
+}
+
+/* Base reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--ob-font-sans);
+  background: var(--ob-bg);
+  color: var(--ob-text);
+  line-height: 1.6;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: var(--ob-font-sans);
+}
+
+.btn-secondary {
+  color: var(--ob-text-secondary);
+  border-color: var(--ob-border);
+  background: transparent;
+}
+
+.btn-secondary:hover {
+  color: var(--ob-text);
+  border-color: var(--ob-border-hover);
+  background: var(--ob-bg-elevated);
+}
+
+.btn-primary {
+  background: var(--ob-text);
+  color: var(--ob-bg);
+  border: none;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* Code blocks overrides */
+.expressive-code {
+  margin: 16px 0 24px;
+}
+
+.expressive-code .frame {
+  border: 1px solid var(--ob-border) !important;
+  border-radius: 8px !important;
+  background: var(--ob-bg-subtle) !important;
+}
+
+.expressive-code pre {
+  background: var(--ob-bg-subtle) !important;
+}
+
+/* Inline code */
+code:not(pre code) {
+  font-family: var(--ob-font-mono);
+  font-size: 13px;
+  background: var(--ob-bg-elevated);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Tables in docs */
+.sl-markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 16px 0 24px;
+  border: 1px solid var(--ob-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sl-markdown-content th,
+.sl-markdown-content td {
+  text-align: left;
+  padding: 12px 16px !important;
+}
+
+.sl-markdown-content th {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ob-text-tertiary);
+  background: var(--ob-bg-subtle);
+  border-bottom: 1px solid var(--ob-border);
+}
+
+.sl-markdown-content td {
+  border-bottom: 1px solid var(--ob-border);
+  color: var(--ob-text-secondary);
+}
+
+.sl-markdown-content th:first-child,
+.sl-markdown-content td:first-child {
+  padding-left: 16px !important;
+}
+
+.sl-markdown-content tr:last-child td {
+  border-bottom: none;
+}
+
+.sl-markdown-content td code {
+  color: var(--ob-text);
+}
+
+/* Starlight sidebar overrides */
+.sidebar-content {
+  background: var(--ob-bg);
+}
+
+starlight-menu-button {
+  --sl-color-white: var(--ob-text);
+}
+
+/* Mobile menu */
+@media (max-width: 50rem) {
+  nav.sidebar {
+    background: var(--ob-bg);
+  }
+}
+
+/* Note/callout styling */
+.sl-markdown-content .note,
+.starlight-aside {
+  background: var(--ob-bg-subtle);
+  border-left: 2px solid var(--ob-text-tertiary);
+  padding: 16px 20px;
+  margin: 16px 0 24px;
+  border-radius: 0 6px 6px 0;
+}
+
+.starlight-aside p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Badge styles */
+.badge {
+  display: inline-block;
+  font-family: var(--ob-font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-stable {
+  color: var(--ob-green);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.badge-beta {
+  color: var(--ob-amber);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.badge-soon {
+  color: var(--ob-amber);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Required indicator */
+.required {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ob-amber);
+  margin-left: 4px;
+}
+
+/* Type indicator */
+.type {
+  font-family: var(--ob-font-mono);
+  font-size: 12px;
+  color: #c4b5fd;
+}
+
+/* Support grid for providers */
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+
+.support-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--ob-bg-subtle);
+  border: 1px solid var(--ob-border);
+  border-radius: 6px;
+}
+
+.support-item.soon {
+  opacity: 0.5;
+}
+
+.support-text {
+  flex: 1;
+}
+
+.support-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.support-text span {
+  font-size: 12px;
+  color: var(--ob-text-tertiary);
+}
+
+/* Component kind badge */
+.component-kind-badge {
+  display: inline-block;
+  font-family: var(--ob-font-mono);
+  font-size: 12px;
+  color: var(--ob-text-tertiary);
+  background: var(--ob-bg-elevated);
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+/* Hide Starlight header in favor of custom */
+header.header {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--ob-border);
+}

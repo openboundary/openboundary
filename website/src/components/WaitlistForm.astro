@@ -1,0 +1,130 @@
+---
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || 'https://qtrwxpitqfehkhuravyl.supabase.co';
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_Jsa_KDN0EOKv8Zv0FV-Ekw_DKaCRGET';
+---
+
+<form id="waitlist-form" class="waitlist-form" data-supabase-url={supabaseUrl} data-supabase-key={supabaseAnonKey}>
+  <input type="email" id="waitlist-email" placeholder="Email for updates" required />
+  <button type="submit">Notify Me</button>
+</form>
+<p id="waitlist-message" class="waitlist-message"></p>
+
+<style>
+  .waitlist-form {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .waitlist-form input {
+    flex: 1;
+    padding: 11px 14px;
+    font-size: 14px;
+    background: var(--ob-bg-subtle);
+    border: 1px solid var(--ob-border);
+    border-radius: 6px;
+    color: var(--ob-text);
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: var(--ob-font-sans);
+  }
+
+  .waitlist-form input::placeholder {
+    color: var(--ob-text-tertiary);
+  }
+
+  .waitlist-form input:focus {
+    border-color: var(--ob-border-hover);
+  }
+
+  .waitlist-form button {
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--ob-text);
+    color: var(--ob-bg);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    font-family: var(--ob-font-sans);
+  }
+
+  .waitlist-form button:hover {
+    opacity: 0.9;
+  }
+
+  .waitlist-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .waitlist-message {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--ob-text-tertiary);
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .waitlist-form {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('waitlist-form') as HTMLFormElement;
+  const emailInput = document.getElementById('waitlist-email') as HTMLInputElement;
+  const message = document.getElementById('waitlist-message') as HTMLParagraphElement;
+
+  if (form && emailInput && message) {
+    const supabaseUrl = form.dataset.supabaseUrl;
+    const supabaseKey = form.dataset.supabaseKey;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = emailInput.value;
+      const button = form.querySelector('button') as HTMLButtonElement;
+
+      button.disabled = true;
+      button.textContent = 'Joining...';
+      message.textContent = '';
+      message.style.color = 'var(--ob-text-secondary)';
+
+      try {
+        const response = await fetch(`${supabaseUrl}/rest/v1/waitlist`, {
+          method: 'POST',
+          headers: {
+            'apikey': supabaseKey!,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        if (response.ok) {
+          message.textContent = "You're on the list. We'll be in touch.";
+          message.style.color = 'var(--ob-green)';
+          emailInput.value = '';
+        } else if (response.status === 409) {
+          message.textContent = "You're already on the waitlist.";
+          message.style.color = 'var(--ob-amber)';
+        } else {
+          throw new Error('Failed to join');
+        }
+      } catch (err) {
+        message.textContent = 'Something went wrong. Try again.';
+        message.style.color = '#ef4444';
+      }
+
+      button.disabled = false;
+      button.textContent = 'Notify Me';
+    });
+  }
+</script>

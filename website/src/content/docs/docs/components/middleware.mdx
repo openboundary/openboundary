@@ -1,0 +1,108 @@
+---
+title: Middleware
+description: Authentication and authorization middleware with better-auth and Casbin.
+---
+
+<span class="component-kind-badge">middleware</span>
+
+Middleware bindings for authentication and authorization. Middleware is declared in the specification and enforced on all routes that reference it. Override at the route level via use case configuration.
+
+## Providers
+
+<div class="support-grid">
+  <div class="support-item">
+    <div class="support-text">
+      <strong>better-auth</strong>
+      <span>Authentication</span>
+    </div>
+    <span class="badge badge-stable">Stable</span>
+  </div>
+  <div class="support-item">
+    <div class="support-text">
+      <strong>Casbin</strong>
+      <span>Authorization</span>
+    </div>
+    <span class="badge badge-stable">Stable</span>
+  </div>
+</div>
+
+## Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `provider` <span class="required">required</span> | <span class="type">"better-auth" \| "casbin"</span> | Middleware provider |
+| `config` | <span class="type">string</span> | Config file (better-auth) |
+| `model` | <span class="type">string</span> | Casbin model file |
+| `policy` | <span class="type">string</span> | Casbin policy file |
+| `depends_on` | <span class="type">array</span> | Middleware dependencies |
+
+## Authentication Example
+
+```yaml title="spec.yaml"
+- id: middleware.authn
+  kind: middleware
+  spec:
+    provider: better-auth
+    config: ./src/auth/auth.config.ts
+```
+
+## Authorization Example
+
+```yaml title="spec.yaml"
+- id: middleware.authz
+  kind: middleware
+  spec:
+    provider: casbin
+    depends_on:
+      - middleware.authn
+    model: ./src/auth/model.conf
+    policy: ./src/auth/policy.csv
+```
+
+## Casbin Model
+
+The RBAC model defines how permissions are evaluated:
+
+```conf title="src/auth/model.conf"
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+```
+
+## Casbin Policy
+
+Define role-based access rules:
+
+```csv title="src/auth/policy.csv"
+p, admin, /users, read
+p, admin, /users, write
+p, user, /profile, read
+p, user, /profile, write
+g, alice, admin
+g, bob, user
+```
+
+## Middleware Dependencies
+
+Authorization typically depends on authentication (needs user identity):
+
+```yaml
+- id: middleware.authz
+  spec:
+    provider: casbin
+    depends_on:
+      - middleware.authn  # Must run first
+```
+
+The compiler validates dependency order and generates middleware chains accordingly.

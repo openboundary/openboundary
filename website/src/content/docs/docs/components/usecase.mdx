@@ -1,0 +1,110 @@
+---
+title: Use Case
+description: Business logic bound to routes with middleware overrides and acceptance criteria.
+---
+
+<span class="component-kind-badge">usecase</span>
+
+Route handlers with formal specifications. Each use case binds to a specific HTTP method and path, declares middleware dependencies, and documents preconditions and acceptance criteria.
+
+## Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `binds_to` <span class="required">required</span> | <span class="type">string</span> | Route: `server:METHOD:/path` |
+| `goal` <span class="required">required</span> | <span class="type">string</span> | Description of the use case purpose |
+| `middleware` | <span class="type">array</span> | Override middleware chain |
+| `actor` | <span class="type">string</span> | Who performs this action |
+| `preconditions` | <span class="type">array</span> | Required conditions |
+| `acceptance_criteria` | <span class="type">array</span> | Success criteria |
+| `postconditions` | <span class="type">array</span> | State after execution |
+
+## Example
+
+```yaml title="spec.yaml"
+- id: usecase.create-user
+  kind: usecase
+  spec:
+    binds_to: http.server.api:POST:/users
+    middleware: []  # Public endpoint
+    goal: Register a new user
+    actor: anonymous
+    preconditions:
+      - Email not already registered
+    acceptance_criteria:
+      - User created with email
+      - Password hashed
+```
+
+## Middleware Resolution
+
+The `middleware` field controls which middleware runs for this route:
+
+| Configuration | Behavior |
+|---------------|----------|
+| Omit the field | Route uses the server's full middleware chain |
+| `middleware: []` | Route is public, no middleware applied |
+| `middleware: [middleware.authn]` | Route uses only the named middleware |
+
+### Public Endpoint
+
+```yaml
+- id: usecase.login
+  spec:
+    binds_to: http.server.api:POST:/auth/login
+    middleware: []  # No auth required
+    goal: Authenticate user
+```
+
+### Protected Endpoint
+
+```yaml
+- id: usecase.update-profile
+  spec:
+    binds_to: http.server.api:PUT:/users/:id
+    # Inherits server middleware (authn, authz)
+    goal: Update user profile
+    actor: authenticated user
+```
+
+### Custom Middleware
+
+```yaml
+- id: usecase.admin-action
+  spec:
+    binds_to: http.server.api:DELETE:/users/:id
+    middleware:
+      - middleware.authn
+      - middleware.admin-only  # Extra check
+    goal: Delete user account
+    actor: admin
+```
+
+## Generated Code
+
+Use cases generate handler stubs with:
+
+- Type-safe request/response from OpenAPI
+- Injected dependencies
+- Goal and acceptance criteria as comments
+
+```typescript title="Generated handler"
+/**
+ * Goal: Register a new user
+ * Actor: anonymous
+ *
+ * Preconditions:
+ * - Email not already registered
+ *
+ * Acceptance Criteria:
+ * - User created with email
+ * - Password hashed
+ */
+export async function createUser(c: Context) {
+  const body = await c.req.json<CreateUserRequest>();
+
+  // TODO: Implement handler logic
+
+  return c.json({ id: 1, email: body.email });
+}
+```
