@@ -1,16 +1,16 @@
 ---
 title: CLI Reference
-description: Complete reference for OpenBoundary command-line interface.
+description: Complete reference for the bound CLI.
 ---
 
 The OpenBoundary CLI provides commands for initializing, validating, and compiling specifications.
 
-## openboundary compile
+## bound compile
 
 Compile a specification to code.
 
 ```bash
-openboundary compile <spec-file> [options]
+bound compile <spec-file> [options]
 
 Options:
   -o, --output <dir>   Output directory (default: ./generated)
@@ -22,24 +22,24 @@ Options:
 
 ```bash
 # Generate to default directory
-openboundary compile spec.yaml
+bound compile spec.yaml
 
 # Generate to specific directory
-openboundary compile spec.yaml -o ./src/generated
+bound compile spec.yaml -o ./src/generated
 
 # Preview without writing files
-openboundary compile spec.yaml --dry-run
+bound compile spec.yaml --dry-run
 
 # Overwrite existing files
-openboundary compile spec.yaml --force
+bound compile spec.yaml --force
 ```
 
-## openboundary validate
+## bound validate
 
 Validate a specification without generating code.
 
 ```bash
-openboundary validate <spec-file> [options]
+bound validate <spec-file> [options]
 
 Options:
   --strict    Warnings become errors
@@ -50,13 +50,13 @@ Options:
 
 ```bash
 # Validate spec
-openboundary validate spec.yaml
+bound validate spec.yaml
 
 # Strict mode (fail on warnings)
-openboundary validate spec.yaml --strict
+bound validate spec.yaml --strict
 
 # JSON output for CI integration
-openboundary validate spec.yaml --json
+bound validate spec.yaml --json
 ```
 
 ### Validation Checks
@@ -69,12 +69,12 @@ The validator checks:
 - **OpenAPI alignment** - Routes match OpenAPI operation definitions
 - **Middleware order** - Dependencies form a valid DAG (no cycles)
 
-## openboundary init
+## bound init
 
 Create a new specification from a template.
 
 ```bash
-openboundary init [template] [options]
+bound init [template] [options]
 
 Templates:
   basic         Basic HTTP API (default)
@@ -89,13 +89,13 @@ Options:
 
 ```bash
 # Create basic API spec
-openboundary init basic -o my-api
+bound init basic -o my-api
 
 # Create CRUD API with authentication
-openboundary init crud -o my-app
+bound init crud -o my-app
 
 # Create multi-service architecture
-openboundary init multiservice -o my-platform
+bound init multiservice -o my-platform
 ```
 
 ### Template Contents
@@ -130,5 +130,5 @@ openboundary init multiservice -o my-platform
 
 | Variable | Description |
 |----------|-------------|
-| `OPENBOUNDARY_DEBUG` | Enable debug logging |
-| `OPENBOUNDARY_NO_COLOR` | Disable colored output |
+| `BOUND_DEBUG` | Enable debug logging |
+| `BOUND_NO_COLOR` | Disable colored output |

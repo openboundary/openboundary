@@ -7,12 +7,14 @@ Get up and running with OpenBoundary in four steps.
 
 ## 1. Install
 
-Build the compiler from Go source:
+```bash
+curl -fsSL https://openboundary.org/install.sh | sh
+```
+
+Or with Go:
 
 ```bash
-git clone https://github.com/openboundary/openboundary.git
-cd openboundary
-go build -o openboundary ./cmd/openboundary
+go install github.com/openboundary/openboundary/cmd/bound@latest
 ```
 
 ## 2. Create spec
@@ -20,7 +22,7 @@ go build -o openboundary ./cmd/openboundary
 Generate a YAML specification defining routes, middleware, and database schema:
 
 ```bash
-openboundary init basic -o my-project
+bound init basic -o my-project
 ```
 
 ## 3. Generate
@@ -28,7 +30,7 @@ openboundary init basic -o my-project
 Compile spec to a TypeScript/Hono server with type-safe routing and middleware:
 
 ```bash
-openboundary compile spec.yaml -o generated
+bound compile my-project/spec.yaml
 ```
 
 ## 4. Run
@@ -36,7 +38,7 @@ openboundary compile spec.yaml -o generated
 Install dependencies and start the generated server:
 
 ```bash
-cd generated
+cd my-project/generated
 npm install
 npm run dev
 ```
