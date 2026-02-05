@@ -1,0 +1,107 @@
+---
+title: Architectures
+description: Planned support for architectural patterns including Clean Architecture, Hexagonal, Vertical Slice, and Atomic Design.
+---
+
+import ComponentCard from '../../../../components/ComponentCard.astro';
+
+OpenBoundary will support multiple architectural patterns. Each pattern provides a different structure for organizing components, dependencies, and boundaries.
+
+## Planned Patterns
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="architecture"
+    name="Clean Architecture"
+    description="Concentric layers with dependencies pointing inward. Entities at the core, use cases, interface adapters, and frameworks at the outer rings."
+    tags={['Backend', 'Domain-Driven']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="architecture"
+    name="Hexagonal Architecture"
+    description="Ports and adapters pattern. Core domain logic isolated from external concerns through well-defined interfaces."
+    tags={['Backend', 'Ports & Adapters']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="architecture"
+    name="Vertical Slice"
+    description="Features organized by capability rather than layer. Each slice contains all layers needed for a single feature."
+    tags={['Backend', 'Feature-First']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="architecture"
+    name="Atomic Design"
+    description="UI component hierarchy: atoms, molecules, organisms, templates, and pages. Composable design system structure."
+    tags={['Frontend', 'React']}
+    status="soon"
+  />
+</div>
+
+## How It Will Work
+
+Architectures define the valid relationships between components:
+
+```yaml
+version: "0.1.0"
+name: my-app
+architecture: clean  # or hexagonal, vertical-slice, atomic
+
+components:
+  - id: entity.user
+    kind: entity
+    layer: domain  # innermost layer
+
+  - id: usecase.create-user
+    kind: usecase
+    layer: application
+    depends_on: [entity.user]  # valid: outer depends on inner
+
+  - id: http.server.api
+    kind: http.server
+    layer: infrastructure  # outermost layer
+    depends_on: [usecase.create-user]
+```
+
+The compiler will validate that dependencies respect the architectural constraints:
+
+- **Clean Architecture**: Dependencies only point inward (infrastructure → application → domain)
+- **Hexagonal**: Adapters depend on ports, never the reverse
+- **Vertical Slice**: Cross-slice dependencies are explicit and validated
+- **Atomic Design**: Atoms don't depend on molecules; organisms can compose both
+
+## Benefits
+
+**Enforced boundaries** — The compiler rejects specs that violate architectural rules. An infrastructure component cannot directly depend on another infrastructure component without going through the appropriate layer.
+
+**Consistent structure** — Teams align on architecture through the spec, not conventions. New components are placed in the correct layer by definition.
+
+**AI-aware constraints** — Code generation tools understand the architectural context. Generated code follows the pattern without manual correction.
+
+## Contributing
+
+Interested in helping define these patterns? See the [GitHub repository](https://github.com/openboundary/openboundary) for discussion on architecture specifications.
+
+<style>{`
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--ob-border);
+    border: 1px solid var(--ob-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+
+  @media (max-width: 900px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+`}</style>

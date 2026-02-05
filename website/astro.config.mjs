@@ -60,6 +60,11 @@ export default defineConfig({
           slug: 'docs/cli',
         },
         {
+          label: 'Architectures',
+          slug: 'docs/architectures',
+          badge: { text: 'Soon', variant: 'caution' },
+        },
+        {
           label: 'Roadmap',
           slug: 'docs/roadmap',
         },
