@@ -1,0 +1,59 @@
+---
+interface Props {
+  type?: 'command' | 'output' | 'success' | 'muted';
+}
+
+const { type = 'output' } = Astro.props;
+
+const classes = {
+  command: 'terminal-line',
+  output: 'terminal-out',
+  success: 'terminal-out terminal-success',
+  muted: 'terminal-out terminal-muted',
+};
+---
+
+{type === 'command' ? (
+  <div class="terminal-line">
+    <span class="terminal-prompt">$</span>
+    <span class="terminal-cmd"><slot /></span>
+  </div>
+) : (
+  <div class={classes[type]}><slot /></div>
+)}
+
+<style>
+  .terminal-line {
+    display: flex;
+    gap: 8px;
+  }
+
+  .terminal-prompt {
+    color: var(--ob-text-tertiary);
+    user-select: none;
+  }
+
+  .terminal-cmd {
+    color: var(--ob-text);
+  }
+
+  .terminal-out {
+    color: var(--ob-text-secondary);
+    padding-left: 16px;
+  }
+
+  .terminal-success {
+    color: var(--ob-green);
+  }
+
+  .terminal-muted {
+    color: var(--ob-text-tertiary);
+  }
+
+  @media (max-width: 768px) {
+    .terminal-out {
+      padding-left: 0;
+      margin-left: 16px;
+    }
+  }
+</style>

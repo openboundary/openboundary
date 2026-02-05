@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "han": {
+      "source": {
+        "source": "github",
+        "repo": "thebushidocollective/han"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "core@han": true,
+    "bushido@han": true
+  }
+}

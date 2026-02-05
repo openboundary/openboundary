@@ -1,0 +1,53 @@
+---
+title: Roadmap
+description: Planned features and standards support for upcoming OpenBoundary releases.
+---
+
+Planned features and standards support for upcoming releases.
+
+## v0.2.0
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Claude Code Plugin | <span class="badge badge-soon">Next</span> | IDE integration that generates code within spec-defined boundaries, preventing middleware bypass and schema violations |
+| Safezone System | <span class="badge badge-soon">Next</span> | Designated code regions preserved during regeneration. Mark custom handlers with annotations; compiler merges updates without overwriting |
+
+## Future
+
+| Feature | Description |
+|---------|-------------|
+| TypeScript DSL | Define specs programmatically with type-safe builders |
+| Go DSL | Define specs programmatically in Go |
+| gRPC | Protocol buffer service definitions |
+| Fastify | Alternative HTTP framework for TypeScript |
+| Prisma | Alternative ORM provider |
+| CloudEvents | Event-driven architecture support |
+| AsyncAPI | Async messaging specifications |
+| Chi (Go) | Go language target support |
+| GraphQL | GraphQL schema and resolver generation |
+| Rust targets | Axum and Actix framework support |
+| IDE extensions | VS Code and JetBrains plugins for spec editing |
+| Test generation | Generate tests from acceptance criteria |
+| Plugin component system | Extensible architecture for custom component types and code generators |
+
+## Contributing
+
+Want to contribute? Check out the [GitHub repository](https://github.com/openboundary/openboundary) to get involved. See [releases](https://github.com/openboundary/openboundary/releases) for the latest version.
+
+### Priority Areas
+
+We're particularly interested in contributions for:
+
+1. **New framework targets** - Adding support for Fastify, Chi, Axum
+2. **Database providers** - Prisma integration, MySQL support
+3. **Documentation** - Examples, tutorials, best practices
+4. **Testing** - Edge cases, integration tests
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes with tests
+4. Submit a pull request
+
+See [CONTRIBUTING.md](https://github.com/openboundary/openboundary/blob/main/CONTRIBUTING.md) for detailed guidelines.

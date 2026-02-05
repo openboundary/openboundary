@@ -1,0 +1,48 @@
+---
+title: Getting Started
+description: Install OpenBoundary and generate your first type-safe backend in minutes.
+---
+
+Get up and running with OpenBoundary in four steps.
+
+## 1. Install
+
+Build the compiler from Go source:
+
+```bash
+git clone https://github.com/openboundary/openboundary.git
+cd openboundary
+go build -o openboundary ./cmd/openboundary
+```
+
+## 2. Create spec
+
+Generate a YAML specification defining routes, middleware, and database schema:
+
+```bash
+openboundary init basic -o my-project
+```
+
+## 3. Generate
+
+Compile spec to a TypeScript/Hono server with type-safe routing and middleware:
+
+```bash
+openboundary compile spec.yaml -o generated
+```
+
+## 4. Run
+
+Install dependencies and start the generated server:
+
+```bash
+cd generated
+npm install
+npm run dev
+```
+
+## Next Steps
+
+- Explore the [Component Catalog](/docs/components/) to see what you can define
+- Learn about [HTTP Servers](/docs/components/http-server) for routing and middleware
+- Check the [CLI Reference](/docs/cli) for all available commands

@@ -1,0 +1,84 @@
+---
+title: HTTP Server
+description: Configure HTTP servers with middleware chains, routing, and dependency injection.
+---
+
+<span class="component-kind-badge">http.server</span>
+
+Defines an HTTP server with declarative framework configuration, enforced middleware chains, and compile-time dependency injection. The compiler validates that all routes respect the middleware specification.
+
+## Frameworks
+
+<div class="support-grid">
+  <div class="support-item">
+    <div class="support-text">
+      <strong>Hono</strong>
+      <span>TypeScript</span>
+    </div>
+    <span class="badge badge-stable">Stable</span>
+  </div>
+  <div class="support-item soon">
+    <div class="support-text">
+      <strong>Fastify</strong>
+      <span>TypeScript</span>
+    </div>
+    <span class="badge badge-soon">Planned</span>
+  </div>
+  <div class="support-item soon">
+    <div class="support-text">
+      <strong>Chi</strong>
+      <span>Go</span>
+    </div>
+    <span class="badge badge-soon">Planned</span>
+  </div>
+</div>
+
+## Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `framework` <span class="required">required</span> | <span class="type">"hono"</span> | Web framework |
+| `port` <span class="required">required</span> | <span class="type">integer</span> | Port number (1-65535) |
+| `openapi` | <span class="type">string</span> | Path to OpenAPI spec |
+| `middleware` | <span class="type">array</span> | Middleware chain |
+| `depends_on` | <span class="type">array</span> | Dependencies for injection |
+
+## Example
+
+```yaml title="spec.yaml"
+- id: http.server.api
+  kind: http.server
+  spec:
+    framework: hono
+    port: 3000
+    openapi: ./openapi.yaml
+    middleware:
+      - middleware.authn
+    depends_on:
+      - postgres.primary
+```
+
+## Generated Output
+
+The compiler generates:
+
+- `src/server.ts` - Main server entry point with middleware wiring
+- `src/routes/*.ts` - Route handlers from OpenAPI operations
+- `src/middleware/*.ts` - Middleware implementations
+- `src/types.ts` - TypeScript types from OpenAPI schemas
+
+## Middleware Chain
+
+Middleware is applied in order. Each middleware can:
+
+1. **Pass through** - Continue to next middleware
+2. **Short-circuit** - Return early (e.g., auth failure)
+3. **Augment context** - Add data for downstream handlers
+
+```yaml
+middleware:
+  - middleware.cors      # First: handle CORS
+  - middleware.ratelimit # Second: check rate limits
+  - middleware.authn     # Third: authenticate
+  - middleware.authz     # Fourth: authorize
+```

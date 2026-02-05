@@ -1,0 +1,55 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = 'Terminal' } = Astro.props;
+---
+
+<div class="terminal">
+  <div class="terminal-header">{title}</div>
+  <div class="terminal-body">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .terminal {
+    background: var(--ob-bg-subtle);
+    border: 1px solid var(--ob-border);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 640px;
+  }
+
+  .terminal-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ob-border);
+    font-family: var(--ob-font-mono);
+    font-size: 12px;
+    color: var(--ob-text-tertiary);
+  }
+
+  .terminal-body {
+    padding: 20px;
+    font-family: var(--ob-font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 768px) {
+    .terminal {
+      max-width: 100%;
+    }
+
+    .terminal-body {
+      padding: 16px;
+      font-size: 12px;
+    }
+
+    .terminal-header {
+      padding: 10px 14px;
+      font-size: 11px;
+    }
+  }
+</style>

@@ -1,0 +1,81 @@
+---
+title: PostgreSQL
+description: Database integration with schema imports and type-safe queries via Drizzle ORM.
+---
+
+<span class="component-kind-badge">postgres</span>
+
+PostgreSQL integration via Drizzle ORM. Schemas are imported from TypeScript schema files. The compiler wires database access into route handlers via dependency injection.
+
+## Providers
+
+<div class="support-grid">
+  <div class="support-item">
+    <div class="support-text">
+      <strong>Drizzle</strong>
+      <span>TypeScript ORM</span>
+    </div>
+    <span class="badge badge-stable">Stable</span>
+  </div>
+  <div class="support-item soon">
+    <div class="support-text">
+      <strong>Prisma</strong>
+      <span>TypeScript ORM</span>
+    </div>
+    <span class="badge badge-soon">Planned</span>
+  </div>
+</div>
+
+## Configuration
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `provider` <span class="required">required</span> | <span class="type">"drizzle"</span> | ORM provider |
+| `schema` <span class="required">required</span> | <span class="type">string</span> | Path to Drizzle schema |
+
+## Example
+
+```yaml title="spec.yaml"
+- id: postgres.primary
+  kind: postgres
+  spec:
+    provider: drizzle
+    schema: ./src/db/schema.ts
+```
+
+:::note
+Connection configured at runtime via `DATABASE_URL` environment variable.
+:::
+
+## Schema File
+
+Your Drizzle schema defines tables and relationships:
+
+```typescript title="src/db/schema.ts"
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  name: text('name'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const posts = pgTable('posts', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  authorId: serial('author_id').references(() => users.id),
+});
+```
+
+## Dependency Injection
+
+When an HTTP server declares `depends_on: [postgres.primary]`, the database client is automatically injected into handlers:
+
+```typescript title="Generated handler"
+export async function getUsers(c: Context) {
+  const db = c.get('postgres.primary'); // Injected
+  const users = await db.select().from(usersTable);
+  return c.json(users);
+}
+```
