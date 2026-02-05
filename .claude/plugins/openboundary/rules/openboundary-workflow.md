@@ -145,3 +145,25 @@ When requirements change:
 | src/components/servers/*.ts | OpenBoundary | Never |
 | src/middleware/*.ts | OpenBoundary | Never |
 | tests/*.ts | OpenBoundary | Never |
+
+## Boundary Configuration
+
+All boundary rules are defined in `boundaries.json` - the single source of truth. See that file for the complete list of patterns.
+
+## Skills Available
+
+| Skill | Purpose |
+|-------|---------|
+| `/ob-compile` | Compile specification |
+| `/ob-validate` | Validate specification |
+| `/ob-new-usecase` | Add new usecase |
+| `/ob-rollback` | Undo protected file changes |
+
+## Enforcement
+
+The plugin uses two layers:
+
+1. **Advisory (pre-edit)** - Warns before editing protected files
+2. **Enforcement (post-edit)** - Validates via git diff that no violations occurred
+
+If violations are detected, use `/ob-rollback` to restore protected files.

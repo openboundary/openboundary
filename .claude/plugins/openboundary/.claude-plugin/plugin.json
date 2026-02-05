@@ -1,8 +1,14 @@
 {
   "name": "openboundary",
-  "version": "1.0.0",
-  "description": "Constrains AI agents to work within OpenBoundary specification boundaries. Prevents accidental edits to generated code while allowing safe modifications to specs, configs, and usecase implementations.",
+  "displayName": "OpenBoundary Boundary Enforcer",
+  "version": "1.1.0",
+  "category": "discipline",
+  "description": "Enforces OpenBoundary specification boundaries. Prevents edits to generated infrastructure code while allowing safe modifications to specs, configs, and usecase implementations.",
   "author": {
     "name": "OpenBoundary"
-  }
+  },
+  "activationPatterns": [
+    "**/spec.yaml",
+    "**/openboundary.yaml"
+  ]
 }
