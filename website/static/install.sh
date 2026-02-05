@@ -1,6 +1,6 @@
 #!/bin/sh
 # OpenBoundary CLI Installer
-# Usage: curl -fsSL https://openboundary.org/install.sh | sh
+# Usage: curl -fsSL https://raw.githubusercontent.com/openboundary/openboundary/main/website/static/install.sh | sh
 #
 # This script detects your OS and architecture, downloads the appropriate
 # bound binary, and installs it to /usr/local/bin (or ~/.local/bin if no sudo).

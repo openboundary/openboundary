@@ -52,7 +52,7 @@ Each release also includes a `checksums.txt` file for verification.
 4. **Verify the release**
    - Check the [Releases page](../../releases) for the new release
    - Verify all expected assets are present
-   - Test the install script works: `curl -fsSL https://openboundary.org/install.sh | sh`
+   - Test the install script works: `curl -fsSL https://raw.githubusercontent.com/openboundary/openboundary/main/website/static/install.sh | sh`
 
 ### Pre-release
 

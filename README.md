@@ -45,7 +45,7 @@ $ bound compile spec.yaml
 
 ```bash
 # Install the CLI
-curl -fsSL https://openboundary.org/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/openboundary/openboundary/main/website/static/install.sh | sh
 
 # Or build from source
 git clone https://github.com/openboundary/openboundary.git
