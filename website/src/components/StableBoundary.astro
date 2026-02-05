@@ -3,16 +3,16 @@ import WaitlistForm from './WaitlistForm.astro';
 
 const features = [
   {
-    title: 'Specialized boundary agents',
-    description: "AI agents trained to work within your architectural constraints. They don't just read the spec — they reason about it.",
+    title: 'Constraint-aware code generation',
+    description: 'AI agents that understand your architectural boundaries. Generated code respects middleware chains, auth requirements, and schema contracts.',
   },
   {
-    title: 'Intelligent context',
-    description: 'Agents get exactly what they need — relevant boundaries, dependencies, constraints. No drowning in irrelevant code. No missing critical context.',
+    title: 'Scoped context injection',
+    description: 'Agents receive only the relevant boundaries, dependencies, and constraints for each task. Reduces context noise and improves generation accuracy.',
   },
   {
-    title: 'Architecture that persists',
-    description: 'Code changes. Teams change. The boundary stays stable. Onboard new developers and new AI tools to a living architecture.',
+    title: 'Persistent architecture definitions',
+    description: 'Specifications remain stable as implementations evolve. New team members and AI tools work from the same architectural source of truth.',
   },
 ];
 ---
@@ -33,7 +33,7 @@ const features = [
     <h2>StableBoundary</h2>
   </div>
 
-  <p class="tagline">The open source compiler is just the foundation. We're building something bigger.</p>
+  <p class="tagline">Hosted infrastructure for specification-driven development with AI coding tools.</p>
 
   <div class="features-grid">
     {features.map((feature) => (

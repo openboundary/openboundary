@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'OpenBoundary',
-      description: 'Define architectural and security invariants that AI agents can\'t violate. Generate type-safe backends from specifications.',
+      description: 'Compile YAML specifications into type-safe TypeScript backends with enforced architectural constraints.',
       logo: {
         src: './src/assets/logo.svg',
       },
