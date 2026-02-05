@@ -40,8 +40,7 @@ func (g *HonoServerGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 
 		// Generate the server file
 		serverCode := g.generateServer(i, comp)
-		filename := fmt.Sprintf("src/components/servers/%s.ts", sanitizeFilename(comp.ID))
-		output.AddFile(filename, []byte(serverCode))
+		output.AddFile(serverSourcePath(comp.ID), []byte(serverCode))
 	}
 
 	// Generate main index.ts that wires everything
@@ -56,39 +55,14 @@ func (g *HonoServerGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 
 		mwCode := g.generateMiddleware(comp)
 		if mwCode != "" {
-			filename := fmt.Sprintf("src/components/middlewares/%s.ts", sanitizeFilename(comp.ID))
-			output.AddFile(filename, []byte(mwCode))
+			output.AddFile(middlewareSourcePath(comp.ID), []byte(mwCode))
 		}
 
 		// Generate additional files for better-auth
 		if comp.Middleware.Provider == "better-auth" {
-			// Find the postgres dependency
-			pgID := ""
-			for _, depID := range comp.Middleware.DependsOn {
-				if dep, ok := i.Components[depID]; ok && dep.Kind == ir.KindPostgres {
-					pgID = dep.ID
-					break
-				}
-			}
-			if pgID == "" {
-				// Fallback: find first postgres component
-				for _, c := range i.Components {
-					if c.Kind == ir.KindPostgres {
-						pgID = c.ID
-						break
-					}
-				}
-			}
-
-			// Generate auth config
-			configCode := g.generateBetterAuthConfig(comp, pgID)
-			configFilename := fmt.Sprintf("src/components/middlewares/%s.config.ts", sanitizeFilename(comp.ID))
-			output.AddFile(configFilename, []byte(configCode))
-
 			// Generate auth schema
 			schemaCode := g.generateBetterAuthSchema()
-			schemaFilename := fmt.Sprintf("src/components/middlewares/%s.schema.ts", sanitizeFilename(comp.ID))
-			output.AddFile(schemaFilename, []byte(schemaCode))
+			output.AddFile(middlewareSchemaPath(comp.ID), []byte(schemaCode))
 		}
 	}
 
@@ -99,12 +73,11 @@ func (g *HonoServerGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		}
 
 		pgCode := g.generatePostgresClient(comp)
-		filename := fmt.Sprintf("src/components/postgres/%s.ts", sanitizeFilename(comp.ID))
-		output.AddFile(filename, []byte(pgCode))
+		output.AddFile(postgresSourcePath(comp.ID), []byte(pgCode))
 	}
 
 	// Generate postgres client type file
-	output.AddFile("src/components/postgres/client.ts", []byte(postgresClientType))
+	output.AddFile(postgresClientPath(), []byte(postgresClientType))
 
 	return output, nil
 }
@@ -120,18 +93,18 @@ func (g *HonoServerGenerator) generateServer(i *ir.IR, server *ir.Component) str
 	middlewareRefs := collectServerMiddleware(i, server)
 
 	// Import context type (colocated with server)
-	sb.WriteString(fmt.Sprintf("import type { ServerContext } from './%s.context';\n", sanitizeFilename(server.ID)))
+	sb.WriteString(fmt.Sprintf("import type { ServerContext } from './%s.context';\n", componentIDSlug(server.ID)))
 
 	// Import middlewares
 	for _, mwRef := range middlewareRefs {
-		sb.WriteString(fmt.Sprintf("import { %sMiddleware } from '../middlewares/%s';\n",
-			toCamelCase(mwRef), sanitizeFilename(mwRef)))
+		sb.WriteString(fmt.Sprintf("import { %sMiddleware } from './%s.middleware';\n",
+			toCamelCase(mwRef), componentIDSlug(mwRef)))
 	}
 
 	// Import usecases
 	for _, uc := range usecases {
-		sb.WriteString(fmt.Sprintf("import { %s } from '../usecases/%s';\n",
-			toFunctionName(uc.ID), sanitizeFilename(uc.ID)))
+		sb.WriteString(fmt.Sprintf("import { %s } from './%s.usecase';\n",
+			toFunctionName(uc.ID), componentIDSlug(uc.ID)))
 	}
 
 	sb.WriteString("\n")
@@ -293,22 +266,22 @@ func (g *HonoServerGenerator) generateIndex(i *ir.IR) string {
 	if betterAuthMw != nil {
 		sb.WriteString("import { Hono } from 'hono';\n")
 		sb.WriteString("import { cors } from 'hono/cors';\n")
-		sb.WriteString(fmt.Sprintf("import { auth } from './components/middlewares/%s.config';\n",
-			sanitizeFilename(betterAuthMw.ID)))
+		sb.WriteString(fmt.Sprintf("import { auth } from './components/%s.middleware.config';\n",
+			componentIDSlug(betterAuthMw.ID)))
 	}
 
 	// Import server creators
 	servers := g.getHTTPServers(i)
 	for _, server := range servers {
-		sb.WriteString(fmt.Sprintf("import { create%sApp } from './components/servers/%s';\n",
-			toPascalCase(server.ID), sanitizeFilename(server.ID)))
+		sb.WriteString(fmt.Sprintf("import { create%sApp } from './components/%s.server';\n",
+			toPascalCase(server.ID), componentIDSlug(server.ID)))
 	}
 
 	// Import postgres clients
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindPostgres && comp.Postgres != nil {
-			sb.WriteString(fmt.Sprintf("import { create%sClient } from './components/postgres/%s';\n",
-				toPascalCase(comp.ID), sanitizeFilename(comp.ID)))
+			sb.WriteString(fmt.Sprintf("import { create%sClient } from './components/%s.postgres';\n",
+				toPascalCase(comp.ID), componentIDSlug(comp.ID)))
 		}
 	}
 
@@ -334,7 +307,8 @@ func (g *HonoServerGenerator) generateIndex(i *ir.IR) string {
 		}
 
 		sb.WriteString(fmt.Sprintf("  // Start %s\n", server.ID))
-		sb.WriteString("  const context = {\n")
+		contextVar := toCamelCase(server.ID) + "Context"
+		sb.WriteString(fmt.Sprintf("  const %s = {\n", contextVar))
 
 		// Add dependencies to context
 		for _, dep := range getServerPostgresDependencies(i, server) {
@@ -364,23 +338,24 @@ func (g *HonoServerGenerator) generateIndex(i *ir.IR) string {
 		sb.WriteString("  };\n\n")
 
 		appVar := toCamelCase(server.ID) + "App"
-		sb.WriteString(fmt.Sprintf("  const %s = create%sApp(context);\n", appVar, toPascalCase(server.ID)))
+		sb.WriteString(fmt.Sprintf("  const %s = create%sApp(%s);\n", appVar, toPascalCase(server.ID), contextVar))
 
 		// If we have better-auth, create a root app that mounts auth routes
 		if betterAuthMw != nil {
+			rootAppVar := toCamelCase(server.ID) + "RootApp"
 			sb.WriteString("\n  // Create root app with auth routes\n")
-			sb.WriteString("  const app = new Hono();\n\n")
+			sb.WriteString(fmt.Sprintf("  const %s = new Hono();\n\n", rootAppVar))
 			sb.WriteString("  // CORS for auth routes\n")
-			sb.WriteString("  app.use('/api/auth/*', cors({\n")
+			sb.WriteString(fmt.Sprintf("  %s.use('/api/auth/*', cors({\n", rootAppVar))
 			sb.WriteString("    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',\n")
 			sb.WriteString("    allowHeaders: ['Content-Type', 'Authorization'],\n")
 			sb.WriteString("    allowMethods: ['POST', 'GET', 'OPTIONS'],\n")
 			sb.WriteString("    credentials: true,\n")
 			sb.WriteString("  }));\n\n")
 			sb.WriteString("  // Mount better-auth routes\n")
-			sb.WriteString("  app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));\n\n")
-			sb.WriteString(fmt.Sprintf("  // Mount API routes\n  app.route('/', %s);\n\n", appVar))
-			sb.WriteString(fmt.Sprintf("  serve({ fetch: app.fetch, port: %d }, (info) => {\n", port))
+			sb.WriteString(fmt.Sprintf("  %s.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));\n\n", rootAppVar))
+			sb.WriteString(fmt.Sprintf("  // Mount API routes\n  %s.route('/', %s);\n\n", rootAppVar, appVar))
+			sb.WriteString(fmt.Sprintf("  serve({ fetch: %s.fetch, port: %d }, (info) => {\n", rootAppVar, port))
 		} else {
 			sb.WriteString(fmt.Sprintf("  serve({ fetch: %s.fetch, port: %d }, (info) => {\n", appVar, port))
 		}
@@ -408,7 +383,7 @@ func (g *HonoServerGenerator) generateMiddleware(mw *ir.Component) string {
 	switch mw.Middleware.Provider {
 	case "better-auth":
 		mwFilename := sanitizeFilename(mw.ID)
-		sb.WriteString(fmt.Sprintf("import { auth, type Session, type User } from './%s.config';\n\n", mwFilename))
+		sb.WriteString(fmt.Sprintf("import { auth, type Session, type User } from './%s.middleware.config';\n\n", mwFilename))
 		sb.WriteString(fmt.Sprintf("export const %sMiddleware = createMiddleware(async (c, next) => {\n", toCamelCase(mw.ID)))
 		sb.WriteString("  const session = await auth.api.getSession({ headers: c.req.raw.headers });\n\n")
 		sb.WriteString("  if (!session) {\n")
@@ -438,8 +413,8 @@ func (g *HonoServerGenerator) generateMiddleware(mw *ir.Component) string {
 		sb.WriteString("let enforcer: Enforcer | null = null;\n\n")
 		sb.WriteString("async function getEnforcer(): Promise<Enforcer> {\n")
 		sb.WriteString("  if (!enforcer) {\n")
-		sb.WriteString(fmt.Sprintf("    const modelPath = path.join(__dirname, '%s.model.conf');\n", mwFilename))
-		sb.WriteString(fmt.Sprintf("    const policyPath = path.join(__dirname, '%s.policy.csv');\n", mwFilename))
+		sb.WriteString(fmt.Sprintf("    const modelPath = path.join(__dirname, '%s.middleware.model.conf');\n", mwFilename))
+		sb.WriteString(fmt.Sprintf("    const policyPath = path.join(__dirname, '%s.middleware.policy.csv');\n", mwFilename))
 		sb.WriteString("    enforcer = await newEnforcer(modelPath, policyPath);\n")
 		sb.WriteString("  }\n")
 		sb.WriteString("  return enforcer;\n")
@@ -469,7 +444,7 @@ func (g *HonoServerGenerator) generatePostgresClient(pg *ir.Component) string {
 		sb.WriteString("import { drizzle } from 'drizzle-orm/postgres-js';\n")
 		sb.WriteString("import postgres from 'postgres';\n")
 		// Import from the colocated schema file
-		sb.WriteString(fmt.Sprintf("import * as schema from './%s.schema';\n\n", sanitizeFilename(pg.ID)))
+		sb.WriteString(fmt.Sprintf("import * as schema from './%s.postgres.schema';\n\n", componentIDSlug(pg.ID)))
 
 		sb.WriteString("// Database connection\n")
 		sb.WriteString("const connectionString = process.env.DATABASE_URL || '';\n")
@@ -665,39 +640,6 @@ func extractPathParams(path string) []string {
 		path = path[end+1:]
 	}
 	return params
-}
-
-// generateBetterAuthConfig generates the better-auth configuration file.
-func (g *HonoServerGenerator) generateBetterAuthConfig(mw *ir.Component, pgID string) string {
-	var sb strings.Builder
-
-	sb.WriteString("// Generated by OpenBoundary - DO NOT EDIT\n")
-	sb.WriteString("import { betterAuth } from 'better-auth';\n")
-	sb.WriteString("import { drizzleAdapter } from 'better-auth/adapters/drizzle';\n")
-	sb.WriteString(fmt.Sprintf("import { db } from '../postgres/%s';\n", sanitizeFilename(pgID)))
-	sb.WriteString(fmt.Sprintf("import * as authSchema from './%s.schema';\n\n", sanitizeFilename(mw.ID)))
-
-	sb.WriteString("export const auth = betterAuth({\n")
-	sb.WriteString("  database: drizzleAdapter(db, {\n")
-	sb.WriteString("    provider: 'pg',\n")
-	sb.WriteString("    schema: authSchema,\n")
-	sb.WriteString("  }),\n")
-	sb.WriteString("  emailAndPassword: {\n")
-	sb.WriteString("    enabled: true,\n")
-	sb.WriteString("    minPasswordLength: 8,\n")
-	sb.WriteString("    maxPasswordLength: 128,\n")
-	sb.WriteString("  },\n")
-	sb.WriteString("  session: {\n")
-	sb.WriteString("    expiresIn: 60 * 60 * 24 * 7, // 7 days\n")
-	sb.WriteString("    updateAge: 60 * 60 * 24,     // 1 day\n")
-	sb.WriteString("  },\n")
-	sb.WriteString("});\n\n")
-
-	sb.WriteString("// Export inferred types for use in middleware and usecases\n")
-	sb.WriteString("export type Session = typeof auth.$Infer.Session.session;\n")
-	sb.WriteString("export type User = typeof auth.$Infer.Session.user;\n")
-
-	return sb.String()
 }
 
 // generateBetterAuthSchema generates the Drizzle schema for better-auth tables.

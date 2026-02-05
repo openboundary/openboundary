@@ -72,7 +72,7 @@ func TestContextGenerator_Generate_WithPostgresDependency(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content, ok := output.Files["src/components/servers/http-server-api.context.ts"]
+	content, ok := output.Files["src/components/http-server-api.context.ts"]
 	if !ok {
 		t.Fatal("context file not found in output")
 	}
@@ -127,7 +127,7 @@ func TestContextGenerator_Generate_WithBetterAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/servers/http-server-api.context.ts"])
+	content := string(output.Files["src/components/http-server-api.context.ts"])
 	if !strings.Contains(content, "auth?:") {
 		t.Error("context file should have auth field for better-auth")
 	}
@@ -175,7 +175,7 @@ func TestContextGenerator_Generate_WithCasbinMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/servers/http-server-api.context.ts"])
+	content := string(output.Files["src/components/http-server-api.context.ts"])
 	if !strings.Contains(content, "enforcer?:") {
 		t.Error("context file should have enforcer field for casbin")
 	}
@@ -211,7 +211,7 @@ func TestContextGenerator_Generate_ContextWithHelper(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/servers/http-server-api.context.ts"])
+	content := string(output.Files["src/components/http-server-api.context.ts"])
 	if !strings.Contains(content, "ContextWith") {
 		t.Error("context file should contain ContextWith helper type")
 	}

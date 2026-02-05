@@ -36,8 +36,7 @@ func (g *ContextGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		}
 
 		contextFile := g.generateServerContext(i, comp)
-		filename := fmt.Sprintf("src/components/servers/%s.context.ts", sanitizeFilename(comp.ID))
-		output.AddFile(filename, []byte(contextFile))
+		output.AddFile(serverContextPath(comp.ID), []byte(contextFile))
 	}
 
 	return output, nil
@@ -102,7 +101,7 @@ func (g *ContextGenerator) collectImports(i *ir.IR, server *ir.Component) []stri
 	// Check for postgres dependencies
 	for _, dep := range getServerPostgresDependencies(i, server) {
 		if dep.Postgres != nil && dep.Postgres.Provider == "drizzle" {
-			imports["import type { DrizzleClient } from '../postgres/client';"] = true
+			imports[fmt.Sprintf("import type { DrizzleClient } from '%s';", postgresClientImportPath())] = true
 		}
 	}
 
@@ -116,7 +115,7 @@ func (g *ContextGenerator) collectImports(i *ir.IR, server *ir.Component) []stri
 		switch mwComp.Middleware.Provider {
 		case "better-auth":
 			// Import types from the colocated auth config
-			imports[fmt.Sprintf("import type { Session, User } from '../middlewares/%s.config';", sanitizeFilename(mwComp.ID))] = true
+			imports[fmt.Sprintf("import type { Session, User } from './%s.middleware.config';", componentIDSlug(mwComp.ID))] = true
 		case "casbin":
 			imports["import type { Enforcer } from 'casbin';"] = true
 		}
@@ -155,12 +154,4 @@ func (g *ContextGenerator) extractFieldName(componentID, fallback string) string
 		return fallback // Use fallback for simplicity
 	}
 	return fallback
-}
-
-// sanitizeFilename converts a component ID to a safe filename.
-func sanitizeFilename(id string) string {
-	// Replace dots and other special chars with dashes
-	result := strings.ReplaceAll(id, ".", "-")
-	result = strings.ReplaceAll(result, "/", "-")
-	return result
 }

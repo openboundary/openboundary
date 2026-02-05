@@ -36,13 +36,12 @@ func (g *UsecaseGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		}
 
 		usecaseCode := g.generateUsecase(i, comp)
-		filename := fmt.Sprintf("src/components/usecases/%s.ts", sanitizeFilename(comp.ID))
-		output.AddFile(filename, []byte(usecaseCode))
+		output.AddFile(usecaseSourcePath(comp.ID), []byte(usecaseCode))
 	}
 
 	// Generate index file that exports all usecases
 	indexCode := g.generateIndex(i)
-	output.AddFile("src/components/usecases/index.ts", []byte(indexCode))
+	output.AddFile(usecaseIndexPath(), []byte(indexCode))
 
 	return output, nil
 }
@@ -60,8 +59,8 @@ func (g *UsecaseGenerator) generateUsecase(i *ir.IR, uc *ir.Component) string {
 
 	// Import context type from the server (colocated with servers)
 	if server != nil {
-		sb.WriteString(fmt.Sprintf("import type { ContextWith } from '../servers/%s.context';\n",
-			sanitizeFilename(server.ID)))
+		sb.WriteString(fmt.Sprintf("import type { ContextWith } from './%s.context';\n",
+			componentIDSlug(server.ID)))
 	}
 
 	// Determine type names based on OpenAPI operation
@@ -104,7 +103,7 @@ func (g *UsecaseGenerator) generateUsecase(i *ir.IR, uc *ir.Component) string {
 
 	// Import from Orval schemas (colocated with usecases)
 	if len(schemaImports) > 0 {
-		sb.WriteString(fmt.Sprintf("import type { %s } from './schemas';\n", strings.Join(schemaImports, ", ")))
+		sb.WriteString(fmt.Sprintf("import type { %s } from './usecase.schemas';\n", strings.Join(schemaImports, ", ")))
 	}
 	sb.WriteString("\n")
 
@@ -239,8 +238,7 @@ func (g *UsecaseGenerator) generateIndex(i *ir.IR) string {
 	// Generate exports
 	for _, uc := range usecases {
 		funcName := toFunctionName(uc.ID)
-		filename := sanitizeFilename(uc.ID)
-		sb.WriteString(fmt.Sprintf("export { %s } from './%s';\n", funcName, filename))
+		sb.WriteString(fmt.Sprintf("export { %s } from './%s.usecase';\n", funcName, componentIDSlug(uc.ID)))
 	}
 
 	return sb.String()

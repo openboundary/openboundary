@@ -33,10 +33,8 @@ func (g *SchemaGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	// Copy Drizzle schema colocated with postgres component
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindPostgres && comp.Postgres != nil && comp.Postgres.Schema != "" {
-			content, err := g.readSourceFile(i.BaseDir, comp.Postgres.Schema)
-			if err == nil {
-				filename := fmt.Sprintf("src/components/postgres/%s.schema.ts", sanitizeFilename(comp.ID))
-				output.AddFile(filename, content)
+			if err := g.copyRequiredSourceFile(output, i.BaseDir, comp.ID, comp.Postgres.Schema, postgresSchemaPath(comp.ID)); err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -44,29 +42,22 @@ func (g *SchemaGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	// Copy middleware config files colocated with middleware components
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindMiddleware && comp.Middleware != nil {
-			mwFilename := sanitizeFilename(comp.ID)
 			switch comp.Middleware.Provider {
 			case "better-auth":
 				if comp.Middleware.Config != "" {
-					content, err := g.readSourceFile(i.BaseDir, comp.Middleware.Config)
-					if err == nil {
-						filename := fmt.Sprintf("src/components/middlewares/%s.config.ts", mwFilename)
-						output.AddFile(filename, content)
+					if err := g.copyRequiredSourceFile(output, i.BaseDir, comp.ID, comp.Middleware.Config, middlewareConfigPath(comp.ID)); err != nil {
+						return nil, err
 					}
 				}
 			case "casbin":
 				if comp.Middleware.Model != "" {
-					content, err := g.readSourceFile(i.BaseDir, comp.Middleware.Model)
-					if err == nil {
-						filename := fmt.Sprintf("src/components/middlewares/%s.model.conf", mwFilename)
-						output.AddFile(filename, content)
+					if err := g.copyRequiredSourceFile(output, i.BaseDir, comp.ID, comp.Middleware.Model, middlewareModelPath(comp.ID)); err != nil {
+						return nil, err
 					}
 				}
 				if comp.Middleware.Policy != "" {
-					content, err := g.readSourceFile(i.BaseDir, comp.Middleware.Policy)
-					if err == nil {
-						filename := fmt.Sprintf("src/components/middlewares/%s.policy.csv", mwFilename)
-						output.AddFile(filename, content)
+					if err := g.copyRequiredSourceFile(output, i.BaseDir, comp.ID, comp.Middleware.Policy, middlewarePolicyPath(comp.ID)); err != nil {
+						return nil, err
 					}
 				}
 			}
@@ -77,6 +68,15 @@ func (g *SchemaGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	output.AddFile(".env.example", []byte(g.generateEnvExample(i)))
 
 	return output, nil
+}
+
+func (g *SchemaGenerator) copyRequiredSourceFile(output *codegen.Output, baseDir, componentID, sourcePath, outputPath string) error {
+	content, err := g.readSourceFile(baseDir, sourcePath)
+	if err != nil {
+		return fmt.Errorf("component %q: failed to read source file %q: %w", componentID, sourcePath, err)
+	}
+	output.AddFile(outputPath, content)
+	return nil
 }
 
 func (g *SchemaGenerator) readSourceFile(baseDir, relativePath string) ([]byte, error) {

@@ -146,7 +146,7 @@ func TestProjectGenerator_Generate_OrvalConfig(t *testing.T) {
 				HTTPServer: &ir.HTTPServerSpec{
 					Framework: "hono",
 					Port:      3000,
-					OpenAPI:   "./src/components/servers/http-server-api.schema.yaml",
+					OpenAPI:   "./src/components/http-server-api.openapi.yaml",
 				},
 			},
 		},
@@ -167,7 +167,7 @@ func TestProjectGenerator_Generate_OrvalConfig(t *testing.T) {
 	}
 
 	content := string(orvalContent)
-	if !strings.Contains(content, "./src/components/servers/http-server-api.schema.yaml") {
+	if !strings.Contains(content, "./src/components/http-server-api.openapi.yaml") {
 		t.Error("orval.config.ts should contain the generated schema path")
 	}
 	if !strings.Contains(content, "defineConfig") {
