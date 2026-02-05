@@ -1,11 +1,11 @@
 ---
 title: Templates
-description: Production-ready application templates with pre-configured boundaries.
+description: Example specifications for common application types.
 ---
 
 import ComponentCard from '../../../components/ComponentCard.astro';
 
-Templates are complete specifications for common application types. Each template includes pre-configured authentication, authorization policies, database schemas, and API contracts.
+Templates are example specifications that demonstrate OpenBoundary patterns for common application types. Each provides a starting point with pre-configured components, middleware chains, and database schemas.
 
 ## Available Now
 
@@ -13,7 +13,7 @@ Templates are complete specifications for common application types. Each templat
   <ComponentCard
     kind="template"
     name="Basic API"
-    description="REST API with authentication, authorization, and PostgreSQL. User management endpoints included."
+    description="REST API with authentication, authorization, and PostgreSQL. CRUD endpoints with proper middleware wiring."
     tags={['Auth', 'CRUD', 'PostgreSQL']}
     status="stable"
   />
@@ -27,104 +27,66 @@ bound init basic -o my-project
 
 ## Coming Soon
 
-Production-ready templates for common application patterns. Each includes complete specs, OpenAPI contracts, database schemas, and authorization policies.
-
 ### Business Applications
 
 <div class="catalog-grid">
   <ComponentCard
     kind="template"
     name="CRM"
-    description="Customer relationship management with contacts, companies, deals pipeline, and activity tracking."
-    tags={['Sales', 'Pipeline', 'Multi-tenant']}
+    description="Contacts, companies, deals pipeline, and activity tracking. Role-based access for sales teams."
+    tags={['Sales', 'Pipeline', 'RBAC']}
     status="soon"
   />
 
   <ComponentCard
     kind="template"
     name="Project Management"
-    description="Projects, tasks, sprints, and team collaboration. Kanban and list views with real-time updates."
-    tags={['Teams', 'Tasks', 'Collaboration']}
+    description="Projects, tasks, and team collaboration. Kanban boards with assignment and status tracking."
+    tags={['Teams', 'Tasks', 'Kanban']}
     status="soon"
   />
 
-  <ComponentCard
-    kind="template"
-    name="Invoice & Billing"
-    description="Invoices, payments, subscriptions, and revenue tracking. Stripe integration included."
-    tags={['Payments', 'Stripe', 'Subscriptions']}
-    status="soon"
-  />
-
-  <ComponentCard
-    kind="template"
-    name="Inventory Management"
-    description="Products, stock levels, warehouses, and order fulfillment. Barcode and SKU support."
-    tags={['E-commerce', 'Stock', 'Orders']}
-    status="soon"
-  />
-</div>
-
-### Platforms
-
-<div class="catalog-grid">
   <ComponentCard
     kind="template"
     name="Booking Platform"
-    description="Appointments, availability, calendars, and reminders. Supports multiple providers and locations."
+    description="Appointments, availability calendars, and reminders. Multi-provider scheduling."
     tags={['Scheduling', 'Calendar', 'Notifications']}
     status="soon"
   />
 
   <ComponentCard
     kind="template"
-    name="Marketplace"
-    description="Multi-vendor marketplace with listings, orders, reviews, and seller payouts."
-    tags={['Multi-vendor', 'Payments', 'Reviews']}
+    name="LMS"
+    description="Courses, lessons, enrollments, and progress tracking. Instructor and student roles."
+    tags={['Education', 'Courses', 'Progress']}
+    status="soon"
+  />
+</div>
+
+### E-commerce & Marketplaces
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Inventory Management"
+    description="Products, stock levels, and order fulfillment. Warehouse and SKU support."
+    tags={['Products', 'Stock', 'Orders']}
     status="soon"
   />
 
   <ComponentCard
     kind="template"
-    name="LMS (Learning Management)"
-    description="Courses, lessons, enrollments, progress tracking, and certificates. Video and quiz support."
-    tags={['Education', 'Courses', 'Progress']}
+    name="Marketplace"
+    description="Multi-vendor listings, orders, and reviews. Seller and buyer workflows."
+    tags={['Multi-vendor', 'Listings', 'Reviews']}
     status="soon"
   />
 
   <ComponentCard
     kind="template"
     name="Job Board"
-    description="Job listings, applications, candidate tracking, and employer dashboards."
+    description="Job listings, applications, and candidate tracking. Employer dashboards."
     tags={['Hiring', 'Applications', 'Search']}
-    status="soon"
-  />
-</div>
-
-### Compliance-Ready
-
-<div class="catalog-grid">
-  <ComponentCard
-    kind="template"
-    name="Healthcare (HIPAA)"
-    description="Patient records, appointments, and messaging with HIPAA-compliant audit logging and access controls."
-    tags={['HIPAA', 'Healthcare', 'Audit Logs']}
-    status="soon"
-  />
-
-  <ComponentCard
-    kind="template"
-    name="Finance (SOC 2)"
-    description="Financial data management with SOC 2 controls, encryption at rest, and comprehensive audit trails."
-    tags={['SOC 2', 'Finance', 'Encryption']}
-    status="soon"
-  />
-
-  <ComponentCard
-    kind="template"
-    name="Multi-tenant SaaS"
-    description="Tenant isolation, subscription tiers, usage metering, and admin dashboards. White-label ready."
-    tags={['SaaS', 'Multi-tenant', 'Billing']}
     status="soon"
   />
 </div>
@@ -135,7 +97,7 @@ Production-ready templates for common application patterns. Each includes comple
   <ComponentCard
     kind="template"
     name="API Gateway"
-    description="Rate limiting, API keys, usage tracking, and developer portal. OpenAPI documentation included."
+    description="Rate limiting, API keys, and usage tracking. Developer portal endpoints."
     tags={['Gateway', 'Rate Limits', 'API Keys']}
     status="soon"
   />
@@ -143,7 +105,7 @@ Production-ready templates for common application patterns. Each includes comple
   <ComponentCard
     kind="template"
     name="Webhook Service"
-    description="Webhook delivery with retries, signatures, and delivery logs. Fan-out to multiple endpoints."
+    description="Webhook delivery with retries and signatures. Delivery logs and fan-out."
     tags={['Webhooks', 'Events', 'Retries']}
     status="soon"
   />
@@ -151,24 +113,72 @@ Production-ready templates for common application patterns. Each includes comple
 
 ---
 
+## Compliance-Ready Specifications
+
+These templates define the *structure* for compliance-sensitive applications. They include appropriate middleware chains, data isolation patterns, and schema designs.
+
+:::note[Compliance Enforcement]
+Generating code from a specification is step one. Full compliance requires audit logging, approval workflows, access governance, and continuous monitoring—capabilities available in [StableBoundary](https://stableboundary.com).
+:::
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Healthcare API"
+    description="Patient records, appointments, and messaging. Structured for HIPAA requirements."
+    tags={['Healthcare', 'Patient Data', 'Messaging']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Financial Services API"
+    description="Accounts, transactions, and reporting. Structured for financial data handling."
+    tags={['Finance', 'Transactions', 'Reporting']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Multi-tenant SaaS"
+    description="Tenant isolation, subscription tiers, and usage tracking. White-label ready."
+    tags={['SaaS', 'Tenants', 'Subscriptions']}
+    status="soon"
+  />
+</div>
+
+**What templates provide:**
+- Data model with appropriate isolation
+- Middleware chains for authentication/authorization
+- API structure following domain patterns
+
+**What compliance requires (beyond code generation):**
+- Audit trails for all data access
+- Approval workflows for sensitive changes
+- Encryption key management
+- Access reviews and governance
+- Continuous compliance monitoring
+
+---
+
 ## What's in a Template
 
 Each template includes:
 
-| Component | Description |
-|-----------|-------------|
+| File | Description |
+|------|-------------|
 | `spec.yaml` | Complete OpenBoundary specification |
-| `openapi.yaml` | Full API contract with request/response schemas |
-| `src/db/schema.ts` | Drizzle database schema with all tables |
+| `openapi.yaml` | API contract with request/response schemas |
+| `src/db/schema.ts` | Drizzle database schema |
 | `src/auth/model.conf` | Casbin authorization model |
 | `src/auth/policy.csv` | Role-based access policies |
-| `README.md` | Setup instructions and customization guide |
+| `README.md` | Setup and customization guide |
 
-### Example: CRM Template Structure
+### Example: CRM Template
 
 ```
-crm-template/
-├── spec.yaml              # 15+ components defined
+crm/
+├── spec.yaml              # 15+ components
 ├── openapi.yaml           # 40+ endpoints
 ├── src/
 │   ├── auth/
@@ -184,26 +194,25 @@ crm-template/
 
 ## Request a Template
 
-Have a use case we haven't covered? [Open an issue](https://github.com/openboundary/openboundary/issues/new?template=template-request.md) with:
+Have a use case we haven't covered? [Open an issue](https://github.com/openboundary/openboundary/issues/new) describing:
 
 1. Application type and domain
 2. Key entities and relationships
-3. Authentication/authorization requirements
-4. Compliance requirements (if any)
+3. Authentication/authorization patterns
+4. Any specific constraints
 
 ---
 
-## Contributing Templates
+## Contributing
 
 Templates are community-driven. To contribute:
 
 1. Fork the repository
-2. Create a new template in `templates/`
-3. Include all required files (spec, openapi, schema, auth)
-4. Add documentation
-5. Submit a pull request
+2. Create template in `templates/`
+3. Include all required files
+4. Submit a pull request
 
-See [CONTRIBUTING.md](https://github.com/openboundary/openboundary/blob/main/CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](https://github.com/openboundary/openboundary/blob/main/CONTRIBUTING.md).
 
 <style>{`
   .catalog-grid {
