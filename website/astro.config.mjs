@@ -60,6 +60,10 @@ export default defineConfig({
           slug: 'docs/cli',
         },
         {
+          label: 'Agents',
+          slug: 'docs/agents',
+        },
+        {
           label: 'Architectures',
           slug: 'docs/architectures',
           badge: { text: 'Soon', variant: 'caution' },
