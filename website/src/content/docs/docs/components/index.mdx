@@ -1,0 +1,119 @@
+---
+title: Component Catalog
+description: Browse all available OpenBoundary component types with status and capabilities.
+---
+
+import ComponentCard from '../../../../components/ComponentCard.astro';
+
+OpenBoundary supports four component kinds. Each component type has its own validation rules and generates specific code artifacts.
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="http.server"
+    name="HTTP Server"
+    description="Server with middleware, routing, and dependency injection. Configure framework, port, and middleware chain."
+    tags={['Hono', 'TypeScript']}
+    status="stable"
+    href="/docs/components/http-server"
+  />
+
+  <ComponentCard
+    kind="postgres"
+    name="PostgreSQL"
+    description="Database connection with schema imports. Type-safe queries via Drizzle ORM."
+    tags={['Drizzle', 'TypeScript']}
+    status="stable"
+    href="/docs/components/postgres"
+  />
+
+  <ComponentCard
+    kind="middleware"
+    name="Middleware"
+    description="Authentication and authorization middleware. Supports better-auth and Casbin."
+    tags={['better-auth', 'Casbin']}
+    status="stable"
+    href="/docs/components/middleware"
+  />
+
+  <ComponentCard
+    kind="usecase"
+    name="Use Case"
+    description="Business logic bound to routes. Define middleware overrides and acceptance criteria."
+    tags={['Route Binding', 'Handlers']}
+    status="stable"
+    href="/docs/components/usecase"
+  />
+</div>
+
+## Coming Soon
+
+These component types are planned for future releases:
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="grpc.server"
+    name="gRPC Server"
+    description="Protocol buffer service definitions with type-safe handlers."
+    tags={['Protocol Buffers', 'Go']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="redis"
+    name="Redis"
+    description="Caching and session storage integration."
+    tags={['Cache', 'Sessions']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="queue"
+    name="Message Queue"
+    description="Async messaging with CloudEvents and AsyncAPI support."
+    tags={['CloudEvents', 'AsyncAPI']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="graphql"
+    name="GraphQL"
+    description="GraphQL schema and resolver generation."
+    tags={['Schema', 'Resolvers']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="worker"
+    name="Worker"
+    description="Background job processing with queues and scheduled tasks."
+    tags={['Jobs', 'Cron']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="react"
+    name="React"
+    description="React component generation with type-safe props and server components."
+    tags={['Components', 'TypeScript']}
+    status="soon"
+  />
+</div>
+
+<style>{`
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--ob-border);
+    border: 1px solid var(--ob-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+
+  @media (max-width: 900px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+`}</style>

@@ -1,3 +1,6 @@
+// Copyright 2026 Open Boundary Contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package ir
 
 // DetectCycles returns any cycles found in the dependency graph.

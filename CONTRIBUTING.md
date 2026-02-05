@@ -102,7 +102,7 @@ This prevents wasted effort on features that may not align with the project dire
 ## Questions?
 
 - Open an issue for technical questions
-- Email community@openboundary.org for other inquiries
+- Email impermanent.architect@pm.me for other inquiries
 
 ## License
 

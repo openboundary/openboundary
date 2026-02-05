@@ -1,4 +1,7 @@
-// Package main provides the CLI entry point for the OpenBoundary compiler.
+// Copyright 2026 Open Boundary Contributors
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+// Package main provides the CLI entry point for the openboundary compiler.
 package main
 
 import (
