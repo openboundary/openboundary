@@ -118,13 +118,13 @@ app.<span class="sy-f">post</span>(<span class="sy-s">'/users'</span>, createUse
     margin: 0;
   }
 
-  /* Syntax highlighting - refined palette */
-  .sy-k { color: #f9a8d4; }  /* keywords - soft pink */
-  .sy-s { color: #5eead4; }  /* strings - teal accent */
-  .sy-n { color: #c4b5fd; }  /* numbers - lavender */
-  .sy-c { color: #4a4a4a; }  /* comments - muted */
-  .sy-p { color: #737373; }  /* punctuation */
-  .sy-f { color: #5eead4; }  /* functions - teal accent */
+  /* Syntax highlighting - using CSS variables for theme consistency */
+  .sy-k { color: var(--sy-keyword, #f9a8d4); }      /* keywords - soft pink */
+  .sy-s { color: var(--sy-string, #5eead4); }       /* strings - teal accent */
+  .sy-n { color: var(--sy-number, #c4b5fd); }       /* numbers - lavender */
+  .sy-c { color: var(--sy-comment, #4a4a4a); }      /* comments - muted */
+  .sy-p { color: var(--sy-punctuation, #737373); }  /* punctuation */
+  .sy-f { color: var(--sy-function, #5eead4); }     /* functions - teal accent */
 
   @media (max-width: 900px) {
     .code-grid {
