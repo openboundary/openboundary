@@ -71,7 +71,7 @@ func TestTestGenerator_Generate_UsecaseTestFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content, ok := output.Files["src/components/usecases/usecase-create-user.test.ts"]
+	content, ok := output.Files["src/components/usecase-create-user.usecase.test.ts"]
 	if !ok {
 		t.Fatal("usecase test file not found in output")
 	}
@@ -139,7 +139,7 @@ func TestTestGenerator_Generate_UsecaseWithPathParams(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecases/usecase-get-user.test.ts"])
+	content := string(output.Files["src/components/usecase-get-user.usecase.test.ts"])
 
 	// Should have test for path params
 	if !strings.Contains(content, "should accept path parameters in input") {
@@ -188,7 +188,7 @@ func TestTestGenerator_Generate_UsecaseWithAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecases/usecase-get-profile.test.ts"])
+	content := string(output.Files["src/components/usecase-get-profile.usecase.test.ts"])
 
 	// Should have auth context test
 	if !strings.Contains(content, "should have access to auth context") {
@@ -221,7 +221,7 @@ func TestTestGenerator_Generate_MiddlewareTestFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content, ok := output.Files["src/components/middlewares/middleware-authn.test.ts"]
+	content, ok := output.Files["src/components/middleware-authn.middleware.test.ts"]
 	if !ok {
 		t.Fatal("middleware test file not found in output")
 	}
@@ -275,7 +275,7 @@ func TestTestGenerator_Generate_CasbinMiddlewareTest(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/middlewares/middleware-authz.test.ts"])
+	content := string(output.Files["src/components/middleware-authz.middleware.test.ts"])
 
 	// Check for casbin specific test
 	if !strings.Contains(content, "should check authorization using enforcer") {
@@ -332,7 +332,7 @@ func TestTestGenerator_Generate_ServerTestFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content, ok := output.Files["src/components/servers/http-server-api.test.ts"]
+	content, ok := output.Files["src/components/http-server-api.server.test.ts"]
 	if !ok {
 		t.Fatal("server test file not found in output")
 	}
@@ -460,7 +460,7 @@ func TestTestGenerator_Generate_ServerWithAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/servers/http-server-api.test.ts"])
+	content := string(output.Files["src/components/http-server-api.server.test.ts"])
 
 	// Should have auth mock in createMockDeps
 	if !strings.Contains(content, "auth:") {

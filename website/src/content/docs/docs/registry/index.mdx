@@ -1,11 +1,13 @@
 ---
-title: Component Catalog
-description: Browse all available OpenBoundary component types with status and capabilities.
+title: Registry Catalog
+description: Browse registered OpenBoundary component kinds and understand how registry plugins generate artifacts.
 ---
 
 import ComponentCard from '../../../../components/ComponentCard.astro';
 
-OpenBoundary supports four component kinds. Each component type has its own validation rules and generates specific code artifacts.
+The OpenBoundary registry currently exposes four stable component kinds. Each kind has validation rules and a dedicated generator plugin in the compiler pipeline.
+
+For compiler internals, see [Registry Plugin System](/docs/registry/plugin-system).
 
 <div class="catalog-grid">
   <ComponentCard
@@ -14,7 +16,7 @@ OpenBoundary supports four component kinds. Each component type has its own vali
     description="Server with middleware, routing, and dependency injection. Configure framework, port, and middleware chain."
     tags={['Hono', 'TypeScript']}
     status="stable"
-    href="/docs/components/http-server"
+    href="/docs/registry/http-server"
   />
 
   <ComponentCard
@@ -23,7 +25,7 @@ OpenBoundary supports four component kinds. Each component type has its own vali
     description="Database connection with schema imports. Type-safe queries via Drizzle ORM."
     tags={['Drizzle', 'TypeScript']}
     status="stable"
-    href="/docs/components/postgres"
+    href="/docs/registry/postgres"
   />
 
   <ComponentCard
@@ -32,7 +34,7 @@ OpenBoundary supports four component kinds. Each component type has its own vali
     description="Authentication and authorization middleware. Supports better-auth and Casbin."
     tags={['better-auth', 'Casbin']}
     status="stable"
-    href="/docs/components/middleware"
+    href="/docs/registry/middleware"
   />
 
   <ComponentCard
@@ -41,7 +43,7 @@ OpenBoundary supports four component kinds. Each component type has its own vali
     description="Business logic bound to routes. Define middleware overrides and acceptance criteria."
     tags={['Route Binding', 'Handlers']}
     status="stable"
-    href="/docs/components/usecase"
+    href="/docs/registry/usecase"
   />
 </div>
 
@@ -98,4 +100,3 @@ These component types are planned for future releases:
     status="soon"
   />
 </div>
-

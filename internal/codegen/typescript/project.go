@@ -45,17 +45,17 @@ type TSConfig struct {
 
 // TSConfigCompilerOptions represents TypeScript compiler options.
 type TSConfigCompilerOptions struct {
-	Target            string `json:"target"`
-	Module            string `json:"module"`
-	ModuleResolution  string `json:"moduleResolution"`
-	Strict            bool   `json:"strict"`
-	ESModuleInterop   bool   `json:"esModuleInterop"`
-	SkipLibCheck      bool   `json:"skipLibCheck"`
-	ForceConsistentCasingInFileNames bool `json:"forceConsistentCasingInFileNames"`
-	OutDir            string `json:"outDir"`
-	RootDir           string `json:"rootDir"`
-	Declaration       bool   `json:"declaration"`
-	ResolveJsonModule bool   `json:"resolveJsonModule"`
+	Target                           string `json:"target"`
+	Module                           string `json:"module"`
+	ModuleResolution                 string `json:"moduleResolution"`
+	Strict                           bool   `json:"strict"`
+	ESModuleInterop                  bool   `json:"esModuleInterop"`
+	SkipLibCheck                     bool   `json:"skipLibCheck"`
+	ForceConsistentCasingInFileNames bool   `json:"forceConsistentCasingInFileNames"`
+	OutDir                           string `json:"outDir"`
+	RootDir                          string `json:"rootDir"`
+	Declaration                      bool   `json:"declaration"`
+	ResolveJsonModule                bool   `json:"resolveJsonModule"`
 }
 
 // OrvalConfig represents the orval.config.ts configuration.
@@ -112,11 +112,11 @@ func (g *ProjectGenerator) generatePackageJSON(i *ir.IR) ([]byte, error) {
 		"@hono/node-server": "^1.13.0",
 	}
 	devDeps := map[string]string{
-		"typescript":      "^5.0.0",
-		"@types/node":     "^20.0.0",
-		"vitest":          "^2.0.0",
-		"orval":           "^7.0.0",
-		"tsx":             "^4.0.0",
+		"typescript":       "^5.0.0",
+		"@types/node":      "^20.0.0",
+		"vitest":           "^2.0.0",
+		"orval":            "^7.0.0",
+		"tsx":              "^4.0.0",
 		"@playwright/test": "^1.42.0",
 	}
 
@@ -203,17 +203,17 @@ func (g *ProjectGenerator) generatePackageJSON(i *ir.IR) ([]byte, error) {
 func (g *ProjectGenerator) generateTSConfig() ([]byte, error) {
 	config := TSConfig{
 		CompilerOptions: TSConfigCompilerOptions{
-			Target:            "ES2022",
-			Module:            "ESNext",
-			ModuleResolution:  "bundler",
-			Strict:            true,
-			ESModuleInterop:   true,
-			SkipLibCheck:      true,
+			Target:                           "ES2022",
+			Module:                           "ESNext",
+			ModuleResolution:                 "bundler",
+			Strict:                           true,
+			ESModuleInterop:                  true,
+			SkipLibCheck:                     true,
 			ForceConsistentCasingInFileNames: true,
-			OutDir:            "./dist",
-			RootDir:           "./src",
-			Declaration:       true,
-			ResolveJsonModule: true,
+			OutDir:                           "./dist",
+			RootDir:                          "./src",
+			Declaration:                      true,
+			ResolveJsonModule:                true,
 		},
 		Include: []string{"src/**/*"},
 		Exclude: []string{"node_modules", "dist"},
@@ -223,17 +223,16 @@ func (g *ProjectGenerator) generateTSConfig() ([]byte, error) {
 }
 
 func (g *ProjectGenerator) generateOrvalConfig(server *ir.Component) string {
-	// OpenAPI spec is colocated with the server component
-	// Generate schemas colocated with usecases
-	serverFilename := sanitizeFilename(server.ID)
+	// OpenAPI spec and generated schema types are flattened under src/components.
+	serverFilename := componentIDSlug(server.ID)
 	return fmt.Sprintf(`import { defineConfig } from 'orval';
 
 export default defineConfig({
   api: {
-    input: './src/components/servers/%s.schema.yaml',
+    input: './src/components/%s.openapi.yaml',
     output: {
       mode: 'single',
-      target: './src/components/usecases/schemas.ts',
+      target: './%s',
       client: 'fetch',
       override: {
         // Only generate types, not implementation
@@ -242,7 +241,7 @@ export default defineConfig({
     },
   },
 });
-`, serverFilename)
+`, serverFilename, usecaseSchemasPath())
 }
 
 func (g *ProjectGenerator) generateVitestConfig() string {
@@ -286,6 +285,5 @@ Thumbs.db
 coverage/
 
 # Generated types (regenerate with npm run generate:types)
-# src/components/types/api.ts
-# src/components/types/schemas/
+# src/components/usecase.schemas.ts
 `

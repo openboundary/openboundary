@@ -58,13 +58,14 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Components',
+          label: 'Registry',
           items: [
-            { label: 'Overview', slug: 'docs/components' },
-            { label: 'HTTP Server', slug: 'docs/components/http-server' },
-            { label: 'PostgreSQL', slug: 'docs/components/postgres' },
-            { label: 'Middleware', slug: 'docs/components/middleware' },
-            { label: 'Use Case', slug: 'docs/components/usecase' },
+            { label: 'Overview', slug: 'docs/registry' },
+            { label: 'Plugin System', slug: 'docs/registry/plugin-system' },
+            { label: 'HTTP Server', slug: 'docs/registry/http-server' },
+            { label: 'PostgreSQL', slug: 'docs/registry/postgres' },
+            { label: 'Middleware', slug: 'docs/registry/middleware' },
+            { label: 'Use Case', slug: 'docs/registry/usecase' },
           ],
         },
         {

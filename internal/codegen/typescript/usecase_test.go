@@ -84,7 +84,7 @@ func TestUsecaseGenerator_Generate_UsecaseFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content, ok := output.Files["src/components/usecases/usecase-create-user.ts"]
+	content, ok := output.Files["src/components/usecase-create-user.usecase.ts"]
 	if !ok {
 		t.Fatal("usecase file not found in output")
 	}
@@ -150,7 +150,7 @@ func TestUsecaseGenerator_Generate_WithPathParams(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecases/usecase-get-user.ts"])
+	content := string(output.Files["src/components/usecase-get-user.usecase.ts"])
 
 	// Check for path param in input type
 	if !strings.Contains(content, "id: string") {
@@ -198,7 +198,7 @@ func TestUsecaseGenerator_Generate_WithAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecases/usecase-get-user.ts"])
+	content := string(output.Files["src/components/usecase-get-user.usecase.ts"])
 
 	// Check for auth in context type
 	if !strings.Contains(content, "'auth'") {
@@ -255,7 +255,7 @@ func TestUsecaseGenerator_Generate_IndexFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content, ok := output.Files["src/components/usecases/index.ts"]
+	content, ok := output.Files["src/components/usecases.ts"]
 	if !ok {
 		t.Fatal("index.ts not found in output")
 	}
@@ -297,7 +297,7 @@ func TestUsecaseGenerator_Generate_NoUsecases(t *testing.T) {
 	}
 
 	// Should still have index file
-	if _, ok := output.Files["src/components/usecases/index.ts"]; !ok {
+	if _, ok := output.Files["src/components/usecases.ts"]; !ok {
 		t.Error("should generate index.ts even with no usecases")
 	}
 

@@ -75,7 +75,7 @@ func TestHonoServerGenerator_Generate_ServerFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	serverContent, ok := output.Files["src/components/servers/http-server-api.ts"]
+	serverContent, ok := output.Files["src/components/http-server-api.server.ts"]
 	if !ok {
 		t.Fatal("server file not found in output")
 	}
@@ -102,7 +102,7 @@ func TestHonoServerGenerator_Generate_Routes(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/servers/http-server-api.ts"])
+	content := string(output.Files["src/components/http-server-api.server.ts"])
 
 	// Check for POST route
 	if !strings.Contains(content, "app.post('/users'") {
@@ -112,6 +112,11 @@ func TestHonoServerGenerator_Generate_Routes(t *testing.T) {
 	// Check for GET route with param
 	if !strings.Contains(content, "app.get('/users/:id'") {
 		t.Error("server should have GET /users/:id route")
+	}
+
+	// Check for health endpoint
+	if !strings.Contains(content, "app.get('/health'") {
+		t.Error("server should have GET /health route")
 	}
 }
 
@@ -128,7 +133,7 @@ func TestHonoServerGenerator_Generate_MiddlewareFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	mwContent, ok := output.Files["src/components/middlewares/middleware-authn.ts"]
+	mwContent, ok := output.Files["src/components/middleware-authn.middleware.ts"]
 	if !ok {
 		t.Fatal("middleware file not found in output")
 	}
@@ -139,6 +144,12 @@ func TestHonoServerGenerator_Generate_MiddlewareFile(t *testing.T) {
 	}
 	if !strings.Contains(content, "middlewareAuthnMiddleware") {
 		t.Error("middleware file should export middleware function")
+	}
+	if strings.Contains(content, "type Session") || strings.Contains(content, "type User") {
+		t.Error("middleware file should not require Session/User exports from auth config")
+	}
+	if !strings.Contains(content, "export type AuthContext") {
+		t.Error("middleware file should export AuthContext type")
 	}
 }
 
@@ -155,7 +166,7 @@ func TestHonoServerGenerator_Generate_PostgresClient(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	pgContent, ok := output.Files["src/components/postgres/postgres-primary.ts"]
+	pgContent, ok := output.Files["src/components/postgres-primary.postgres.ts"]
 	if !ok {
 		t.Fatal("postgres client file not found in output")
 	}
@@ -296,6 +307,56 @@ func TestToPascalCase(t *testing.T) {
 				t.Errorf("toPascalCase(%q) = %q, want %q", tt.input, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestHonoServerGenerator_DoesNotGenerateBetterAuthConfig(t *testing.T) {
+	i := createTestIR()
+	g := NewHonoServerGenerator()
+
+	output, err := g.Generate(i)
+	if err != nil {
+		t.Fatalf("Generate() error = %v", err)
+	}
+
+	if _, ok := output.Files["src/components/middleware-authn.middleware.config.ts"]; ok {
+		t.Fatal("better-auth config should come from source files, not be generated")
+	}
+
+	if _, ok := output.Files["src/components/middleware-authn.middleware.schema.ts"]; !ok {
+		t.Fatal("better-auth schema should still be generated")
+	}
+}
+
+func TestHonoServerGenerator_MultiServerIndexUsesUniqueLocalNames(t *testing.T) {
+	i := createTestIR()
+	i.Components["http.server.admin"] = &ir.Component{
+		ID:   "http.server.admin",
+		Kind: ir.KindHTTPServer,
+		HTTPServer: &ir.HTTPServerSpec{
+			Framework: "hono",
+			Port:      4000,
+		},
+	}
+
+	g := NewHonoServerGenerator()
+	output, err := g.Generate(i)
+	if err != nil {
+		t.Fatalf("Generate() error = %v", err)
+	}
+
+	index := string(output.Files["src/index.ts"])
+	if strings.Count(index, "const context =") > 0 {
+		t.Fatal("index.ts should not use a shared const context declaration for multiple servers")
+	}
+	if strings.Count(index, "const app = new Hono();") > 0 {
+		t.Fatal("index.ts should not reuse const app declarations across servers")
+	}
+	if !strings.Contains(index, "const httpServerApiContext =") {
+		t.Fatal("index.ts should declare per-server context for api server")
+	}
+	if !strings.Contains(index, "const httpServerAdminContext =") {
+		t.Fatal("index.ts should declare per-server context for admin server")
 	}
 }
 

@@ -166,33 +166,34 @@ func runCompile(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Compiling specification: %s (%d components)\n", specFile, len(typedIR.Components))
 
-	// Create generators
-	generators := []codegen.Generator{
-		typescript.NewProjectGenerator(),
-		typescript.NewSchemaGenerator(),
-		typescript.NewOpenAPIGenerator(), // Generates complete OpenAPI spec for orval
-		typescript.NewContextGenerator(),
-		typescript.NewHonoServerGenerator(),
-		typescript.NewUsecaseGenerator(),
-		typescript.NewTestGenerator(),
-		typescript.NewDockerGenerator(),
-		typescript.NewE2ETestGenerator(),
+	pluginRegistry, err := typescript.NewPluginRegistry()
+	if err != nil {
+		return fmt.Errorf("failed to initialize TypeScript plugin registry: %w", err)
 	}
 
-	// Collect all outputs
-	allFiles := make(map[string][]byte)
+	generators, err := pluginRegistry.GeneratorsForIR(typedIR)
+	if err != nil {
+		return fmt.Errorf("failed to resolve TypeScript generators: %w", err)
+	}
+
+	// Plan and validate all artifacts before writing any files.
+	planner := codegen.NewArtifactPlanner()
 	for _, gen := range generators {
-		output, err := gen.Generate(typedIR)
-		if err != nil {
-			return fmt.Errorf("generator %s failed: %w", gen.Name(), err)
+		output, genErr := gen.Generate(typedIR)
+		if genErr != nil {
+			return fmt.Errorf("generator %s failed: %w", gen.Name(), genErr)
 		}
-		for path, content := range output.Files {
-			allFiles[path] = content
+		if planErr := planner.AddOutput(gen.Name(), output); planErr != nil {
+			return fmt.Errorf("artifact planning failed for %s: %w", gen.Name(), planErr)
 		}
 	}
+
+	artifacts := planner.Artifacts()
 
 	// Write files to output directory
-	for path, content := range allFiles {
+	for _, artifact := range artifacts {
+		path := artifact.Path
+		content := artifact.Content
 		fullPath := filepath.Join(compileOutputDir, path)
 
 		// Create parent directories
@@ -209,7 +210,7 @@ func runCompile(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  → %s\n", path)
 	}
 
-	fmt.Printf("\n✓ Generated %d files in %s/\n", len(allFiles), compileOutputDir)
+	fmt.Printf("\n✓ Generated %d files in %s/\n", len(artifacts), compileOutputDir)
 
 	return nil
 }
