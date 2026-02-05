@@ -1,0 +1,510 @@
+---
+title: Troubleshooting
+description: Common errors and how to fix them.
+---
+
+This guide covers common errors you'll encounter when working with OpenBoundary and how to resolve them.
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | Validation error |
+| 2 | File not found |
+| 3 | Parse error (invalid YAML) |
+| 4 | Generation error |
+
+---
+
+## Validation Errors (Exit Code 1)
+
+### Component Reference Not Found
+
+```
+ERROR: component reference 'middleware.auth' not found
+  in component: http.server.api
+  field: middleware[0]
+
+Available middleware components:
+  - middleware.authn
+  - middleware.authz
+```
+
+**Cause:** You referenced a component that doesn't exist.
+
+**Fix:** Check the component ID for typos. Common mistakes:
+- `middleware.auth` vs `middleware.authn`
+- Missing component definition
+- Wrong component kind (referencing `postgres.*` in middleware array)
+
+```yaml
+# Wrong
+middleware:
+  - middleware.auth  # Doesn't exist
+
+# Right
+middleware:
+  - middleware.authn  # Correct ID
+```
+
+---
+
+### Invalid Component ID Format
+
+```
+ERROR: invalid component ID 'httpServer'
+  pattern: ^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$
+
+Component IDs must:
+  - Start with lowercase letter
+  - Use only lowercase letters, numbers, hyphens
+  - Contain at least one dot separator
+```
+
+**Cause:** Component ID doesn't match the required format.
+
+**Fix:** Use dot-separated kebab-case:
+
+```yaml
+# Wrong
+- id: httpServer      # No dots
+- id: HTTP.server     # Uppercase
+- id: http_server.api # Underscores
+
+# Right
+- id: http.server.api
+- id: middleware.rate-limit
+- id: postgres.primary
+```
+
+---
+
+### Invalid Route Binding Format
+
+```
+ERROR: invalid binds_to format 'api:GET:/users'
+  in component: usecase.get-users
+  expected: {server-id}:{METHOD}:{path}
+  pattern: ^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:(GET|POST|PUT|PATCH|DELETE):/[a-zA-Z0-9/{}_-]*$
+```
+
+**Cause:** The `binds_to` field doesn't match the required pattern.
+
+**Fix:** Use the full format `server.id:METHOD:/path`:
+
+```yaml
+# Wrong
+binds_to: api:GET:/users           # Server ID needs dots
+binds_to: http.server.api:get:/users  # Method must be uppercase
+binds_to: http.server.api:GET:users   # Path must start with /
+
+# Right
+binds_to: http.server.api:GET:/users
+binds_to: http.server.api:POST:/users/{id}
+```
+
+---
+
+### Circular Dependency
+
+```
+ERROR: circular dependency detected
+  middleware.authz -> middleware.authn -> middleware.authz
+
+Middleware dependencies must form a directed acyclic graph (DAG).
+```
+
+**Cause:** Middleware A depends on B, which depends on A.
+
+**Fix:** Remove the circular reference. Authentication should not depend on authorization:
+
+```yaml
+# Wrong
+- id: middleware.authn
+  spec:
+    depends_on:
+      - middleware.authz  # Creates cycle
+
+- id: middleware.authz
+  spec:
+    depends_on:
+      - middleware.authn
+
+# Right
+- id: middleware.authn
+  spec:
+    provider: better-auth
+    config: ./src/auth/auth.config.ts
+    # No depends_on
+
+- id: middleware.authz
+  spec:
+    provider: casbin
+    depends_on:
+      - middleware.authn  # One-way dependency
+```
+
+---
+
+### Missing Required Field
+
+```
+ERROR: missing required field 'goal'
+  in component: usecase.create-user
+  kind: usecase
+```
+
+**Cause:** A required field is not present.
+
+**Fix:** Add the missing field. Required fields by component kind:
+
+| Kind | Required Fields |
+|------|-----------------|
+| `http.server` | `framework`, `port` |
+| `middleware` | `provider`, plus provider-specific fields |
+| `postgres` | `provider`, `schema` |
+| `usecase` | `binds_to`, `goal` |
+
+```yaml
+# Wrong
+- id: usecase.create-user
+  kind: usecase
+  spec:
+    binds_to: http.server.api:POST:/users
+    # Missing 'goal'
+
+# Right
+- id: usecase.create-user
+  kind: usecase
+  spec:
+    binds_to: http.server.api:POST:/users
+    goal: Register a new user account
+```
+
+---
+
+### Port Out of Range
+
+```
+ERROR: invalid port number 70000
+  in component: http.server.api
+  field: port
+  valid range: 1-65535
+```
+
+**Cause:** Port number is outside valid TCP port range.
+
+**Fix:** Use a valid port number:
+
+```yaml
+# Wrong
+port: 70000
+port: 0
+port: -1
+
+# Right
+port: 3000
+port: 8080
+port: 443
+```
+
+---
+
+### Unknown Component Kind
+
+```
+ERROR: unknown component kind 'api'
+  in component: my.api.server
+  valid kinds: http.server, middleware, postgres, usecase
+```
+
+**Cause:** The `kind` field doesn't match a supported component type.
+
+**Fix:** Use one of the supported kinds:
+
+```yaml
+# Wrong
+kind: api
+kind: server
+kind: database
+
+# Right
+kind: http.server
+kind: middleware
+kind: postgres
+kind: usecase
+```
+
+---
+
+### File Not Found
+
+```
+ERROR: file not found: ./src/auth/config.ts
+  in component: middleware.authn
+  field: config
+```
+
+**Cause:** The referenced file doesn't exist at the specified path.
+
+**Fix:**
+1. Check the file path for typos
+2. Ensure the file exists
+3. Paths are relative to the spec file location
+
+```bash
+# Check if file exists
+ls -la ./src/auth/
+
+# Create if missing
+mkdir -p ./src/auth/
+touch ./src/auth/auth.config.ts
+```
+
+---
+
+### OpenAPI Mismatch
+
+```
+ERROR: route not defined in OpenAPI spec
+  usecase: usecase.get-users
+  binds_to: http.server.api:GET:/users
+  openapi: ./openapi.yaml
+
+No matching path found. Available paths:
+  GET /user
+  POST /user
+```
+
+**Cause:** The usecase binds to a route that doesn't exist in the OpenAPI file.
+
+**Fix:** Either add the route to OpenAPI or fix the `binds_to` path:
+
+```yaml
+# openapi.yaml
+paths:
+  /users:        # Add the correct path
+    get:
+      operationId: getUsers
+      responses:
+        '200':
+          description: OK
+```
+
+---
+
+## Parse Errors (Exit Code 3)
+
+### Invalid YAML Syntax
+
+```
+ERROR: YAML parse error at line 15, column 3
+  expected key-value pair, found '- '
+
+  13 |   middleware:
+  14 |     - middleware.authn
+  15 |   - middleware.authz    <- error here
+```
+
+**Cause:** YAML indentation or syntax error.
+
+**Fix:** Check indentation. YAML is whitespace-sensitive:
+
+```yaml
+# Wrong - inconsistent indentation
+spec:
+  middleware:
+    - middleware.authn
+  - middleware.authz      # Wrong level
+
+# Right
+spec:
+  middleware:
+    - middleware.authn
+    - middleware.authz    # Same level as above
+```
+
+---
+
+### Tab Characters
+
+```
+ERROR: YAML contains tab characters
+  line 8: use spaces for indentation, not tabs
+```
+
+**Cause:** YAML doesn't allow tabs for indentation.
+
+**Fix:** Replace tabs with spaces (2 spaces recommended):
+
+```bash
+# Convert tabs to spaces
+sed -i 's/\t/  /g' spec.yaml
+```
+
+---
+
+## File Not Found Errors (Exit Code 2)
+
+### Spec File Missing
+
+```
+ERROR: specification file not found: spec.yaml
+
+Tried:
+  - ./spec.yaml
+  - ./openboundary.yaml
+```
+
+**Cause:** No spec file in the current directory.
+
+**Fix:** Create a spec file or specify the path:
+
+```bash
+# Create new spec
+bound init basic
+
+# Or specify path
+bound compile path/to/my-spec.yaml
+```
+
+---
+
+## Generation Errors (Exit Code 4)
+
+### Output Directory Not Writable
+
+```
+ERROR: cannot write to output directory: ./generated
+  permission denied
+```
+
+**Cause:** No write permission for the output directory.
+
+**Fix:**
+
+```bash
+# Check permissions
+ls -la ./
+
+# Fix permissions
+chmod 755 ./generated
+
+# Or use a different output directory
+bound compile spec.yaml -o ~/my-project/generated
+```
+
+---
+
+### Conflicting Files
+
+```
+ERROR: output file already exists: ./generated/src/server.ts
+  use --force to overwrite
+```
+
+**Cause:** Generated files already exist and would be overwritten.
+
+**Fix:** Use `--force` flag or delete existing files:
+
+```bash
+# Force overwrite
+bound compile spec.yaml --force
+
+# Or delete first
+rm -rf ./generated
+bound compile spec.yaml
+```
+
+---
+
+## Runtime Errors
+
+These errors occur when running the generated application, not during compilation.
+
+### DATABASE_URL Not Set
+
+```
+Error: environment variable DATABASE_URL is required
+```
+
+**Cause:** Database connection string not configured.
+
+**Fix:** Set the environment variable:
+
+```bash
+# Development
+export DATABASE_URL="postgresql://user:pass@localhost:5432/mydb"
+
+# Or use .env file
+echo 'DATABASE_URL=postgresql://user:pass@localhost:5432/mydb' > .env
+```
+
+---
+
+### Database Connection Failed
+
+```
+Error: connection refused to postgresql://localhost:5432/mydb
+```
+
+**Cause:** PostgreSQL server not running or wrong connection details.
+
+**Fix:**
+
+```bash
+# Check if PostgreSQL is running
+pg_isready -h localhost -p 5432
+
+# Start PostgreSQL
+sudo systemctl start postgresql
+
+# Or with Docker
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=pass postgres
+```
+
+---
+
+### Missing Dependencies
+
+```
+Error: Cannot find module 'hono'
+```
+
+**Cause:** npm dependencies not installed.
+
+**Fix:**
+
+```bash
+cd generated
+npm install
+```
+
+---
+
+## Debug Mode
+
+Enable debug logging for more detailed output:
+
+```bash
+BOUND_DEBUG=1 bound compile spec.yaml
+```
+
+This shows:
+- File resolution paths
+- Component dependency graph
+- Validation steps
+- Code generation details
+
+---
+
+## Getting Help
+
+If you encounter an error not listed here:
+
+1. **Check the schema reference** — Verify your spec matches the expected format
+2. **Run validation** — `bound validate spec.yaml --strict` for detailed checks
+3. **Enable debug mode** — `BOUND_DEBUG=1` for verbose output
+4. **Search issues** — [GitHub Issues](https://github.com/openboundary/openboundary/issues)
+5. **Open an issue** — Include your spec file and full error output

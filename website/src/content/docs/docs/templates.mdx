@@ -1,0 +1,216 @@
+---
+title: Templates
+description: Example specifications for common application types.
+---
+
+import ComponentCard from '../../../components/ComponentCard.astro';
+
+Templates are example specifications that demonstrate OpenBoundary patterns for common application types. Each provides a starting point with pre-configured components, middleware chains, and database schemas.
+
+## Available Now
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Basic API"
+    description="REST API with authentication, authorization, and PostgreSQL. CRUD endpoints with proper middleware wiring."
+    tags={['Auth', 'CRUD', 'PostgreSQL']}
+    status="stable"
+  />
+</div>
+
+```bash
+bound init basic -o my-project
+```
+
+---
+
+## Coming Soon
+
+### Business Applications
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="CRM"
+    description="Contacts, companies, deals pipeline, and activity tracking. Role-based access for sales teams."
+    tags={['Sales', 'Pipeline', 'RBAC']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Project Management"
+    description="Projects, tasks, and team collaboration. Kanban boards with assignment and status tracking."
+    tags={['Teams', 'Tasks', 'Kanban']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Booking Platform"
+    description="Appointments, availability calendars, and reminders. Multi-provider scheduling."
+    tags={['Scheduling', 'Calendar', 'Notifications']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="LMS"
+    description="Courses, lessons, enrollments, and progress tracking. Instructor and student roles."
+    tags={['Education', 'Courses', 'Progress']}
+    status="soon"
+  />
+</div>
+
+### E-commerce & Marketplaces
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Inventory Management"
+    description="Products, stock levels, and order fulfillment. Warehouse and SKU support."
+    tags={['Products', 'Stock', 'Orders']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Marketplace"
+    description="Multi-vendor listings, orders, and reviews. Seller and buyer workflows."
+    tags={['Multi-vendor', 'Listings', 'Reviews']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Job Board"
+    description="Job listings, applications, and candidate tracking. Employer dashboards."
+    tags={['Hiring', 'Applications', 'Search']}
+    status="soon"
+  />
+</div>
+
+### Developer Tools
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="API Gateway"
+    description="Rate limiting, API keys, and usage tracking. Developer portal endpoints."
+    tags={['Gateway', 'Rate Limits', 'API Keys']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Webhook Service"
+    description="Webhook delivery with retries and signatures. Delivery logs and fan-out."
+    tags={['Webhooks', 'Events', 'Retries']}
+    status="soon"
+  />
+</div>
+
+---
+
+## Compliance-Ready Specifications
+
+These templates define the *structure* for compliance-sensitive applications. They include appropriate middleware chains, data isolation patterns, and schema designs.
+
+:::note[Compliance Enforcement]
+Generating code from a specification is step one. Full compliance requires audit logging, approval workflows, access governance, and continuous monitoring—capabilities available in [StableBoundary](https://stableboundary.com).
+:::
+
+<div class="catalog-grid">
+  <ComponentCard
+    kind="template"
+    name="Healthcare API"
+    description="Patient records, appointments, and messaging. Structured for HIPAA requirements."
+    tags={['Healthcare', 'Patient Data', 'Messaging']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Financial Services API"
+    description="Accounts, transactions, and reporting. Structured for financial data handling."
+    tags={['Finance', 'Transactions', 'Reporting']}
+    status="soon"
+  />
+
+  <ComponentCard
+    kind="template"
+    name="Multi-tenant SaaS"
+    description="Tenant isolation, subscription tiers, and usage tracking. White-label ready."
+    tags={['SaaS', 'Tenants', 'Subscriptions']}
+    status="soon"
+  />
+</div>
+
+**What templates provide:**
+- Data model with appropriate isolation
+- Middleware chains for authentication/authorization
+- API structure following domain patterns
+
+**What compliance requires (beyond code generation):**
+- Audit trails for all data access
+- Approval workflows for sensitive changes
+- Encryption key management
+- Access reviews and governance
+- Continuous compliance monitoring
+
+---
+
+## What's in a Template
+
+Each template includes:
+
+| File | Description |
+|------|-------------|
+| `spec.yaml` | Complete OpenBoundary specification |
+| `openapi.yaml` | API contract with request/response schemas |
+| `src/db/schema.ts` | Drizzle database schema |
+| `src/auth/model.conf` | Casbin authorization model |
+| `src/auth/policy.csv` | Role-based access policies |
+| `README.md` | Setup and customization guide |
+
+### Example: CRM Template
+
+```
+crm/
+├── spec.yaml              # 15+ components
+├── openapi.yaml           # 40+ endpoints
+├── src/
+│   ├── auth/
+│   │   ├── auth.config.ts # Session-based auth
+│   │   ├── model.conf     # RBAC with teams
+│   │   └── policy.csv     # Sales, manager, admin roles
+│   └── db/
+│       └── schema.ts      # contacts, companies, deals, activities
+└── README.md
+```
+
+---
+
+## Request a Template
+
+Have a use case we haven't covered? [Open an issue](https://github.com/openboundary/openboundary/issues/new) describing:
+
+1. Application type and domain
+2. Key entities and relationships
+3. Authentication/authorization patterns
+4. Any specific constraints
+
+---
+
+## Contributing
+
+Templates are community-driven. To contribute:
+
+1. Fork the repository
+2. Create template in `templates/`
+3. Include all required files
+4. Submit a pull request
+
+See [CONTRIBUTING.md](https://github.com/openboundary/openboundary/blob/main/CONTRIBUTING.md).
+

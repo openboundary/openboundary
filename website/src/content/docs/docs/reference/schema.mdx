@@ -1,0 +1,685 @@
+---
+title: Schema Reference
+description: Complete field reference for OpenBoundary specification files.
+---
+
+This document provides a complete reference for all fields in an OpenBoundary specification file.
+
+## Specification Root
+
+Every `spec.yaml` file must contain these top-level fields:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `version` | string | Yes | Specification version. Must be semver format: `x.y.z` |
+| `name` | string | Yes | Project name. Must be kebab-case: `^[a-z][a-z0-9-]*$` |
+| `description` | string | No | Human-readable project description |
+| `components` | array | Yes | List of component definitions |
+
+```yaml
+version: "0.1.0"
+name: my-api
+description: User management API
+components: []
+```
+
+## Component Structure
+
+Every component has three required fields:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | Yes | Unique identifier in dot-notation |
+| `kind` | string | Yes | Component type (see below) |
+| `spec` | object | Yes | Component-specific configuration |
+
+### Component ID Format
+
+IDs must match: `^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$`
+
+**Valid examples:**
+- `http.server.api`
+- `middleware.authn`
+- `postgres.primary`
+- `usecase.create-user`
+
+**Invalid examples:**
+- `server` (needs at least one dot)
+- `HTTP.Server` (uppercase not allowed)
+- `http_server.api` (underscores not allowed)
+
+### Component Kinds
+
+| Kind | Description |
+|------|-------------|
+| `http.server` | HTTP server with routing and middleware |
+| `middleware` | Authentication or authorization middleware |
+| `postgres` | PostgreSQL database connection |
+| `usecase` | Business logic bound to a route |
+
+---
+
+## http.server
+
+HTTP server component that generates routing and middleware integration.
+
+### Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `framework` | string | Yes | — | Web framework. Currently only `hono` |
+| `port` | integer | Yes | — | Port number. Range: 1-65535 |
+| `openapi` | string | No | — | Path to OpenAPI spec. Must start with `./` |
+| `middleware` | array | No | `[]` | Middleware chain in execution order |
+| `depends_on` | array | No | `[]` | Components available for dependency injection |
+
+### Example
+
+```yaml
+- id: http.server.api
+  kind: http.server
+  spec:
+    framework: hono
+    port: 3000
+    openapi: ./openapi.yaml
+    middleware:
+      - middleware.authn
+      - middleware.authz
+    depends_on:
+      - postgres.primary
+```
+
+### Field Details
+
+#### `framework`
+
+Currently only `hono` is supported. Planned: `fastify`, `chi` (Go).
+
+#### `port`
+
+Must be a valid port number (1-65535). Common values:
+- `3000` - Development
+- `8080` - Production
+- `443` - HTTPS (requires reverse proxy)
+
+#### `openapi`
+
+Path to OpenAPI 3.x specification file. The compiler uses this for:
+- Route definitions
+- Request/response type generation
+- Input validation schemas
+
+Must be a relative path starting with `./`:
+```yaml
+openapi: ./openapi.yaml      # Valid
+openapi: openapi.yaml        # Invalid - must start with ./
+openapi: /abs/path.yaml      # Invalid - no absolute paths
+```
+
+#### `middleware`
+
+Array of middleware component references. Order matters—middleware executes in the order listed:
+
+```yaml
+middleware:
+  - middleware.authn    # Runs first
+  - middleware.authz    # Runs second
+```
+
+Empty array means no middleware:
+```yaml
+middleware: []  # Server has no default middleware
+```
+
+#### `depends_on`
+
+Components that can be injected into route handlers:
+
+```yaml
+depends_on:
+  - postgres.primary    # Database available as ctx.get('postgres.primary')
+  - redis.cache         # Cache available as ctx.get('redis.cache')
+```
+
+### Generated Output
+
+```
+src/
+├── server.ts           # Hono app with middleware wiring
+├── routes/
+│   └── *.ts            # Route handlers from OpenAPI
+├── middleware/
+│   └── *.ts            # Middleware integrations
+└── types.ts            # TypeScript types from OpenAPI
+```
+
+---
+
+## middleware
+
+Middleware component for authentication or authorization.
+
+### Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `provider` | string | Yes | — | Middleware provider: `better-auth` or `casbin` |
+| `config` | string | Conditional | — | Path to config file. Required for `better-auth` |
+| `model` | string | Conditional | — | Path to Casbin model. Required for `casbin` |
+| `policy` | string | Conditional | — | Path to Casbin policy. Required for `casbin` |
+| `depends_on` | array | No | `[]` | Middleware that must run before this one |
+
+### Provider: better-auth
+
+Authentication middleware using [better-auth](https://better-auth.com).
+
+```yaml
+- id: middleware.authn
+  kind: middleware
+  spec:
+    provider: better-auth
+    config: ./src/auth/auth.config.ts
+```
+
+**Required fields:** `provider`, `config`
+
+The config file must export a better-auth configuration:
+
+```typescript
+// src/auth/auth.config.ts
+import { betterAuth } from 'better-auth';
+
+export const auth = betterAuth({
+  database: { /* ... */ },
+  emailAndPassword: { enabled: true },
+});
+```
+
+### Provider: casbin
+
+Authorization middleware using [Casbin](https://casbin.org).
+
+```yaml
+- id: middleware.authz
+  kind: middleware
+  spec:
+    provider: casbin
+    model: ./src/auth/model.conf
+    policy: ./src/auth/policy.csv
+    depends_on:
+      - middleware.authn  # Auth must run first
+```
+
+**Required fields:** `provider`, `model`, `policy`
+
+**Model file** (RBAC example):
+```ini
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+```
+
+**Policy file:**
+```csv
+p, admin, /contacts, DELETE
+p, admin, /companies, DELETE
+p, sales, /contacts, GET
+p, sales, /contacts, POST
+p, sales, /deals, *
+g, alice, admin
+g, bob, sales
+```
+
+### Field Details
+
+#### `depends_on`
+
+For middleware, `depends_on` specifies execution order. Authorization typically depends on authentication:
+
+```yaml
+- id: middleware.authz
+  kind: middleware
+  spec:
+    provider: casbin
+    model: ./src/auth/model.conf
+    policy: ./src/auth/policy.csv
+    depends_on:
+      - middleware.authn  # User must be authenticated first
+```
+
+This ensures `middleware.authn` always runs before `middleware.authz`.
+
+---
+
+## postgres
+
+PostgreSQL database component using Drizzle ORM.
+
+### Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `provider` | string | Yes | — | Database provider. Currently only `drizzle` |
+| `schema` | string | Yes | — | Path to Drizzle schema file. Must start with `./` |
+
+### Example
+
+```yaml
+- id: postgres.primary
+  kind: postgres
+  spec:
+    provider: drizzle
+    schema: ./src/db/schema.ts
+```
+
+### Schema File
+
+The schema file must export Drizzle table definitions:
+
+```typescript
+// src/db/schema.ts
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  name: text('name'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const posts = pgTable('posts', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  authorId: serial('author_id').references(() => users.id),
+});
+```
+
+### Environment Variables
+
+The generated code expects `DATABASE_URL`:
+
+```bash
+DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
+```
+
+### Injection
+
+When a server depends on a postgres component, handlers receive it via context:
+
+```typescript
+export async function getUsers(c: Context) {
+  const db = c.get('postgres.primary');
+  const users = await db.select().from(usersTable);
+  return c.json(users);
+}
+```
+
+---
+
+## usecase
+
+Business logic component bound to an HTTP route.
+
+### Fields
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `binds_to` | string | Yes | — | Route binding: `server:METHOD:/path` |
+| `goal` | string | Yes | — | What this usecase accomplishes |
+| `middleware` | array | No | (inherited) | Middleware for this endpoint |
+| `actor` | string | No | — | Who performs this action |
+| `preconditions` | array | No | `[]` | Conditions required before execution |
+| `acceptance_criteria` | array | No | `[]` | Success criteria |
+| `postconditions` | array | No | `[]` | Conditions true after execution |
+
+### Example
+
+```yaml
+- id: usecase.create-contact
+  kind: usecase
+  spec:
+    binds_to: http.server.api:POST:/contacts
+    goal: Create a new contact in the CRM
+    actor: Sales rep
+    preconditions:
+      - User is authenticated
+      - User has permission to create contacts
+    acceptance_criteria:
+      - Contact record created in database
+      - Contact assigned to current user
+    postconditions:
+      - Contact appears in user's contact list
+```
+
+### Field Details
+
+#### `binds_to`
+
+Route binding format: `{server-id}:{METHOD}:{path}`
+
+Pattern: `^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:(GET|POST|PUT|PATCH|DELETE):/[a-zA-Z0-9/{}_-]*$`
+
+**Valid examples:**
+```yaml
+binds_to: http.server.api:GET:/users
+binds_to: http.server.api:POST:/users
+binds_to: http.server.api:GET:/users/{id}
+binds_to: http.server.api:DELETE:/users/{id}
+binds_to: http.server.admin:PUT:/settings
+```
+
+**Invalid examples:**
+```yaml
+binds_to: api:GET:/users           # Server ID needs dots
+binds_to: http.server.api:get:/users  # Method must be uppercase
+binds_to: http.server.api:GET:users   # Path must start with /
+binds_to: http.server.api:GET:/users?limit=10  # No query strings
+```
+
+**Path parameters** use curly braces:
+```yaml
+binds_to: http.server.api:GET:/users/{id}
+binds_to: http.server.api:GET:/users/{userId}/posts/{postId}
+```
+
+#### `middleware`
+
+Controls middleware for this specific endpoint:
+
+| Value | Behavior |
+|-------|----------|
+| Omit field | Inherits server's full middleware chain |
+| `[]` (empty array) | No middleware (public endpoint) |
+| `[middleware.authn]` | Only listed middleware |
+
+```yaml
+# Inherits all server middleware (authn + authz)
+- id: usecase.list-contacts
+  kind: usecase
+  spec:
+    binds_to: http.server.api:GET:/contacts
+    goal: List contacts for current user
+    # middleware field omitted = full chain
+
+# Public endpoint (e.g., webhook receiver)
+- id: usecase.receive-webhook
+  kind: usecase
+  spec:
+    binds_to: http.server.api:POST:/webhooks/stripe
+    goal: Process incoming Stripe webhook
+    middleware: []  # No auth - verified by signature
+
+# Auth only, no authorization check
+- id: usecase.get-current-user
+  kind: usecase
+  spec:
+    binds_to: http.server.api:GET:/me
+    goal: Get current user profile
+    middleware:
+      - middleware.authn  # Auth but skip authz
+```
+
+#### `goal`
+
+Human-readable description of what the usecase does. Used for:
+- Documentation generation
+- AI agent context
+- Code comments
+
+```yaml
+goal: Register a new user account and send welcome email
+```
+
+#### `actor`
+
+Who performs this action. Useful for documentation and access control design:
+
+```yaml
+actor: Authenticated user
+actor: Admin
+actor: Anonymous visitor
+actor: System (scheduled job)
+```
+
+#### `preconditions`, `acceptance_criteria`, `postconditions`
+
+These fields document behavior and can generate test scaffolding:
+
+```yaml
+preconditions:
+  - User is authenticated
+  - User has admin role
+  - Target user exists
+
+acceptance_criteria:
+  - User record is deleted
+  - Associated posts are deleted
+  - Audit log entry created
+
+postconditions:
+  - User cannot log in
+  - User email is available for new registration
+```
+
+### Generated Output
+
+Each usecase generates a handler file:
+
+```typescript
+// src/components/usecases/usecase-create-contact.ts
+// Generated by OpenBoundary - DO NOT EDIT
+
+import type { Context } from 'hono';
+import type { CreateContactRequest, CreateContactResponse } from '../schemas';
+
+/**
+ * Create a new contact in the CRM
+ * Actor: Sales rep
+ *
+ * Preconditions:
+ * - User is authenticated
+ * - User has permission to create contacts
+ *
+ * Acceptance Criteria:
+ * - Contact record created in database
+ * - Contact assigned to current user
+ */
+export async function createContact(
+  c: Context,
+  input: CreateContactRequest
+): Promise<CreateContactResponse> {
+  // TODO: Implement usecase
+  throw new Error('Not implemented');
+}
+```
+
+---
+
+## Component References
+
+Many fields reference other components. References must match an existing component ID.
+
+### Valid Reference Targets
+
+| Field | Can Reference |
+|-------|---------------|
+| `http.server.middleware` | `middleware.*` components |
+| `http.server.depends_on` | `postgres.*`, `redis.*`, other infrastructure |
+| `middleware.depends_on` | Other `middleware.*` components |
+| `usecase.binds_to` | `http.server.*` components |
+| `usecase.middleware` | `middleware.*` components |
+
+### Validation
+
+The compiler validates that all references point to existing components:
+
+```yaml
+components:
+  - id: http.server.api
+    kind: http.server
+    spec:
+      framework: hono
+      port: 3000
+      middleware:
+        - middleware.authn  # ERROR if middleware.authn doesn't exist
+```
+
+---
+
+## File Paths
+
+File paths must be relative and start with `./`:
+
+```yaml
+openapi: ./openapi.yaml        # Valid
+schema: ./src/db/schema.ts     # Valid
+config: ../auth.ts             # Invalid - no parent traversal
+policy: /etc/casbin/policy.csv # Invalid - no absolute paths
+```
+
+The compiler resolves paths relative to the spec file location.
+
+---
+
+## Complete Example
+
+A CRM API with contacts, companies, and deals:
+
+```yaml
+version: "0.1.0"
+name: crm-api
+description: Customer relationship management API
+
+components:
+  # Database
+  - id: postgres.primary
+    kind: postgres
+    spec:
+      provider: drizzle
+      schema: ./src/db/schema.ts
+
+  # Authentication
+  - id: middleware.authn
+    kind: middleware
+    spec:
+      provider: better-auth
+      config: ./src/auth/auth.config.ts
+
+  # Authorization
+  - id: middleware.authz
+    kind: middleware
+    spec:
+      provider: casbin
+      model: ./src/auth/model.conf
+      policy: ./src/auth/policy.csv
+      depends_on:
+        - middleware.authn
+
+  # HTTP Server - all routes protected by default
+  - id: http.server.api
+    kind: http.server
+    spec:
+      framework: hono
+      port: 3000
+      openapi: ./openapi.yaml
+      middleware:
+        - middleware.authn
+        - middleware.authz
+      depends_on:
+        - postgres.primary
+
+  # Contacts
+  - id: usecase.list-contacts
+    kind: usecase
+    spec:
+      binds_to: http.server.api:GET:/contacts
+      goal: List contacts for current user
+      actor: Sales rep
+
+  - id: usecase.create-contact
+    kind: usecase
+    spec:
+      binds_to: http.server.api:POST:/contacts
+      goal: Create a new contact
+      actor: Sales rep
+      acceptance_criteria:
+        - Contact is created with provided details
+        - Contact is assigned to current user
+
+  - id: usecase.get-contact
+    kind: usecase
+    spec:
+      binds_to: http.server.api:GET:/contacts/{id}
+      goal: Get contact details
+      preconditions:
+        - User has access to this contact
+
+  - id: usecase.update-contact
+    kind: usecase
+    spec:
+      binds_to: http.server.api:PUT:/contacts/{id}
+      goal: Update contact information
+
+  - id: usecase.delete-contact
+    kind: usecase
+    spec:
+      binds_to: http.server.api:DELETE:/contacts/{id}
+      goal: Delete a contact
+      actor: Sales rep or admin
+
+  # Companies
+  - id: usecase.list-companies
+    kind: usecase
+    spec:
+      binds_to: http.server.api:GET:/companies
+      goal: List all companies
+
+  - id: usecase.create-company
+    kind: usecase
+    spec:
+      binds_to: http.server.api:POST:/companies
+      goal: Create a new company
+
+  - id: usecase.get-company
+    kind: usecase
+    spec:
+      binds_to: http.server.api:GET:/companies/{id}
+      goal: Get company details with associated contacts
+
+  # Deals
+  - id: usecase.list-deals
+    kind: usecase
+    spec:
+      binds_to: http.server.api:GET:/deals
+      goal: List deals in pipeline
+      actor: Sales rep
+
+  - id: usecase.create-deal
+    kind: usecase
+    spec:
+      binds_to: http.server.api:POST:/deals
+      goal: Create a new deal
+      acceptance_criteria:
+        - Deal is created with stage, value, and contact
+        - Deal appears in pipeline view
+
+  - id: usecase.update-deal-stage
+    kind: usecase
+    spec:
+      binds_to: http.server.api:PATCH:/deals/{id}/stage
+      goal: Move deal to next stage
+      postconditions:
+        - Deal stage is updated
+        - Stage history is recorded
+```

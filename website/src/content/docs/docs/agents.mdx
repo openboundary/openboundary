@@ -1,0 +1,179 @@
+---
+title: Agents
+description: AI agent integrations that enforce OpenBoundary specifications during development.
+---
+
+OpenBoundary provides agent integrations that constrain AI coding tools to work within your architectural boundaries. These agents understand your specification and prevent accidental modifications to generated infrastructure code.
+
+## Claude Code Plugin
+
+The official Claude Code plugin enforces OpenBoundary boundaries during AI-assisted development.
+
+### Installation
+
+1. **Install the OpenBoundary CLI**
+
+   ```bash
+   curl -fsSL https://openboundary.org/install.sh | sh
+   ```
+
+2. **Enable the plugin** in your project's `.claude/settings.json`:
+
+   ```json
+   {
+     "plugins": ["openboundary"]
+   }
+   ```
+
+   Or install globally in `~/.claude/settings.json`.
+
+3. **Verify activation** - The plugin activates automatically when it detects `spec.yaml` or `openboundary.yaml` in your project.
+
+### How It Works
+
+The plugin uses a defense-in-depth approach:
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| **Advisory** | Pre-edit hook | Warns before editing protected files |
+| **Enforcement** | Post-edit hook | Validates no violations via `git diff` |
+| **Recovery** | `/ob-rollback` skill | Undoes unauthorized changes |
+
+### Safe Zones
+
+The plugin enforces three zones:
+
+**Always Safe** - Files you can freely edit:
+- `spec.yaml`, `openapi.yaml` - Specifications
+- `src/auth/**/*` - Authentication and authorization config
+- `src/db/schema.ts` - Database schema
+
+**Partial** - Limited editing allowed:
+- `src/components/usecases/*.ts` - Only function bodies, not imports or signatures
+
+**Forbidden** - Never edit:
+- `src/components/servers/**/*` - Generated server code
+- `src/middleware/**/*` - Generated middleware
+- `*.generated.ts` - Any generated file
+
+### Skills
+
+The plugin provides slash commands for common operations:
+
+| Skill | Description |
+|-------|-------------|
+| `/ob-compile` | Compile specification to TypeScript |
+| `/ob-validate` | Validate specification without generating |
+| `/ob-new-usecase` | Add a new usecase to the specification |
+| `/ob-rollback` | Undo changes to protected files |
+
+### Example Workflow
+
+```text
+1. You: "Add a DELETE /users/:id endpoint"
+
+2. Claude edits spec.yaml (safe zone)
+   - Adds usecase component with route binding
+   - Sets middleware requirements
+
+3. Claude runs /ob-compile
+   - Generates server routing
+   - Creates usecase stub
+
+4. Claude implements the usecase body (partial safe zone)
+   - Writes deletion logic
+   - Only touches function body, not signature
+
+5. Post-edit hook validates
+   - Confirms no forbidden files modified
+   - Reports success
+```
+
+### Boundary Violations
+
+If Claude accidentally edits a protected file:
+
+```text
+BOUNDARY VIOLATION DETECTED
+
+The following protected files were modified:
+  - src/components/servers/http-server-api.ts
+
+To undo: /ob-rollback
+To make infrastructure changes: edit spec.yaml and /ob-compile
+```
+
+### Configuration
+
+Boundary rules are defined in `.claude/plugins/openboundary/boundaries.json`:
+
+```json
+{
+  "safeZones": {
+    "always": {
+      "patterns": ["spec.yaml", "src/auth/**/*", "src/db/schema.ts"]
+    },
+    "partial": {
+      "patterns": ["src/components/usecases/*.ts"],
+      "excludePatterns": ["**/index.ts", "**/schemas.ts"]
+    }
+  },
+  "forbidden": {
+    "patterns": ["src/components/servers/**/*", "src/middleware/**/*"]
+  }
+}
+```
+
+### Limitations
+
+The plugin operates within Claude Code's tool system:
+
+- **Cannot physically block** the Edit tool - enforcement is detective, not preventive
+- **Requires git** for violation detection via `git diff`
+- **Advisory for intentional bypass** - determined users can ignore warnings
+
+For maximum protection, combine with:
+- Git branch protection rules
+- PR reviews for `src/components/` and `src/middleware/`
+- CI checks that verify generated files match compiler output
+
+## Future Integrations
+
+Planned agent support for other AI coding tools:
+
+| Tool | Status |
+|------|--------|
+| Claude Code | Available |
+| Cursor | Planned |
+| Continue | Planned |
+| Aider | Planned |
+| GitHub Copilot | Under consideration |
+
+## Plugin Development
+
+The plugin source is in `.claude/plugins/openboundary/`:
+
+```text
+.claude/plugins/openboundary/
+├── .claude-plugin/
+│   └── plugin.json        # Plugin metadata
+├── agents/
+│   └── boundary-enforcer.md
+├── boundaries.json        # Canonical boundary rules
+├── hooks/
+│   ├── hooks.json
+│   ├── pre-edit-boundary-check.md
+│   ├── post-edit-enforce.md
+│   └── post-compile-validate.md
+├── rules/
+│   ├── openboundary-workflow.md
+│   └── safe-zones.md
+├── skills/
+│   ├── ob-compile.md
+│   ├── ob-new-usecase.md
+│   ├── ob-rollback.md
+│   └── ob-validate.md
+└── README.md
+```
+
+Contributions welcome. See the [GitHub repository](https://github.com/openboundary/openboundary).

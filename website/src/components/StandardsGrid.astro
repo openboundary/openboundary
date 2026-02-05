@@ -103,19 +103,18 @@ const standards = [
   .standards-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 32px;
+    gap: 10px;
   }
 
   .standard-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 20px;
+    padding: 14px 18px;
     background: var(--ob-bg-subtle);
     border: 1px solid var(--ob-border);
-    border-radius: 8px;
-    transition: border-color 0.15s;
+    border-radius: 4px;
+    transition: border-color 0.15s ease;
   }
 
   .standard-item:hover {
@@ -123,12 +122,12 @@ const standards = [
   }
 
   .standard-item.soon {
-    opacity: 0.5;
+    opacity: 0.4;
   }
 
   .standard-logo {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,23 +140,27 @@ const standards = [
 
   .standard-info strong {
     display: block;
-    font-size: 14px;
+    font-family: var(--ob-font-display);
+    font-size: 13px;
     font-weight: 500;
   }
 
   .standard-info span {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--ob-text-tertiary);
   }
 
   .soon-badge {
-    font-family: var(--ob-font-mono);
-    font-size: 10px;
+    font-family: var(--ob-font-display);
+    font-size: 9px;
+    font-weight: 500;
     color: var(--ob-amber);
-    background: rgba(245, 158, 11, 0.1);
+    background: rgba(251, 191, 36, 0.1);
     padding: 2px 6px;
-    border-radius: 3px;
+    border-radius: 2px;
     margin-left: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   @media (max-width: 640px) {

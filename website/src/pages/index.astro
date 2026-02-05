@@ -8,127 +8,114 @@ import CodeComparison from '../components/CodeComparison.astro';
 import ComponentsGrid from '../components/ComponentsGrid.astro';
 import StableBoundary from '../components/StableBoundary.astro';
 
-const version = 'v0.1.0';
 const github = 'https://github.com/openboundary/openboundary';
 ---
 
-<HomeLayout title="OpenBoundary - Specification-driven backend code generation">
+<HomeLayout title="OpenBoundary — Open-source specification compiler for backend architecture">
   <section class="hero">
-    <div class="hero-label">
-      <span class="hero-label-dot"></span>
-      {version}
+    <div class="hero-badges">
+      <span class="badge badge-oss">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        Open Source
+      </span>
+      <span class="badge badge-license">AGPL-3.0</span>
     </div>
 
-    <h1>Architectural guardrails for AI-assisted&nbsp;development</h1>
+    <h1>Compile architectural<br/>constraints into code</h1>
 
     <p class="hero-sub">
-      Auth, rate limiting, validation, middleware order — these are
-      architectural invariants. They shouldn't depend on whether your AI tool
-      remembered to include them. Define them once in YAML, compile to
-      type-safe TypeScript.
-    </p>
-
-    <p class="hero-tagline">
-      Specification-driven code generation with enforced constraints.
-    </p>
-
-    <p class="hero-tagline-sub">
-      Open spec. Open compiler. AGPL-3.0&nbsp;licensed.
+      Define authentication, authorization, middleware chains, and database schemas in YAML.
+      The compiler generates type-safe TypeScript that enforces your architecture.
     </p>
 
     <div class="hero-actions">
-      <a href="/docs/" class="btn btn-primary">
-        Read the Docs
+      <a href="/docs/getting-started" class="btn btn-primary">
+        Get Started
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
       </a>
-      <a href={github} class="btn btn-secondary">View Source</a>
+      <a href={github} class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        View on GitHub
+      </a>
     </div>
 
-    <Terminal>
-      <TerminalLine type="command">openboundary compile spec.yaml</TerminalLine>
-      <TerminalLine type="success">✓ Validated security boundaries</TerminalLine>
-      <TerminalLine type="success">✓ Enforced middleware invariants</TerminalLine>
-      <TerminalLine type="success">✓ Generated TypeScript project</TerminalLine>
-      <TerminalLine type="muted">→ src/server.ts</TerminalLine>
-      <TerminalLine type="muted">→ src/middleware/authn.ts</TerminalLine>
-      <TerminalLine type="muted">→ src/handlers/users.ts</TerminalLine>
+    <Terminal title="bound compile spec.yaml">
+      <TerminalLine type="success">Validated specification</TerminalLine>
+      <TerminalLine type="success">Enforced middleware invariants</TerminalLine>
+      <TerminalLine type="success">Generated TypeScript project</TerminalLine>
+      <TerminalLine type="muted">  src/server.ts</TerminalLine>
+      <TerminalLine type="muted">  src/middleware/authn.ts</TerminalLine>
+      <TerminalLine type="muted">  src/middleware/authz.ts</TerminalLine>
+      <TerminalLine type="muted">  src/handlers/users.ts</TerminalLine>
     </Terminal>
   </section>
 
-  <section class="section what-is">
-    <div class="section-header">
-      <div class="section-label">What is OpenBoundary?</div>
-      <h2 class="section-title">A specification format and compiler for backend&nbsp;architecture</h2>
-    </div>
-    <div class="what-is-content">
-      <p>
-        OpenBoundary is an open-source specification format and compiler for
-        defining security and architectural boundaries in software systems.
-        You declare the rules in YAML. The compiler generates
-        production-ready TypeScript — route guards, middleware,
-        authorization logic, input validation — with zero ambiguity.
-      </p>
-      <p>
-        It exists because AI coding tools are fast but structurally unaware.
-        They'll generate an unauthenticated endpoint, skip rate limiting, or
-        flatten an authorization model into a boolean. Not out of malice —
-        they just don't have the architectural context. OpenBoundary gives
-        them that context as a compilable, enforceable contract.
-      </p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-header">
-      <div class="section-label">Why this exists</div>
-      <h2 class="section-title">The problem with AI-assisted development</h2>
-      <p class="section-desc">
-        AI coding tools generate business logic quickly. They don't have
-        context about your auth requirements, middleware order, or which
-        endpoints need rate limiting. That context lives in your head or
-        scattered across docs. OpenBoundary makes it explicit and
-        enforceable.
-      </p>
-    </div>
-
-    <ValueGrid />
-
-    <div class="standards-section">
-      <div class="section-label">Built on Open Standards</div>
-      <h3 class="section-title" style="font-size: 24px; margin-bottom: 8px;">
-        No lock-in. Real ecosystem tools.
-      </h3>
-      <p class="section-desc">
-        OpenBoundary orchestrates existing standards. Your specs reference
-        files in their native formats.
-      </p>
-
-      <StandardsGrid />
+  <section class="section problem">
+    <div class="section-grid">
+      <div class="section-header">
+        <div class="section-label">The Problem</div>
+        <h2>AI tools generate code fast.<br/>They don't enforce architecture.</h2>
+      </div>
+      <div class="section-content">
+        <p>
+          AI coding assistants will generate an unauthenticated endpoint, skip rate limiting,
+          or flatten your authorization model. Not out of malice — they don't have architectural context.
+        </p>
+        <p>
+          That context lives in your head, scattered across docs, lost in code comments.
+          It drifts from implementation. Nobody enforces it.
+        </p>
+        <p class="highlight">
+          OpenBoundary makes architectural constraints explicit, machine-readable, and enforced at compile time.
+        </p>
+      </div>
     </div>
   </section>
 
   <section class="section">
-    <div class="section-header">
-      <div class="section-label">How it works</div>
-      <h2 class="section-title">YAML in, TypeScript out</h2>
+    <div class="section-header centered">
+      <div class="section-label">How It Works</div>
+      <h2>YAML in. TypeScript out.</h2>
       <p class="section-desc">
-        Define your boundaries in a spec file. Run the compiler. Get typed,
-        production-ready code.
+        Define your boundaries in a specification file. The compiler validates constraints and generates production-ready code.
       </p>
     </div>
 
     <CodeComparison />
   </section>
 
-  <section class="section" id="components">
-    <div class="section-header">
-      <div class="section-label">Spec components</div>
-      <h2 class="section-title">What you can define</h2>
+  <section class="section">
+    <div class="section-header centered">
+      <div class="section-label">Why OpenBoundary</div>
+      <h2>Separate what changes rarely from what changes constantly</h2>
+    </div>
+
+    <ValueGrid />
+  </section>
+
+  <section class="section">
+    <div class="section-header centered">
+      <div class="section-label">No Lock-in</div>
+      <h2>Built on open standards</h2>
       <p class="section-desc">
-        The spec supports HTTP servers, databases, middleware chains, and
-        use cases. Each component type has its own validation rules.
+        Your specs reference existing ecosystem tools in their native formats. OpenBoundary orchestrates — it doesn't replace.
+      </p>
+    </div>
+
+    <StandardsGrid />
+  </section>
+
+  <section class="section" id="components">
+    <div class="section-header centered">
+      <div class="section-label">Components</div>
+      <h2>What you can define</h2>
+      <p class="section-desc">
+        HTTP servers, databases, middleware chains, and use cases. Each component type has its own validation rules.
       </p>
     </div>
 
@@ -138,157 +125,204 @@ const github = 'https://github.com/openboundary/openboundary';
   <StableBoundary />
 
   <section class="cta">
-    <h2>Get started</h2>
-    <p>Clone the repo and try the example spec.</p>
-    <div class="cta-code">
-      <span class="cmd">$</span> git clone {github}.git
-    </div>
-    <div class="cta-actions">
-      <a href="/docs/" class="btn btn-primary">
-        Documentation
+    <div class="cta-inner">
+      <div class="cta-badge">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7" />
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
         </svg>
-      </a>
-      <a href={github} class="btn btn-secondary">GitHub</a>
+        Open Source
+      </div>
+      <h2>Start building with constraints</h2>
+      <p>Clone the repo, try the example spec, read the docs.</p>
+      <div class="cta-code">
+        <code>go install github.com/openboundary/openboundary/cmd/bound@latest</code>
+      </div>
+      <div class="cta-actions">
+        <a href="/docs/getting-started" class="btn btn-primary">
+          Quick Start
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a href={github} class="btn btn-secondary">GitHub</a>
+      </div>
     </div>
   </section>
 </HomeLayout>
 
 <style>
+  /* Hero Section */
   .hero {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 160px 24px 100px;
+    padding: 140px 24px 100px;
+    text-align: center;
   }
 
-  .hero-label {
+  .hero-badges {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--ob-text-secondary);
-    margin-bottom: 24px;
+    gap: 6px;
+    font-family: var(--ob-font-display);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  .hero-label-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--ob-green);
-    border-radius: 50%;
+  .badge-oss {
+    color: var(--ob-accent);
+    background: var(--ob-accent-dim);
+    border: 1px solid rgba(94, 234, 212, 0.2);
+  }
+
+  .badge-license {
+    color: var(--ob-text-tertiary);
+    background: var(--ob-bg-elevated);
+    border: 1px solid var(--ob-border);
   }
 
   .hero h1 {
-    font-size: clamp(32px, 5vw, 48px);
-    font-weight: 600;
+    font-family: var(--ob-font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 500;
     letter-spacing: -0.03em;
-    line-height: 1.35;
-    margin-bottom: 24px;
-    max-width: 860px;
+    line-height: 1.15;
+    margin-bottom: 28px;
   }
 
   .hero-sub {
     font-size: 17px;
     color: var(--ob-text-secondary);
-    max-width: 640px;
+    max-width: 600px;
+    margin: 0 auto 40px;
     line-height: 1.7;
-    margin-bottom: 20px;
-  }
-
-  .hero-tagline {
-    font-size: 17px;
-    color: var(--ob-text);
-    font-weight: 500;
-    margin-bottom: 12px;
-  }
-
-  .hero-tagline-sub {
-    font-family: var(--ob-font-mono);
-    font-size: 13px;
-    color: var(--ob-text-tertiary);
-    letter-spacing: 0.01em;
-    margin-bottom: 40px;
   }
 
   .hero-actions {
     display: flex;
+    justify-content: center;
     gap: 12px;
-    margin-bottom: 80px;
+    margin-bottom: 64px;
   }
 
   .hero-actions .btn {
-    padding: 10px 18px;
+    padding: 12px 20px;
     font-size: 14px;
   }
 
+  /* Sections */
   .section {
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 100px 24px;
+    border-top: 1px solid var(--ob-border);
+  }
+
+  .section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
   }
 
   .section-header {
     margin-bottom: 48px;
   }
 
-  .section-label {
-    font-family: var(--ob-font-mono);
-    font-size: 12px;
-    color: var(--ob-text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 12px;
+  .section-header.centered {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 56px;
   }
 
-  .section-title {
-    font-size: 32px;
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    margin-bottom: 12px;
+  .section-label {
+    font-family: var(--ob-font-display);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ob-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  .section h2 {
+    font-family: var(--ob-font-display);
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: 16px;
   }
 
   .section-desc {
     font-size: 16px;
     color: var(--ob-text-secondary);
-    max-width: 560px;
     line-height: 1.7;
   }
 
-  .what-is {
-    border-top: 1px solid var(--ob-border);
-  }
-
-  .what-is-content {
-    max-width: 720px;
-  }
-
-  .what-is-content p {
+  .section-content p {
     font-size: 16px;
     color: var(--ob-text-secondary);
     line-height: 1.8;
     margin-bottom: 20px;
   }
 
-  .what-is-content p:last-child {
+  .section-content p:last-child {
     margin-bottom: 0;
   }
 
-  .standards-section {
-    border-top: 1px solid var(--ob-border);
-    padding-top: 80px;
+  .section-content p.highlight {
+    color: var(--ob-text);
+    font-weight: 500;
   }
 
+  /* Problem Section */
+  .problem {
+    background: linear-gradient(180deg, var(--ob-bg) 0%, var(--ob-bg-subtle) 100%);
+  }
+
+  /* CTA Section */
   .cta {
-    text-align: center;
-    padding: 100px 24px;
     border-top: 1px solid var(--ob-border);
+    padding: 100px 24px;
+    background: var(--ob-bg-subtle);
+  }
+
+  .cta-inner {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .cta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--ob-font-display);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ob-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
   }
 
   .cta h2 {
+    font-family: var(--ob-font-display);
     font-size: 28px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: -0.02em;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
   .cta p {
@@ -301,15 +335,15 @@ const github = 'https://github.com/openboundary/openboundary';
     font-family: var(--ob-font-mono);
     font-size: 13px;
     color: var(--ob-text-secondary);
-    background: var(--ob-bg-subtle);
+    background: var(--ob-bg);
     border: 1px solid var(--ob-border);
-    padding: 12px 20px;
-    border-radius: 6px;
+    padding: 14px 24px;
+    border-radius: 4px;
     margin-bottom: 32px;
   }
 
-  .cta-code .cmd {
-    color: var(--ob-text-tertiary);
+  .cta-code code {
+    color: var(--ob-text);
   }
 
   .cta-actions {
@@ -318,6 +352,7 @@ const github = 'https://github.com/openboundary/openboundary';
     gap: 12px;
   }
 
+  /* Responsive */
   @media (max-width: 900px) {
     .hero {
       padding: 120px 20px 80px;
@@ -327,12 +362,49 @@ const github = 'https://github.com/openboundary/openboundary';
       padding: 80px 20px;
     }
 
-    .section-title {
-      font-size: 28px;
+    .section-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
     }
 
     .cta {
       padding: 80px 20px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 {
+      font-size: 28px;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+    }
+
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-actions .btn {
+      width: 100%;
+      max-width: 280px;
+      justify-content: center;
+    }
+
+    .hero-badges {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cta h2 {
+      font-size: 24px;
+    }
+
+    .cta-code {
+      font-size: 11px;
+      padding: 12px 16px;
+      word-break: break-all;
     }
 
     .cta-actions {
@@ -344,37 +416,6 @@ const github = 'https://github.com/openboundary/openboundary';
       width: 100%;
       max-width: 280px;
       justify-content: center;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .hero-actions {
-      flex-direction: column;
-    }
-
-    .hero-actions .btn {
-      justify-content: center;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .hero h1 {
-      font-size: 28px;
-    }
-
-    .hero-sub {
-      font-size: 16px;
-    }
-
-    .cta h2 {
-      font-size: 24px;
-    }
-
-    .cta-code {
-      font-size: 11px;
-      padding: 10px 14px;
-      word-break: break-all;
-      max-width: 100%;
     }
   }
 </style>

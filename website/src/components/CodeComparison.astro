@@ -75,7 +75,7 @@ app.<span class="sy-f">post</span>(<span class="sy-s">'/users'</span>, createUse
     gap: 1px;
     background: var(--ob-border);
     border: 1px solid var(--ob-border);
-    border-radius: 8px;
+    border-radius: 6px;
     overflow: hidden;
   }
 
@@ -118,13 +118,13 @@ app.<span class="sy-f">post</span>(<span class="sy-s">'/users'</span>, createUse
     margin: 0;
   }
 
-  /* Syntax highlighting */
-  .sy-k { color: #f472b6; }
-  .sy-s { color: #a5f3fc; }
-  .sy-n { color: #c4b5fd; }
-  .sy-c { color: #555; }
-  .sy-p { color: #888; }
-  .sy-f { color: #86efac; }
+  /* Syntax highlighting - using CSS variables for theme consistency */
+  .sy-k { color: var(--sy-keyword, #f9a8d4); }      /* keywords - soft pink */
+  .sy-s { color: var(--sy-string, #5eead4); }       /* strings - teal accent */
+  .sy-n { color: var(--sy-number, #c4b5fd); }       /* numbers - lavender */
+  .sy-c { color: var(--sy-comment, #4a4a4a); }      /* comments - muted */
+  .sy-p { color: var(--sy-punctuation, #737373); }  /* punctuation */
+  .sy-f { color: var(--sy-function, #5eead4); }     /* functions - teal accent */
 
   @media (max-width: 900px) {
     .code-grid {
