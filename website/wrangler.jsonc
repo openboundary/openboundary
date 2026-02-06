@@ -1,0 +1,10 @@
+{
+  "name": "openboundary-website",
+  "compatibility_date": "2026-02-06",
+  "routes": [
+    { "pattern": "openboundary.dev", "custom_domain": true }
+  ],
+  "assets": {
+    "directory": "./dist"
+  }
+}
