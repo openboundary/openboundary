@@ -31,6 +31,8 @@ func (e *ValidationError) Error() string {
 
 // Validate performs semantic validation on the IR.
 // Call this after Build() to check for semantic errors.
+//
+// needs study
 func (ir *IR) Validate() []error {
 	var errs []error
 

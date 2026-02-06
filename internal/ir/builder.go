@@ -173,7 +173,10 @@ func (b *Builder) linkUsecasesToOperations(ir *IR) []error {
 // parseComponentSpec parses the untyped spec into typed fields.
 // Note: Unknown kinds are filtered out before this function is called,
 // so the switch is exhaustive for all valid kinds.
-func (b *Builder) parseComponentSpec(comp *Component, spec map[string]interface{}) {
+//
+// TODO: these could be structured better - parsers could live with component types
+// parsers become pluggable such that a component is shipped with a schema, parser and generator
+func (b *Builder) parseComponentSpec(comp *Component, spec map[string]any) {
 	switch comp.Kind {
 	case KindHTTPServer:
 		b.parseHTTPServerSpec(comp, spec)
@@ -200,17 +203,17 @@ func (b *Builder) parseHTTPServerSpec(comp *Component, spec map[string]interface
 	if v, ok := spec["openapi"].(string); ok {
 		s.OpenAPI = v
 	}
-	if v, ok := spec["middleware"].([]interface{}); ok {
+	if v, ok := spec["middleware"].([]any); ok {
 		s.Middleware = toStringSlice(v)
 	}
-	if v, ok := spec["depends_on"].([]interface{}); ok {
+	if v, ok := spec["depends_on"].([]any); ok {
 		s.DependsOn = toStringSlice(v)
 	}
 
 	comp.HTTPServer = s
 }
 
-func (b *Builder) parseMiddlewareSpec(comp *Component, spec map[string]interface{}) {
+func (b *Builder) parseMiddlewareSpec(comp *Component, spec map[string]any) {
 	s := &MiddlewareSpec{}
 
 	if v, ok := spec["provider"].(string); ok {
@@ -321,6 +324,7 @@ func (b *Builder) resolveReferences(ir *IR, comp *Component) []error {
 	return errs
 }
 
+// TODO: Standardization of ID schema needed for components.
 func (b *Builder) addEdge(ir *IR, from *Component, toRef string, edgeType EdgeType) error {
 	sym, ok := ir.Symbols.Lookup(toRef)
 	if !ok {
@@ -355,7 +359,7 @@ func extractServerFromBinding(bindsTo string) string {
 // Non-string items are silently skipped. This is intentional to allow
 // YAML parsing flexibility, but callers should be aware that invalid
 // entries will not produce errors here - validate at the schema level.
-func toStringSlice(v []interface{}) []string {
+func toStringSlice(v []any) []string {
 	result := make([]string, 0, len(v))
 	for _, item := range v {
 		if s, ok := item.(string); ok {

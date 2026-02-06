@@ -6,6 +6,7 @@ package ir
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/openboundary/openboundary/internal/openapi"
 	"github.com/openboundary/openboundary/internal/parser"
@@ -50,6 +51,7 @@ type Component struct {
 type Kind string
 
 // Known component kinds.
+// TODO: Consider making this extendable
 const (
 	KindHTTPServer Kind = "http.server"
 	KindMiddleware Kind = "middleware"
@@ -80,10 +82,8 @@ func AllKinds() []Kind {
 
 // IsValidKind checks if the given kind is known.
 func IsValidKind(k Kind) bool {
-	for _, kind := range AllKinds() {
-		if k == kind {
-			return true
-		}
+	if slices.Contains(AllKinds(), k) == true {
+		return true
 	}
 	return false
 }
@@ -102,7 +102,7 @@ type HTTPServerSpec struct {
 
 // MiddlewareSpec contains typed fields for middleware components.
 type MiddlewareSpec struct {
-	Provider  string
+	Provider  string // todo - leaky abstraction - consider subtypes for authn & authz
 	Config    string
 	Model     string
 	Policy    string

@@ -1,0 +1,4 @@
+# openboundary Specification Example
+version: "0.1.0"
+name: Blank Project
+description: Blank Application for scaffolding
