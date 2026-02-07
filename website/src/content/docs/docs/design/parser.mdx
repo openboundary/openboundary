@@ -1,0 +1,118 @@
+---
+title: Parser & AST
+description: How OpenBoundary parses YAML specifications into a position-tracked AST.
+---
+
+The parser is the compiler's front end. It reads a YAML specification file from disk, deserializes it into Go structs, and attaches source positions so that every downstream error message can point back to the exact line and column in the original file.
+
+## Responsibilities
+
+The parser does three things:
+
+1. **Read** — Load the spec file from disk as raw bytes.
+2. **Deserialize** — Parse the YAML into a `yaml.Node` tree using Go's `gopkg.in/yaml.v3` library, then decode it into the `Spec` and `Component` structs.
+3. **Annotate** — Capture the file path, line number, and column number of the root document node and attach it as a `Position` to the resulting `Spec`.
+
+The parser does *not* validate. It will accept a YAML file with unknown fields, missing required values, or invalid component kinds. Structural and semantic validation happen in later stages, which lets the parser stay simple and fast.
+
+## Input Format
+
+The compiler expects a single YAML file with this shape:
+
+```yaml
+version: "0.1.0"
+name: my-project
+description: Optional description
+
+components:
+  - id: http.server.api
+    kind: http.server
+    spec:
+      framework: hono
+      port: 3000
+      openapi: ./openapi.yaml
+      middleware:
+        - middleware.authn
+      depends_on:
+        - postgres.primary
+
+  - id: middleware.authn
+    kind: middleware
+    spec:
+      provider: better-auth
+      config: ./src/auth/auth.config.ts
+```
+
+The top-level fields `version`, `name`, and `components` are required. Each component has an `id` (dot-separated identifier), a `kind` (one of the known component types), and a `spec` (a kind-specific map of configuration).
+
+## AST Node Structure
+
+The AST is intentionally minimal. There are only two node types:
+
+**`Spec`** — The root node. Contains the version string, project name, optional description, and a slice of `Component` nodes.
+
+```go
+type Spec struct {
+    Version     string
+    Name        string
+    Description string
+    Components  []Component
+    position    Position
+}
+```
+
+**`Component`** — A single component declaration. Contains the ID, kind string, and an untyped spec map.
+
+```go
+type Component struct {
+    ID   string
+    Kind string
+    Spec map[string]interface{}
+    position Position
+}
+```
+
+Both types implement the `Node` interface, which requires a single method:
+
+```go
+type Node interface {
+    Pos() Position
+}
+```
+
+The `Spec` field on `Component` is `map[string]interface{}` — deliberately untyped. At this stage the parser does not know or care what fields a particular component kind requires. That is the IR builder's job. Keeping the AST untyped means the parser never needs to change when a new component kind is added.
+
+## Position Tracking
+
+Every AST node carries a `Position` struct:
+
+```go
+type Position struct {
+    File   string  // Source file path
+    Line   int     // 1-indexed line number
+    Column int     // 1-indexed column number
+}
+```
+
+The parser captures the position of the root YAML mapping node and attaches it to the `Spec`. This position data flows through the IR builder and into validation errors, so that a message like `"middleware.authn: casbin provider requires model field"` can include the file, line, and column where that component was declared.
+
+Position tracking uses the `yaml.Node` API rather than the simpler `yaml.Unmarshal` approach. The parser first unmarshals into a `yaml.Node` tree (which preserves line and column information), extracts the position from the root node, and then decodes the node tree into the `Spec` struct.
+
+## Why YAML
+
+The choice of YAML as the input format is deliberate:
+
+**Editor support is universal.** Every code editor has YAML syntax highlighting, indentation rules, and linting built in. A custom DSL would require building and maintaining editor plugins for VS Code, Neovim, JetBrains, and others before anyone could use it comfortably.
+
+**Schema validation is free.** The JSON Schema standard works natively with YAML (since YAML is a superset of JSON). The compiler ships an `openboundary.schema.json` file that editors can use for autocompletion and inline validation before the user ever runs `bound compile`. This would require significant tooling investment with a custom language.
+
+**CI/CD integration is trivial.** YAML files can be linted (`yamllint`), diffed, and processed by any tool in the ecosystem. A custom DSL would need its own linter, formatter, and diff support.
+
+**AI code generation tools understand YAML.** LLMs and code generation agents can read and write YAML without special training. A custom syntax would reduce the effectiveness of AI-assisted specification authoring — which directly conflicts with OpenBoundary's goal of making generated code AI-aware.
+
+The main cost is verbosity. YAML's indentation sensitivity can also cause subtle errors. These are real drawbacks, but they are outweighed by the ecosystem advantages at this stage of the project.
+
+## Relevant Source Files
+
+- `internal/parser/ast.go` — `Position`, `Node`, `Spec`, and `Component` type definitions
+- `internal/parser/yaml.go` — `Parser` struct, `Parse()`, `ParseBytes()`, and YAML deserialization logic

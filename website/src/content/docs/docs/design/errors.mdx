@@ -1,0 +1,124 @@
+---
+title: Error Model
+description: How OpenBoundary tracks, accumulates, and reports errors with source positions throughout the compiler pipeline.
+---
+
+Good error messages are one of the most important features of a compiler. A cryptic error that says `"validation failed"` forces the user to guess what went wrong. An error that says `"middleware.authz: casbin provider requires model field"` at `spec.yaml:28:5` tells them exactly what to fix and where.
+
+OpenBoundary's error model is designed around three principles: carry source positions, accumulate rather than fail-fast, and format errors for humans.
+
+## Position Tracking
+
+Every AST node carries a `Position` struct captured during parsing:
+
+```go
+type Position struct {
+    File   string  // Source file path (e.g., "spec.yaml")
+    Line   int     // 1-indexed line number
+    Column int     // 1-indexed column number
+}
+```
+
+The parser captures positions from the YAML node tree, which records the line and column of every mapping, sequence, and scalar in the document. These positions are stored on the `Spec` and `Component` AST nodes and flow into the IR — every `ir.Component` carries the `parser.Position` of the original YAML component declaration.
+
+When a validator or builder reports an error, it includes the position of the component that caused it. This means the error message can point the user to the right location in their spec file, even though the error was detected several stages after parsing.
+
+## Error Propagation Across Phases
+
+Errors flow differently depending on the stage:
+
+### Parse Errors
+
+Parse errors are singular — the parser either succeeds and returns a `*Spec`, or fails with a single error. YAML syntax errors (invalid indentation, unclosed quotes) produce a parse error that stops the pipeline immediately. There is nothing to accumulate because parsing is all-or-nothing.
+
+```
+parse error: failed to parse YAML: yaml: line 12: did not find expected key
+```
+
+### Schema Validation Errors
+
+The JSON Schema validator returns a `[]ValidationError` slice. Each error includes a message, an optional JSON path (e.g., `/components/2/spec`), and the source file. Errors are extracted from the `jsonschema` library's error tree and flattened into a list. If any schema errors exist, the compiler prints them all and stops.
+
+```
+Schema validation failed with 2 error(s):
+  - missing required property 'port' (at /components/0/spec)
+  - invalid enum value for 'framework' (at /components/0/spec/framework)
+```
+
+### IR Build Errors
+
+The IR builder returns `(*IR, []error)`. Errors are accumulated across all four phases, with one important exception: if Phase 1 (component creation) produces errors, the builder skips Phases 3 and 4 (reference resolution and use case linking). This prevents cascading errors — if a component failed to parse, every reference to it would also fail, flooding the user with noise.
+
+Build errors include the component ID in the message:
+
+```
+Build failed with 2 error(s):
+  - component "http.server.api": failed to parse OpenAPI spec "./openapi.yaml": file not found
+  - unresolved reference "middleware.nonexistent" in component "http.server.api"
+```
+
+### IR Validation Errors
+
+IR validation returns `[]error`, with each error wrapped in a `ValidationError` struct that carries the component ID and an optional position:
+
+```go
+type ValidationError struct {
+    Message  string
+    ID       string
+    Position Position
+}
+```
+
+The `Error()` method formats this as `"component-id: message"`:
+
+```
+Validation failed with 3 error(s):
+  - dependency cycle: A -> B -> C -> A
+  - http.server.api: missing required field: port
+  - better-auth middleware requires a postgres component with provider "drizzle"
+```
+
+Cycle errors don't have a single component ID since they involve multiple components. Cross-component errors (like the `better-auth` requirement) also omit the ID since they describe a system-level constraint.
+
+### Code Generation Errors
+
+Generator errors are singular per generator — if a generator fails, the compiler reports the generator name and error, and stops. The artifact planner can also produce errors (path conflicts), which include both the conflicting path and the names of the two generators involved.
+
+```
+generator typescript-hono failed: ...
+artifact path conflict for "src/index.ts": already planned by "typescript-hono", attempted by "typescript-project"
+```
+
+## User-Facing Error Format
+
+The CLI uses a consistent format for error output:
+
+```
+[Stage] failed with N error(s):
+  - error message 1
+  - error message 2
+```
+
+Where `[Stage]` is one of `Schema validation`, `Build`, `Semantic validation`, or `Validation`. All error output goes to stderr. Success messages and generated file listings go to stdout.
+
+The two-level structure — a summary line followed by indented bullet points — keeps the output scannable. A user can see at a glance which stage failed and how many problems were found, then read the individual errors for details.
+
+## Design Decisions
+
+**Accumulate within layers, fail-fast between layers.** Within a validation layer, errors are collected into a slice so the user sees everything at once. Between layers, the compiler stops if the previous layer found errors. This prevents cascading — schema errors would cause spurious build errors, and build errors would cause spurious validation errors.
+
+**`[]error` over a custom error type.** Most error-returning functions use Go's standard `[]error` slice rather than a custom error list type. This keeps the API simple and composable — callers can `append()` errors from multiple sources. The `ValidationError` struct is used only where position data needs to travel with the error; everywhere else, plain `fmt.Errorf` suffices.
+
+**Component IDs in error messages, not positions.** While the compiler tracks source positions, most error messages use the component ID (e.g., `"http.server.api"`) as the primary locator rather than file:line:column. This is because component IDs are stable, human-readable identifiers that appear in the spec. Position information is available for validators that operate on raw AST nodes (like the semantic validator's duplicate-name check), but the IR validator uses IDs since they are more meaningful after the IR has been built.
+
+**Errors are strings, not structured data.** The compiler does not produce machine-readable error output (JSON, SARIF, etc.). Error messages are formatted for terminal display. Structured error output is a likely future addition for editor and CI integration, but the current priority is clear human-readable messages.
+
+## Relevant Source Files
+
+- `internal/parser/ast.go` — `Position` struct, `Node` interface
+- `internal/validator/jsonschema.go` — `ValidationError` with path and file fields, error tree extraction
+- `internal/ir/validate.go` — `ValidationError` with component ID and position, `Error()` formatting
+- `internal/ir/builder.go` — `Build()` return type `(*IR, []error)`, phase-gated error accumulation
+- `internal/ir/graph.go` — `CycleError`, cycle path formatting
+- `internal/codegen/planner.go` — `ArtifactConflictError` with path and owner fields
+- `cmd/bound/main.go` — Error formatting and stderr output in `runCompile()` and `runValidate()`

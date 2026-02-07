@@ -1,0 +1,53 @@
+---
+title: Changelog
+description: Release history for the OpenBoundary compiler.
+---
+
+## v0.1.0
+
+Initial release of the OpenBoundary specification compiler.
+
+### Compiler
+
+- YAML specification format with version, name, and component declarations
+- Four-phase IR builder with symbol table and dependency graph
+- JSON Schema validation with embedded `openboundary.schema.json`
+- Component kind schema validation
+- Semantic validation (unique IDs, required fields)
+- IR validation with cycle detection and cross-component constraints
+- Position-tracked error reporting with source file, line, and column
+
+### CLI
+
+- `bound compile <spec-file>` — Compile a spec into a TypeScript project
+- `bound validate <spec-file>` — Validate a spec without generating code
+- `--output` / `-o` flag for custom output directory (default: `generated/`)
+
+### Component Kinds
+
+- **http.server** — Hono framework with middleware chains, route registration, and dependency injection
+- **middleware** — Authentication (better-auth) and authorization (Casbin) providers
+- **postgres** — PostgreSQL via Drizzle ORM with schema imports
+- **usecase** — Business logic handlers bound to HTTP routes with goals, actors, and acceptance criteria
+
+### Code Generation
+
+- Plugin registry with conditional activation based on component kinds
+- Artifact planner with conflict detection and deduplication
+- Nine TypeScript generator plugins:
+  - Project scaffolding (`package.json`, `tsconfig.json`)
+  - Database and middleware schema generation
+  - OpenAPI type generation from parsed specs
+  - Hono context and dependency injection wiring
+  - Server entry point with route and middleware setup
+  - Use case handler stubs with structured comments
+  - Unit test scaffolding
+  - Docker and docker-compose generation
+  - End-to-end test scaffolding
+
+### Standards Integration
+
+- OpenAPI 3.x for HTTP contract definitions
+- Drizzle ORM for database schema management
+- Casbin for authorization policies (model + policy files)
+- better-auth for authentication configuration

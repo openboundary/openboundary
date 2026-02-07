@@ -1,0 +1,161 @@
+---
+title: Intermediate Representation
+description: The four-phase IR builder, symbol table, and dependency graph that form the compiler's core data model.
+---
+
+The intermediate representation (IR) is the central data structure of the compiler. It takes the untyped AST from the parser and transforms it into a fully typed, cross-referenced model where every component has a concrete Go struct, every reference is resolved to a pointer, and the full dependency graph is materialized as edges between components.
+
+All validation and code generation operates on the IR. No downstream code touches the raw AST.
+
+## Why an IR
+
+The parser produces an AST where component specs are `map[string]interface{}`. This is fine for deserialization, but working with untyped maps throughout the compiler would mean type assertions in every function, no compile-time safety, and unclear data contracts between stages.
+
+The IR solves this by introducing typed structs for each component kind. An `http.server` component's spec becomes an `HTTPServerSpec` with explicit `Framework`, `Port`, `OpenAPI`, and `Middleware` fields. A `usecase` component becomes a `UsecaseSpec` with `BindsTo`, `Goal`, `Actor`, and `AcceptanceCriteria`. Once the IR is built, the rest of the compiler works with concrete types.
+
+The IR also materializes relationships. In the YAML spec, a middleware reference is a string like `"middleware.authn"`. In the IR, it is a pointer to the actual `*Component`. This means generators can traverse the dependency graph directly rather than performing lookups.
+
+## The Four Build Phases
+
+The IR builder (`Builder.Build()`) runs four phases in sequence. Each phase depends on the output of the previous one.
+
+### Phase 1 — Component Creation & Symbol Table
+
+The builder iterates over every component in the parsed spec and does three things:
+
+1. **Parse the kind** — Convert the kind string (e.g., `"http.server"`) into a typed `Kind` constant. Unknown kinds produce an error.
+2. **Create the IR component** — Allocate a `Component` struct with the ID, kind, source position, and empty dependency/dependent slices.
+3. **Parse the spec** — Convert the untyped `map[string]interface{}` into the appropriate typed struct (`HTTPServerSpec`, `MiddlewareSpec`, `PostgresSpec`, or `UsecaseSpec`) via type assertions.
+4. **Register the symbol** — Add the component to the symbol table, keyed by ID. Duplicate IDs produce an error.
+
+If any errors occur during Phase 1, the builder stops. There is no point resolving references if the components themselves are invalid.
+
+```go
+ir.Symbols.Define("http.server.api", KindHTTPServer, irComp)
+```
+
+### Phase 2 — OpenAPI Spec Parsing
+
+For every `http.server` component that declares an `openapi` field, the builder loads and parses the referenced OpenAPI file using the `kin-openapi/openapi3` library. The parsed document is stored as a `*openapi.Document` on the component's `HTTPServerSpec.ParsedOpenAPI` field.
+
+This phase uses the builder's `baseDir` to resolve relative file paths. If the spec file is at `/project/spec.yaml` and it references `./openapi.yaml`, the builder reads `/project/openapi.yaml`.
+
+The parsed OpenAPI document contains a map of operations keyed by `"METHOD:/path"` (e.g., `"GET:/users/{id}"`). This map is used in Phase 4 to link use cases to their API operations.
+
+### Phase 3 — Reference Resolution & Edge Creation
+
+The builder walks every component and resolves its references into graph edges. The types of references depend on the component kind:
+
+| Component Kind | Reference Types |
+|---|---|
+| `http.server` | `middleware` array → middleware edges, `depends_on` array → dependency edges |
+| `middleware` | `depends_on` array → dependency edges |
+| `usecase` | `binds_to` → binding edge to server, `middleware` array → middleware edges |
+
+For each reference string, the builder looks up the target in the symbol table. If found, it creates a bidirectional link:
+
+- The source component's `Dependencies` slice gets a pointer to the target.
+- The target component's `Dependents` slice gets a pointer to the source.
+- An `Edge` record is appended to the IR's edge list with a typed edge type (`EdgeTypeRef`, `EdgeTypeDependency`, `EdgeTypeMiddleware`, or `EdgeTypeBinding`).
+
+Unresolved references produce errors. A middleware reference that points to a component that doesn't exist will be reported with the referring component's ID.
+
+### Phase 4 — Use Case Linking
+
+For every `usecase` component, the builder parses the `binds_to` string (format: `server-id:METHOD:/path`) and resolves it against the target server's parsed OpenAPI document.
+
+The parser splits the binding string into three parts:
+
+```
+http.server.api:POST:/users
+└─────────────┘ └──┘ └────┘
+   server ID   method  path
+```
+
+It then looks up the server component via the symbol table, finds the matching operation in the server's `ParsedOpenAPI.Operations` map, and stores the result as a `Binding` struct on the use case:
+
+```go
+type Binding struct {
+    ServerID  string
+    Method    string
+    Path      string
+    Operation *openapi.Operation  // resolved from the server's OpenAPI doc
+}
+```
+
+If the server has no OpenAPI spec, the binding is still valid — it just won't have a resolved operation. If the server has an OpenAPI spec but no matching operation, the builder reports an error.
+
+## Component Model
+
+The IR represents four component kinds, each with a typed spec struct:
+
+### http.server
+
+Declares an HTTP server. The spec struct carries the framework name (currently `"hono"`), port number, path to the OpenAPI file, a list of middleware component IDs, and a list of dependency component IDs. After Phase 2, the `ParsedOpenAPI` field contains the fully parsed OpenAPI document.
+
+### middleware
+
+Declares an authentication or authorization provider. The `Provider` field is either `"better-auth"` (authentication) or `"casbin"` (authorization). Provider-specific fields include `Config` (for better-auth) and `Model`/`Policy` (for Casbin). Middleware components can depend on other middleware via `DependsOn` — for example, Casbin authorization depends on better-auth authentication.
+
+### postgres
+
+Declares a PostgreSQL database connection. The `Provider` field is `"drizzle"` and the `Schema` field points to a Drizzle schema file.
+
+### usecase
+
+Declares a business logic handler bound to an HTTP route. The `BindsTo` field links it to a specific server, method, and path. The `Middleware` field can override the server's default middleware chain (an empty array means "no middleware for this route"). The `Goal`, `Actor`, `Preconditions`, `AcceptanceCriteria`, and `Postconditions` fields describe the use case in structured natural language.
+
+## Symbol Table
+
+The symbol table is a flat map from component ID strings to `Symbol` structs:
+
+```go
+type Symbol struct {
+    Name      string
+    Kind      Kind
+    Component *Component
+}
+```
+
+It serves two purposes:
+
+1. **Uniqueness checking** — `Define()` returns an error if a symbol with the same name already exists, catching duplicate component IDs during Phase 1.
+2. **Reference resolution** — `Lookup()` returns the symbol for a given name, used in Phases 3 and 4 to resolve string references to component pointers.
+
+The symbol table is flat rather than hierarchical. There are no scopes or namespaces. Every component ID must be globally unique within a spec.
+
+## Dependency Graph
+
+### Edges and Directionality
+
+The dependency graph is stored as two data structures:
+
+1. **Adjacency lists** — Each component has `Dependencies` (components it depends on) and `Dependents` (components that depend on it). These are slices of `*Component` pointers, forming a bidirectional adjacency list.
+2. **Edge list** — The IR maintains a flat list of `Edge` structs, each recording the source component, target component, and edge type. The edge type distinguishes between `ref`, `dependency`, `middleware`, and `binding` relationships.
+
+Edges always point from the depending component to the depended-upon component. If `http.server.api` depends on `postgres.primary`, the edge goes from the server to the database.
+
+### Cycle Detection
+
+The IR provides a `DetectCycles()` method that runs a depth-first search with a recursion stack. The algorithm visits each component, tracking which components are currently in the DFS path. If it encounters a component that is already in the current path, it has found a cycle.
+
+When a cycle is detected, the algorithm extracts the cycle path — the sequence of component IDs from the repeated node back to itself — and returns it. This path is included in the error message so the user can see exactly which components form the loop.
+
+The `TopologicalSort()` method calls `DetectCycles()` first, returning a `CycleError` if any cycles exist. If the graph is acyclic, it performs a standard DFS-based topological sort, returning components in dependency order (dependencies before dependents).
+
+## Design Decisions
+
+**Typed union over interface polymorphism.** The `Component` struct has four optional fields (`HTTPServer`, `Middleware`, `Postgres`, `Usecase`), exactly one of which is non-nil. This is a tagged union pattern. The alternative — defining a `ComponentSpec` interface with per-kind implementations — would be more idiomatic Go, but it would scatter the component data across multiple types and make it harder to write generators that need to inspect multiple component kinds in a single pass.
+
+**Bidirectional edges.** Each component knows both its dependencies and its dependents. This costs a small amount of extra memory during construction but makes it trivial for generators to answer questions like "which use cases bind to this server?" without scanning the entire component map.
+
+**Four phases, not one.** The builder could construct everything in a single pass, but splitting into phases creates natural checkpoints. Phase 1 ensures all symbols exist before Phase 3 tries to resolve them. Phase 2 ensures all OpenAPI docs are parsed before Phase 4 tries to link use cases to operations. Each phase can trust the invariants established by the previous one.
+
+## Relevant Source Files
+
+- `internal/ir/ir.go` — `IR`, `Component`, `Kind`, typed spec structs, `Edge`, `EdgeType`, and `Binding` definitions
+- `internal/ir/builder.go` — `Builder`, four build phases, reference resolution, spec parsing
+- `internal/ir/graph.go` — `DetectCycles()`, `TopologicalSort()`, `DependenciesOf()`, `DependentsOf()`
+- `internal/ir/symbols.go` — `SymbolTable`, `Symbol`, `Define()`, `Lookup()`
+- `internal/openapi/parser.go` — OpenAPI file parsing, `ParseBinding()`, `OperationKey()`
+- `internal/openapi/types.go` — `Document`, `Operation`, `Parameter`, `Schema` type definitions

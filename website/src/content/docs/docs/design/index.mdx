@@ -1,0 +1,78 @@
+---
+title: Compiler Design
+description: Architectural overview of the OpenBoundary compiler — pipeline stages, design decisions, and internal data structures.
+---
+
+OpenBoundary is a specification compiler. It reads a YAML file that describes the boundaries of a system — servers, middleware, databases, use cases — and produces a fully wired TypeScript project. This section documents how the compiler works internally, the data structures it builds, and why it is shaped the way it is.
+
+## Pipeline at a Glance
+
+A `bound compile spec.yaml` invocation moves through six stages in sequence. Each stage has a single responsibility and a well-defined input and output.
+
+```
+spec.yaml
+  │
+  ▼
+┌──────────┐
+│  Parse   │  YAML text → AST with position tracking
+└────┬─────┘
+     │
+     ▼
+┌──────────┐
+│ Validate │  JSON Schema → Component Schema → Semantic checks
+└────┬─────┘
+     │
+     ▼
+┌──────────┐
+│ Build IR │  Untyped AST → Typed components, symbol table, dependency graph
+└────┬─────┘
+     │
+     ▼
+┌──────────────┐
+│ Validate IR  │  Cycle detection, cross-component constraints
+└────┬─────────┘
+     │
+     ▼
+┌──────────┐
+│ Generate │  IR → Plugin registry → Per-generator output maps
+└────┬─────┘
+     │
+     ▼
+┌──────────────┐
+│ Plan & Write │  Conflict detection, deduplication, filesystem writes
+└──────────────┘
+```
+
+Each stage either returns a result or a list of errors. There are no exceptions, no panics for user-facing input problems, and no partial results. A stage either succeeds completely or fails with every error it can find.
+
+## Design Principles
+
+**Errors over exceptions.** Every function that can fail returns `(result, []error)`. The compiler accumulates as many errors as it can before stopping, so that a single compilation run surfaces multiple problems rather than making the user fix them one at a time.
+
+**Typed over untyped.** The parser produces an untyped AST where component specs are `map[string]interface{}`. The IR builder immediately converts these into typed Go structs (`HTTPServerSpec`, `MiddlewareSpec`, etc.). All downstream code works with typed data — no type assertions, no runtime surprises.
+
+**Validate early, generate late.** Three validation layers run before code generation begins. By the time a generator sees the IR, every reference is resolved, every schema constraint is satisfied, and the dependency graph is acyclic. Generators can focus on producing output without defensive checks.
+
+**Plugins over monoliths.** Code generation is split into nine independent generator plugins. Each plugin declares which component kinds activate it. A spec with no database component will never run the schema generator. This keeps the output minimal and makes it straightforward to add new generators without touching existing ones.
+
+**Standards over invention.** The compiler delegates to established formats wherever possible: OpenAPI for HTTP contracts, JSON Schema for spec validation, Drizzle for database schemas, Casbin for authorization policies. The compiler's job is to wire these standards together, not to replace them.
+
+## Tradeoffs
+
+**Go for the compiler, TypeScript for the output.** The compiler is written in Go for fast startup, single-binary distribution, and strong typing. The generated code targets TypeScript because that is where the runtime ecosystem lives (Hono, Drizzle, better-auth). This means contributors need familiarity with both languages.
+
+**YAML over a custom DSL.** YAML is verbose and whitespace-sensitive, but it is universally supported by editors, linters, and CI tools. A custom DSL would be more expressive but would require building editor plugins, syntax highlighting, and error recovery from scratch. YAML's tooling advantage outweighs its syntactic cost at this stage.
+
+**Single-file input.** The spec is a single YAML file rather than a directory of files. This keeps the mental model simple — one file describes one system — but limits how large a spec can grow before readability suffers. Multi-file specs with `$ref`-style includes are a likely future extension.
+
+**Ahead-of-time generation.** The compiler writes files to disk rather than generating code at runtime. This means generated code is visible, reviewable, and diffable, but it also means the output directory must be re-generated when the spec changes. There is no watch mode yet.
+
+## Reading Order
+
+Each page in this section covers one stage of the pipeline. They are ordered to match the flow of data through the compiler:
+
+1. [**Parser & AST**](/docs/design/parser) — How YAML text becomes a position-tracked syntax tree
+2. [**Intermediate Representation**](/docs/design/ir) — How the untyped AST becomes a typed, graph-connected data model
+3. [**Validation**](/docs/design/validation) — The four layers of validation and why they are ordered the way they are
+4. [**Code Generation**](/docs/design/codegen) — The plugin registry, generator interface, and artifact planning system
+5. [**Error Model**](/docs/design/errors) — How errors carry source positions through the entire pipeline

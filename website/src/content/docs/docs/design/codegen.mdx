@@ -1,0 +1,200 @@
+---
+title: Code Generation
+description: The plugin registry, generator interface, artifact planning, and how specs become TypeScript projects.
+---
+
+Code generation is the final major stage of the compiler. It takes a validated IR and produces a complete TypeScript project — source files, configuration, Docker setup, and tests. The system is built around a plugin registry that activates generators based on which component kinds are present in the spec.
+
+## Overview
+
+The code generation pipeline has three steps:
+
+1. **Plugin resolution** — The plugin registry examines the IR and returns only the generators whose activation rules match. A spec with no `postgres` component will not activate the schema generator.
+2. **Generation** — Each active generator receives the full IR and returns an `Output` — a map from relative file paths to file contents.
+3. **Artifact planning** — All generator outputs are merged through an artifact planner that detects path conflicts (two generators writing to the same file) and deduplicates. The final artifact list is sorted by path and written to disk.
+
+## Generator Interface
+
+Every generator implements a two-method interface:
+
+```go
+type Generator interface {
+    Name() string
+    Generate(i *ir.IR) (*Output, error)
+}
+```
+
+`Name()` returns a unique identifier used for error messages and artifact ownership tracking. `Generate()` receives the validated IR and returns a map of files:
+
+```go
+type Output struct {
+    Files map[string][]byte  // relative path → file content
+}
+```
+
+Generators are stateless. They receive the IR, produce output, and are discarded. There is no shared state between generators, and the order in which they run does not affect their output — each generator sees the same IR and makes its own decisions independently.
+
+## Plugin Registry
+
+The plugin registry is the mechanism that controls which generators run for a given spec. Rather than hard-coding a list of generators, each generator is wrapped in a `GeneratorPlugin` that declares its activation rules:
+
+```go
+type GeneratorPlugin struct {
+    Name         string
+    NewGenerator func() Generator
+    Supports     []ir.Kind  // empty = always enabled
+}
+```
+
+The `Supports` field lists the component kinds that trigger this plugin. A plugin with `Supports: []ir.Kind{ir.KindHTTPServer, ir.KindPostgres}` will activate if the IR contains *any* component of kind `http.server` or `postgres`. A plugin with an empty `Supports` slice is always enabled.
+
+### Conditional Activation
+
+When the compiler calls `GeneratorsForIR()`, the registry iterates over its plugins in registration order and checks each one against the IR:
+
+```go
+func pluginEnabledForIR(plugin GeneratorPlugin, i *ir.IR) bool {
+    if len(plugin.Supports) == 0 {
+        return true
+    }
+    for _, comp := range i.Components {
+        for _, kind := range plugin.Supports {
+            if comp.Kind == kind {
+                return true
+            }
+        }
+    }
+    return false
+}
+```
+
+This means a minimal spec with just a `usecase` component will only activate generators that support the `usecase` kind. A full spec with all four component kinds will activate all generators.
+
+### Ordering Guarantees
+
+Plugins run in registration order. The TypeScript registry registers plugins in a specific sequence that ensures foundational files (project scaffolding) are generated before files that depend on them (server routes, tests). While generators are independent and don't share state, the artifact planner uses first-writer-wins semantics — if two generators try to write the same path, the one registered earlier takes ownership.
+
+## TypeScript Generators
+
+The TypeScript target registers nine generator plugins. Each is responsible for a distinct slice of the output project.
+
+### Project Scaffolding (`typescript-project`)
+
+**Always enabled.** Generates the foundational project files: `package.json`, `tsconfig.json`, and the base directory structure. This generator runs for every spec regardless of which component kinds are present.
+
+### Schema Generation (`typescript-schemas`)
+
+**Activated by:** `postgres`, `middleware`
+
+Generates database schema files and middleware configuration files. For a Drizzle-backed `postgres` component, this produces the schema imports and re-exports. For middleware components, it generates the configuration scaffolding.
+
+### OpenAPI Type Generation (`typescript-openapi`)
+
+**Activated by:** `http.server`, `usecase`
+
+Reads the parsed OpenAPI documents from the IR and generates TypeScript type definitions for request bodies, response types, and path parameters. The types are derived from the OpenAPI schemas so that route handlers are fully typed.
+
+### Context & Dependency Injection (`typescript-context`)
+
+**Activated by:** `http.server`
+
+Generates the Hono context type definitions and dependency injection wiring. This includes typed context variables for middleware-injected values (like the authenticated user from `better-auth`) and database connections.
+
+### Hono Server & Routing (`typescript-hono`)
+
+**Activated by:** `http.server`, `middleware`, `postgres`
+
+The largest generator. Produces the Hono server entry point, route registration, middleware setup, and database connection initialization. It reads the server's OpenAPI spec to generate route handlers, wires middleware in the order specified by the component's `middleware` array, and sets up dependency injection for database access.
+
+### Use Case Handlers (`typescript-usecase`)
+
+**Activated by:** `usecase`
+
+Generates stub handler files for each use case. Each handler file includes the use case's goal, actor, preconditions, and acceptance criteria as structured comments, giving developers (and AI coding agents) the context they need to implement the business logic. The handler function signature is typed based on the bound OpenAPI operation.
+
+### Test Generation (`typescript-tests`)
+
+**Activated by:** `http.server`, `middleware`, `usecase`
+
+Generates unit test scaffolding for route handlers, middleware, and use case handlers. Tests are structured to verify the acceptance criteria defined in the spec.
+
+### Docker & Compose (`typescript-docker`)
+
+**Activated by:** `http.server`, `postgres`
+
+Generates a `Dockerfile` for the application and a `docker-compose.yml` that includes the application service and any `postgres` dependencies. The compose file is configured with the database connection details from the spec.
+
+### End-to-End Tests (`typescript-e2e`)
+
+**Activated by:** `http.server`
+
+Generates end-to-end test scaffolding that tests the server's HTTP endpoints. The tests are derived from the OpenAPI spec and cover the defined routes.
+
+## Artifact Planning
+
+After all generators have produced their outputs, the compiler does not write files immediately. Instead, it feeds every generator's output through an `ArtifactPlanner`.
+
+### Conflict Detection
+
+The planner maintains a map from file paths to `Artifact` structs:
+
+```go
+type Artifact struct {
+    Owner   string  // generator name
+    Path    string  // relative file path
+    Content []byte  // file content
+}
+```
+
+When a generator's output is added via `AddOutput()`, the planner iterates over the output's file map in sorted order. For each file, it checks whether the path already exists in the plan. If it does, the planner returns an `ArtifactConflictError`:
+
+```
+artifact path conflict for "src/index.ts":
+  already planned by "typescript-hono", attempted by "typescript-project"
+```
+
+This is a hard error — the compile fails. Conflicts indicate a bug in the generators (two generators claiming the same file) and must be resolved by the generator authors.
+
+### Deduplication
+
+The planner naturally deduplicates because each path can only be claimed once. The sorted iteration order within `AddOutput()` ensures deterministic behavior — the same spec always produces the same artifact plan.
+
+## File Writing
+
+After planning, the compiler retrieves the sorted artifact list and writes each file to the output directory:
+
+1. Create the parent directory tree with `os.MkdirAll`.
+2. Write the file content with `os.WriteFile` and `0644` permissions.
+3. Print the relative path to stdout for visibility.
+
+The output directory defaults to `generated/` and can be overridden with `--output` / `-o`.
+
+The compiler does not perform incremental writes or diffing — it writes every file on every run. This keeps the implementation simple and ensures the output always matches the spec. If a component is removed from the spec, its generated files will not be produced on the next run (though previously generated files will remain on disk until manually cleaned up).
+
+## Adding a New Generator
+
+To add a generator to the TypeScript target:
+
+1. Implement the `Generator` interface — create a struct with `Name()` and `Generate()` methods.
+2. Register a plugin in `typescript/plugins.go` — add a `GeneratorPlugin` entry with the appropriate `Supports` kinds.
+3. The registration order determines priority in conflict resolution — register new plugins after existing ones unless you need to override a specific path.
+
+The plugin system is designed so that adding a new generator requires no changes to the core codegen infrastructure, the artifact planner, or the file writer. You add a plugin, it gets activated when the right component kinds are present, and its output is merged with everything else.
+
+## Design Decisions
+
+**Plugins over a single generator.** A monolithic generator that produces all files would be simpler to write initially, but harder to maintain as the number of output files grows. The plugin system lets each generator own its files and be tested independently. It also makes conditional activation straightforward — a feature that would require extensive `if` branching in a monolithic approach.
+
+**Plan-then-write over stream-to-disk.** Writing files one at a time as generators produce them would be simpler, but it prevents conflict detection. If two generators accidentally claim the same path, the second write would silently overwrite the first. The planning step catches this before any file is written.
+
+**Sorted output.** Artifacts are sorted by path before writing. This makes the console output deterministic and makes it easier to compare outputs across spec changes.
+
+**Generators see the full IR.** Each generator receives the entire IR, not just the components relevant to its activation kinds. This allows generators to inspect cross-component relationships — for example, the server generator needs to know about middleware components to wire them into the route chain, even though it's activated by `http.server`.
+
+## Relevant Source Files
+
+- `internal/codegen/generator.go` — `Generator` interface, `Output`, `Registry`
+- `internal/codegen/plugin_registry.go` — `GeneratorPlugin`, `PluginRegistry`, `GeneratorsForIR()`, activation logic
+- `internal/codegen/planner.go` — `ArtifactPlanner`, `Artifact`, conflict detection, sorted output
+- `internal/codegen/typescript/plugins.go` — The nine TypeScript generator plugin registrations
+- `cmd/bound/main.go` — `runCompile()` function that orchestrates the full pipeline
