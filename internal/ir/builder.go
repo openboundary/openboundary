@@ -174,8 +174,8 @@ func (b *Builder) linkUsecasesToOperations(ir *IR) []error {
 // Note: Unknown kinds are filtered out before this function is called,
 // so the switch is exhaustive for all valid kinds.
 //
-// TODO: these could be structured better - parsers could live with component types
-// parsers become pluggable such that a component is shipped with a schema, parser and generator
+// TODO: Part of the kind extensibility effort — each kind should own its spec
+// parser, reference resolver, and validator. See the TODO on Kind in ir.go.
 func (b *Builder) parseComponentSpec(comp *Component, spec map[string]any) {
 	switch comp.Kind {
 	case KindHTTPServer:

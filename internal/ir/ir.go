@@ -51,7 +51,10 @@ type Component struct {
 type Kind string
 
 // Known component kinds.
-// TODO: Consider making this extendable
+// TODO: Make kinds extendable via a KindPlugin interface so each kind ships its
+// own spec parser, reference resolver, validator, and schema fragment. Holding
+// off until a 5th kind (or a 3rd-party kind) forces the design — the abstraction
+// boundary between kinds isn't clear enough yet with only four first-party kinds.
 const (
 	KindHTTPServer Kind = "http.server"
 	KindMiddleware Kind = "middleware"
