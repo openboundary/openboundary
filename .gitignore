@@ -1,6 +1,6 @@
 # Binaries (in root directory)
 /openboundary
-/openboundary
+/bound
 *.exe
 *.dll
 *.so
