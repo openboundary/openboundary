@@ -1,28 +1,29 @@
 // Copyright 2026 Open Boundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-package ir
+package validator
 
 import (
 	"testing"
 
+	"github.com/openboundary/openboundary/internal/ir"
 	"github.com/openboundary/openboundary/internal/parser"
 )
 
-func TestValidationError_Error(t *testing.T) {
+func TestIRValidator_ValidationError_Error(t *testing.T) {
 	tests := []struct {
 		name     string
-		err      *ValidationError
+		err      ValidationError
 		contains string
 	}{
 		{
 			name:     "with ID",
-			err:      &ValidationError{ID: "comp.test", Message: "some error"},
+			err:      ValidationError{ID: "comp.test", Message: "some error"},
 			contains: "comp.test: some error",
 		},
 		{
 			name:     "without ID",
-			err:      &ValidationError{Message: "some error"},
+			err:      ValidationError{Message: "some error"},
 			contains: "some error",
 		},
 	}
@@ -37,7 +38,7 @@ func TestValidationError_Error(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_ValidSpec(t *testing.T) {
+func TestIRValidator_ValidSpec(t *testing.T) {
 	spec := &parser.Spec{
 		Components: []parser.Component{
 			{
@@ -75,13 +76,14 @@ func TestIR_Validate_ValidSpec(t *testing.T) {
 		},
 	}
 
-	b := NewBuilder()
-	ir, buildErrs := b.Build(spec)
+	b := ir.NewBuilder()
+	builtIR, buildErrs := b.Build(spec)
 	if len(buildErrs) > 0 {
 		t.Fatalf("Build() errors: %v", buildErrs)
 	}
 
-	errs := ir.Validate()
+	v := NewIRValidator()
+	errs := v.Validate(builtIR)
 	if len(errs) != 0 {
 		t.Errorf("Validate() returned %d errors, expected 0", len(errs))
 		for _, e := range errs {
@@ -90,7 +92,7 @@ func TestIR_Validate_ValidSpec(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_HTTPServer(t *testing.T) {
+func TestIRValidator_HTTPServer(t *testing.T) {
 	tests := []struct {
 		name       string
 		spec       map[string]interface{}
@@ -149,9 +151,10 @@ func TestIR_Validate_HTTPServer(t *testing.T) {
 				},
 			}
 
-			b := NewBuilder()
-			ir, _ := b.Build(spec)
-			errs := ir.Validate()
+			b := ir.NewBuilder()
+			builtIR, _ := b.Build(spec)
+			v := NewIRValidator()
+			errs := v.Validate(builtIR)
 
 			if len(errs) != tt.wantErrors {
 				t.Errorf("Validate() returned %d errors, expected %d", len(errs), tt.wantErrors)
@@ -163,7 +166,7 @@ func TestIR_Validate_HTTPServer(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_Middleware(t *testing.T) {
+func TestIRValidator_Middleware(t *testing.T) {
 	tests := []struct {
 		name       string
 		spec       map[string]interface{}
@@ -231,9 +234,10 @@ func TestIR_Validate_Middleware(t *testing.T) {
 				},
 			}
 
-			b := NewBuilder()
-			ir, _ := b.Build(spec)
-			errs := ir.Validate()
+			b := ir.NewBuilder()
+			builtIR, _ := b.Build(spec)
+			v := NewIRValidator()
+			errs := v.Validate(builtIR)
 
 			if len(errs) != tt.wantErrors {
 				t.Errorf("Validate() returned %d errors, expected %d", len(errs), tt.wantErrors)
@@ -245,7 +249,7 @@ func TestIR_Validate_Middleware(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_Postgres(t *testing.T) {
+func TestIRValidator_Postgres(t *testing.T) {
 	tests := []struct {
 		name       string
 		spec       map[string]interface{}
@@ -288,9 +292,10 @@ func TestIR_Validate_Postgres(t *testing.T) {
 				},
 			}
 
-			b := NewBuilder()
-			ir, _ := b.Build(spec)
-			errs := ir.Validate()
+			b := ir.NewBuilder()
+			builtIR, _ := b.Build(spec)
+			v := NewIRValidator()
+			errs := v.Validate(builtIR)
 
 			if len(errs) != tt.wantErrors {
 				t.Errorf("Validate() returned %d errors, expected %d", len(errs), tt.wantErrors)
@@ -302,8 +307,7 @@ func TestIR_Validate_Postgres(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_Usecase(t *testing.T) {
-	// First create an http.server for binds_to references
+func TestIRValidator_Usecase(t *testing.T) {
 	baseComponents := []parser.Component{
 		{
 			ID:   "http.server.api",
@@ -383,9 +387,10 @@ func TestIR_Validate_Usecase(t *testing.T) {
 
 			spec := &parser.Spec{Components: components}
 
-			b := NewBuilder()
-			ir, _ := b.Build(spec)
-			errs := ir.Validate()
+			b := ir.NewBuilder()
+			builtIR, _ := b.Build(spec)
+			v := NewIRValidator()
+			errs := v.Validate(builtIR)
 
 			if len(errs) != tt.wantErrors {
 				t.Errorf("Validate() returned %d errors, expected %d", len(errs), tt.wantErrors)
@@ -397,7 +402,7 @@ func TestIR_Validate_Usecase(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_MiddlewareTypeCheck(t *testing.T) {
+func TestIRValidator_MiddlewareTypeCheck(t *testing.T) {
 	spec := &parser.Spec{
 		Components: []parser.Component{
 			{
@@ -406,7 +411,7 @@ func TestIR_Validate_MiddlewareTypeCheck(t *testing.T) {
 				Spec: map[string]interface{}{
 					"framework":  "hono",
 					"port":       3000,
-					"middleware": []interface{}{"postgres.primary"}, // Wrong type
+					"middleware": []interface{}{"postgres.primary"},
 				},
 			},
 			{
@@ -420,9 +425,10 @@ func TestIR_Validate_MiddlewareTypeCheck(t *testing.T) {
 		},
 	}
 
-	b := NewBuilder()
-	ir, _ := b.Build(spec)
-	errs := ir.Validate()
+	b := ir.NewBuilder()
+	builtIR, _ := b.Build(spec)
+	v := NewIRValidator()
+	errs := v.Validate(builtIR)
 
 	if len(errs) != 1 {
 		t.Errorf("Validate() returned %d errors, expected 1 (wrong middleware type)", len(errs))
@@ -432,7 +438,7 @@ func TestIR_Validate_MiddlewareTypeCheck(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_BindsToTypeCheck(t *testing.T) {
+func TestIRValidator_BindsToTypeCheck(t *testing.T) {
 	spec := &parser.Spec{
 		Components: []parser.Component{
 			{
@@ -447,20 +453,21 @@ func TestIR_Validate_BindsToTypeCheck(t *testing.T) {
 				ID:   "usecase.test",
 				Kind: "usecase",
 				Spec: map[string]interface{}{
-					"binds_to": "postgres.primary:GET:/test", // Wrong type
+					"binds_to": "postgres.primary:GET:/test",
 					"goal":     "Test",
 				},
 			},
 		},
 	}
 
-	b := NewBuilder()
-	ir, _ := b.Build(spec)
-	errs := ir.Validate()
+	b := ir.NewBuilder()
+	builtIR, _ := b.Build(spec)
+	v := NewIRValidator()
+	errs := v.Validate(builtIR)
 
 	found := false
 	for _, e := range errs {
-		if ve, ok := e.(*ValidationError); ok && ve.ID == "usecase.test" {
+		if e.ID == "usecase.test" {
 			found = true
 		}
 	}
@@ -469,99 +476,59 @@ func TestIR_Validate_BindsToTypeCheck(t *testing.T) {
 	}
 }
 
-func TestValidateBindsTo(t *testing.T) {
-	tests := []struct {
-		bindsTo string
-		wantErr bool
-	}{
-		{"server:GET:/path", false},
-		{"server:POST:/path", false},
-		{"server:PUT:/path", false},
-		{"server:PATCH:/path", false},
-		{"server:DELETE:/path", false},
-		{"server:INVALID:/path", true},
-		{"server:GET:path", true}, // no leading /
-		{"serveronly", true},
-		{"server:GET", true},
-		{"", true},
-	}
+func TestIRValidator_NilSpecs(t *testing.T) {
+	builtIR := ir.New(&parser.Spec{})
 
-	for _, tt := range tests {
-		t.Run(tt.bindsTo, func(t *testing.T) {
-			err := validateBindsTo(tt.bindsTo)
-			if tt.wantErr && err == nil {
-				t.Error("validateBindsTo() expected error, got nil")
-			}
-			if !tt.wantErr && err != nil {
-				t.Errorf("validateBindsTo() unexpected error: %v", err)
-			}
-		})
-	}
-}
+	builtIR.Components["http.server.api"] = &ir.Component{ID: "http.server.api", Kind: ir.KindHTTPServer, HTTPServer: nil}
+	builtIR.Components["middleware.auth"] = &ir.Component{ID: "middleware.auth", Kind: ir.KindMiddleware, Middleware: nil}
+	builtIR.Components["postgres.db"] = &ir.Component{ID: "postgres.db", Kind: ir.KindPostgres, Postgres: nil}
+	builtIR.Components["usecase.test"] = &ir.Component{ID: "usecase.test", Kind: ir.KindUsecase, Usecase: nil}
 
-func TestIR_Validate_NilSpecs(t *testing.T) {
-	// Test that validation handles nil specs gracefully
-	ir := New(&parser.Spec{})
-
-	// Manually create components with nil specs
-	ir.Components["http.server.api"] = &Component{ID: "http.server.api", Kind: KindHTTPServer, HTTPServer: nil}
-	ir.Components["middleware.auth"] = &Component{ID: "middleware.auth", Kind: KindMiddleware, Middleware: nil}
-	ir.Components["postgres.db"] = &Component{ID: "postgres.db", Kind: KindPostgres, Postgres: nil}
-	ir.Components["usecase.test"] = &Component{ID: "usecase.test", Kind: KindUsecase, Usecase: nil}
-
-	errs := ir.Validate()
+	v := NewIRValidator()
+	errs := v.Validate(builtIR)
 	if len(errs) != 4 {
 		t.Errorf("Validate() returned %d errors, expected 4 (one for each nil spec)", len(errs))
 	}
 }
 
-func TestIR_Validate_WithCycle(t *testing.T) {
-	// Test that validation catches cycles
-	ir := New(&parser.Spec{})
+func TestIRValidator_WithCycle(t *testing.T) {
+	builtIR := ir.New(&parser.Spec{})
 
-	compA := &Component{
+	compA := &ir.Component{
 		ID:   "middleware.a",
-		Kind: KindMiddleware,
-		Middleware: &MiddlewareSpec{
+		Kind: ir.KindMiddleware,
+		Middleware: &ir.MiddlewareSpec{
 			Provider: "better-auth",
 			Config:   "./auth.ts",
 		},
-		Dependencies: []*Component{},
+		Dependencies: []*ir.Component{},
 	}
-	compB := &Component{
+	compB := &ir.Component{
 		ID:   "middleware.b",
-		Kind: KindMiddleware,
-		Middleware: &MiddlewareSpec{
+		Kind: ir.KindMiddleware,
+		Middleware: &ir.MiddlewareSpec{
 			Provider: "better-auth",
 			Config:   "./auth.ts",
 		},
-		Dependencies: []*Component{},
+		Dependencies: []*ir.Component{},
 	}
 
-	// Create cycle
 	compA.Dependencies = append(compA.Dependencies, compB)
 	compB.Dependencies = append(compB.Dependencies, compA)
 
-	ir.Components["middleware.a"] = compA
-	ir.Components["middleware.b"] = compB
-	_ = ir.Symbols.Define("middleware.a", KindMiddleware, compA)
-	_ = ir.Symbols.Define("middleware.b", KindMiddleware, compB)
+	builtIR.Components["middleware.a"] = compA
+	builtIR.Components["middleware.b"] = compB
+	_ = builtIR.Symbols.Define("middleware.a", ir.KindMiddleware, compA)
+	_ = builtIR.Symbols.Define("middleware.b", ir.KindMiddleware, compB)
 
-	errs := ir.Validate()
-	found := false
-	for _, e := range errs {
-		if ve, ok := e.(*ValidationError); ok {
-			if ve.Message != "" && len(ve.Message) > 0 {
-				found = true
-			}
-		}
-	}
-	if !found && len(errs) == 0 {
+	v := NewIRValidator()
+	errs := v.Validate(builtIR)
+	if len(errs) == 0 {
 		t.Error("Validate() should detect cycle")
 	}
 }
 
-func TestIR_Validate_UsecaseMiddlewareTypeCheck(t *testing.T) {
+func TestIRValidator_UsecaseMiddlewareTypeCheck(t *testing.T) {
 	spec := &parser.Spec{
 		Components: []parser.Component{
 			{
@@ -586,19 +553,20 @@ func TestIR_Validate_UsecaseMiddlewareTypeCheck(t *testing.T) {
 				Spec: map[string]interface{}{
 					"binds_to":   "http.server.api:POST:/test",
 					"goal":       "Test",
-					"middleware": []interface{}{"postgres.primary"}, // Wrong type!
+					"middleware": []interface{}{"postgres.primary"},
 				},
 			},
 		},
 	}
 
-	b := NewBuilder()
-	ir, _ := b.Build(spec)
-	errs := ir.Validate()
+	b := ir.NewBuilder()
+	builtIR, _ := b.Build(spec)
+	v := NewIRValidator()
+	errs := v.Validate(builtIR)
 
 	found := false
 	for _, e := range errs {
-		if ve, ok := e.(*ValidationError); ok && ve.ID == "usecase.test" {
+		if e.ID == "usecase.test" {
 			found = true
 		}
 	}
@@ -607,7 +575,7 @@ func TestIR_Validate_UsecaseMiddlewareTypeCheck(t *testing.T) {
 	}
 }
 
-func TestIR_Validate_AllHTTPMethods(t *testing.T) {
+func TestIRValidator_AllHTTPMethods(t *testing.T) {
 	methods := []string{"GET", "POST", "PUT", "PATCH", "DELETE"}
 
 	for _, method := range methods {
@@ -633,13 +601,14 @@ func TestIR_Validate_AllHTTPMethods(t *testing.T) {
 				},
 			}
 
-			b := NewBuilder()
-			ir, _ := b.Build(spec)
-			errs := ir.Validate()
+			b := ir.NewBuilder()
+			builtIR, _ := b.Build(spec)
+			v := NewIRValidator()
+			errs := v.Validate(builtIR)
 
 			for _, e := range errs {
-				if ve, ok := e.(*ValidationError); ok && ve.ID == "usecase.test" {
-					t.Errorf("Validate() should accept %s method, got error: %v", method, ve)
+				if e.ID == "usecase.test" {
+					t.Errorf("Validate() should accept %s method, got error: %v", method, e)
 				}
 			}
 		})

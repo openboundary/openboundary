@@ -17,6 +17,7 @@ func Validate(specFile string) error {
 	ctx := &pipeline.Context{SpecPath: specFile}
 
 	if err := p.Run(ctx); err != nil {
+		printStageError(err)
 		return err
 	}
 

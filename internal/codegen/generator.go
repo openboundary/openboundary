@@ -33,34 +33,3 @@ func (o *Output) AddFile(path string, content []byte) {
 	o.Files[path] = content
 }
 
-// Registry holds all registered generators.
-type Registry struct {
-	generators map[string]Generator
-}
-
-// NewRegistry creates a new generator registry.
-func NewRegistry() *Registry {
-	return &Registry{
-		generators: make(map[string]Generator),
-	}
-}
-
-// Register adds a generator to the registry.
-func (r *Registry) Register(g Generator) {
-	r.generators[g.Name()] = g
-}
-
-// Get returns a generator by name.
-func (r *Registry) Get(name string) (Generator, bool) {
-	g, ok := r.generators[name]
-	return g, ok
-}
-
-// All returns all registered generators.
-func (r *Registry) All() []Generator {
-	gens := make([]Generator, 0, len(r.generators))
-	for _, g := range r.generators {
-		gens = append(gens, g)
-	}
-	return gens
-}

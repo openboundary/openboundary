@@ -46,11 +46,11 @@ func (s *validateSchemaStage) Run(ctx *Context) error {
 
 	schemaErrors := jsValidator.Validate(ctx.AST)
 	if len(schemaErrors) > 0 {
-		fmt.Fprintf(os.Stderr, "Schema validation failed with %d error(s):\n", len(schemaErrors))
-		for _, e := range schemaErrors {
-			fmt.Fprintf(os.Stderr, "  - %s\n", e.Error())
+		return &StageError{
+			Stage:   s.Name(),
+			Message: "schema validation failed",
+			Errors:  toErrors(schemaErrors),
 		}
-		return fmt.Errorf("schema validation failed")
 	}
 	return nil
 }
@@ -67,11 +67,11 @@ func (s *buildIRStage) Run(ctx *Context) error {
 	builder := ir.NewBuilder().WithBaseDir(baseDir)
 	typedIR, buildErrors := builder.Build(ctx.AST)
 	if len(buildErrors) > 0 {
-		fmt.Fprintf(os.Stderr, "Build failed with %d error(s):\n", len(buildErrors))
-		for _, e := range buildErrors {
-			fmt.Fprintf(os.Stderr, "  - %s\n", e.Error())
+		return &StageError{
+			Stage:   s.Name(),
+			Message: "build failed",
+			Errors:  buildErrors,
 		}
-		return fmt.Errorf("build failed")
 	}
 	ctx.IR = typedIR
 	return nil
@@ -85,13 +85,14 @@ func ValidateIR() Stage { return &validateIRStage{} }
 func (s *validateIRStage) Name() string { return "validate-ir" }
 
 func (s *validateIRStage) Run(ctx *Context) error {
-	errs := ctx.IR.Validate()
+	v := validator.NewIRValidator()
+	errs := v.Validate(ctx.IR)
 	if len(errs) > 0 {
-		fmt.Fprintf(os.Stderr, "Validation failed with %d error(s):\n", len(errs))
-		for _, e := range errs {
-			fmt.Fprintf(os.Stderr, "  - %s\n", e.Error())
+		return &StageError{
+			Stage:   s.Name(),
+			Message: "validation failed",
+			Errors:  toErrors(errs),
 		}
-		return fmt.Errorf("validation failed")
 	}
 	return nil
 }
@@ -156,4 +157,13 @@ func (s *writeStage) Run(ctx *Context) error {
 		fmt.Printf("  → %s\n", artifact.Path)
 	}
 	return nil
+}
+
+// toErrors converts a slice of ValidationErrors to a slice of errors.
+func toErrors(ves []validator.ValidationError) []error {
+	errs := make([]error, len(ves))
+	for i := range ves {
+		errs[i] = ves[i]
+	}
+	return errs
 }
