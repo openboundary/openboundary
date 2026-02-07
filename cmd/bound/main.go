@@ -7,9 +7,9 @@ package main
 import (
 	"fmt"
 	"os"
-/openboundary/cmd/bound/commands"
-	"github.com/spf13/cobra"s"
-	"github.com/pf13/cobra
+
+	"github.com/openboundary/openboundary/cmd/bound/commands"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -37,7 +37,9 @@ for various target platforms.`,
 		Short: "Compile a specification file",
 		Long:  `Compile a specification file into executable code for the target platform.`,
 		Args:  cobra.ExactArgs(1),
-		RunE:  commands.Compile,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return commands.Compile(args[0], compileOutputDir)
+		},
 	}
 	compileCmd.Flags().StringVarP(&compileOutputDir, "output", "o", "generated", "Output directory for generated code")
 
@@ -47,10 +49,27 @@ for various target platforms.`,
 		Short: "Validate a specification file",
 		Long:  `Validate a specification file against the OpenBoundary schema and semantic rules.`,
 		Args:  cobra.ExactArgs(1),
-		RunE:  commands.Validate,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return commands.Validate(args[0])
+		},
 	}
 
-	rootCmd.AddCommand(compileCmd, validateCmd)
+	// init command
+	initCmd := &cobra.Command{
+		Use:   "init [template]",
+		Short: "Initialize a new project from a template",
+		Long:  `Initialize a new project in the current directory from a template (blank or basic).`,
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			template := "blank"
+			if len(args) > 0 && args[0] != "" {
+				template = args[0]
+			}
+			return commands.Init(template)
+		},
+	}
+
+	rootCmd.AddCommand(compileCmd, validateCmd, initCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

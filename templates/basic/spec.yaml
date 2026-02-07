@@ -1,0 +1,108 @@
+# openboundary Specification Example
+version: "0.1.0"
+name: user-api
+description: User management API example
+
+components:
+  - id: http.server.api
+    kind: http.server
+    spec:
+      framework: hono
+      port: 3000
+      openapi: ./openapi.yaml
+      middleware:
+        - middleware.authn
+        - middleware.authz
+      depends_on:
+        - postgres.primary
+
+  - id: middleware.authn
+    kind: middleware
+    spec:
+      provider: better-auth
+      config: ./src/auth/auth.config.ts
+
+  - id: middleware.authz
+    kind: middleware
+    spec:
+      provider: casbin
+      depends_on:
+        - middleware.authn
+      model: ./src/auth/model.conf
+      policy: ./src/auth/policy.csv
+
+  - id: postgres.primary
+    kind: postgres
+    spec:
+      provider: drizzle
+      schema: ./src/db/schema.ts
+
+  - id: usecase.create-user
+    kind: usecase
+    spec:
+      binds_to: http.server.api:POST:/users
+      middleware: []
+      goal: Register a new user account in the system
+      actor: anonymous
+      preconditions:
+        - Email address is not already registered
+      acceptance_criteria:
+        - User record is created with provided email
+        - Password is hashed before storage
+        - Confirmation email is queued for delivery
+        - Response includes user ID but not password
+      postconditions:
+        - User exists in database with status 'pending_verification'
+
+  - id: usecase.get-user
+    kind: usecase
+    spec:
+      binds_to: http.server.api:GET:/users/{id}
+      middleware:
+        - middleware.authn
+        - middleware.authz
+      goal: Retrieve a user's profile information
+      actor: authenticated_user
+      preconditions:
+        - User is authenticated
+        - User has permission to view the requested profile
+      acceptance_criteria:
+        - Returns user profile data
+        - Excludes sensitive fields (password hash)
+      postconditions: []
+
+  - id: usecase.list-users
+    kind: usecase
+    spec:
+      binds_to: http.server.api:GET:/users
+      middleware:
+        - middleware.authn
+        - middleware.authz
+      goal: List all users with pagination
+      actor: admin
+      preconditions:
+        - User is authenticated
+        - User has admin role
+      acceptance_criteria:
+        - Returns paginated list of users
+        - Supports limit and offset parameters
+      postconditions: []
+
+  - id: usecase.delete-user
+    kind: usecase
+    spec:
+      binds_to: http.server.api:DELETE:/users/{id}
+      middleware:
+        - middleware.authn
+        - middleware.authz
+      goal: Remove a user account from the system
+      actor: admin
+      preconditions:
+        - User is authenticated
+        - User has admin role
+        - Target user exists
+      acceptance_criteria:
+        - User record is soft-deleted
+        - Associated data is marked for cleanup
+      postconditions:
+        - User no longer appears in active user lists
