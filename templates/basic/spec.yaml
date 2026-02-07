@@ -9,7 +9,7 @@ components:
     spec:
       framework: hono
       port: 3000
-      openapi: ./openapi.yaml
+      openapi: ./config/openapi.schema.yaml
       middleware:
         - middleware.authn
         - middleware.authz
@@ -20,7 +20,7 @@ components:
     kind: middleware
     spec:
       provider: better-auth
-      config: ./src/auth/auth.config.ts
+      config: ./config/better-auth.config.ts
 
   - id: middleware.authz
     kind: middleware
@@ -28,14 +28,14 @@ components:
       provider: casbin
       depends_on:
         - middleware.authn
-      model: ./src/auth/model.conf
-      policy: ./src/auth/policy.csv
+      model: ./config/casbin.model.conf
+      policy: ./config/casbin.policy.csv
 
   - id: postgres.primary
     kind: postgres
     spec:
       provider: drizzle
-      schema: ./src/db/schema.ts
+      schema: ./config/drizzle.schema.ts
 
   - id: usecase.create-user
     kind: usecase
