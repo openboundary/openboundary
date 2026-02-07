@@ -23,25 +23,26 @@ func main() {
 		Short: "OpenBoundary specification compiler",
 		Long: `bound compiles executable specifications into runnable code.
 
-It reads YAML specification files and generates type-safe code
-for various target platforms.`,
+		It reads YAML specification files and generates type-safe code
+		for various target platforms.`,
 	}
 
 	// Version flag
 	rootCmd.Version = version
 	rootCmd.SetVersionTemplate("bound version {{.Version}}\n")
 
-	// compile command
-	compileCmd := &cobra.Command{
-		Use:   "compile [spec-file]",
-		Short: "Compile a specification file",
-		Long:  `Compile a specification file into executable code for the target platform.`,
+	// init command
+	var initTemplate string
+	initCmd := &cobra.Command{
+		Use:   "init <project-name>",
+		Short: "Initialize a new project from a template",
+		Long:  `Initialize a new project directory from a template (blank or basic).`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return commands.Compile(args[0], compileOutputDir)
+			return commands.Init(args[0], initTemplate)
 		},
 	}
-	compileCmd.Flags().StringVarP(&compileOutputDir, "output", "o", "generated", "Output directory for generated code")
+	initCmd.Flags().StringVarP(&initTemplate, "template", "t", "blank", "Template to use (blank, basic)")
 
 	// validate command
 	validateCmd := &cobra.Command{
@@ -54,20 +55,17 @@ for various target platforms.`,
 		},
 	}
 
-	// init command
-	initCmd := &cobra.Command{
-		Use:   "init [template]",
-		Short: "Initialize a new project from a template",
-		Long:  `Initialize a new project in the current directory from a template (blank or basic).`,
-		Args:  cobra.MaximumNArgs(1),
+	// compile command
+	compileCmd := &cobra.Command{
+		Use:   "compile [spec-file]",
+		Short: "Compile a specification file",
+		Long:  `Compile a specification file into executable code for the target platform.`,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			template := "blank"
-			if len(args) > 0 && args[0] != "" {
-				template = args[0]
-			}
-			return commands.Init(template)
+			return commands.Compile(args[0], compileOutputDir)
 		},
 	}
+	compileCmd.Flags().StringVarP(&compileOutputDir, "output", "o", "generated", "Output directory for generated code")
 
 	rootCmd.AddCommand(compileCmd, validateCmd, initCmd)
 

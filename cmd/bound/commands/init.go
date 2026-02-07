@@ -10,11 +10,9 @@ import (
 	"github.com/openboundary/openboundary/templates"
 )
 
-func Init(template string) error {
-	templateDir := template
-
+func Init(projectName, template string) error {
 	// Verify the template exists in the embedded filesystem.
-	entries, err := fs.ReadDir(templates.FS, templateDir)
+	entries, err := fs.ReadDir(templates.FS, template)
 	if err != nil {
 		return fmt.Errorf("unknown template %q: available templates are blank, basic", template)
 	}
@@ -23,26 +21,28 @@ func Init(template string) error {
 		return fmt.Errorf("template %q is empty", template)
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("failed to get current directory: %w", err)
+	// Ensure project directory does not already exist.
+	if _, err := os.Stat(projectName); err == nil {
+		return fmt.Errorf("directory %q already exists", projectName)
 	}
 
-	projectName := filepath.Base(cwd)
+	if err := os.MkdirAll(projectName, 0755); err != nil {
+		return fmt.Errorf("failed to create project directory: %w", err)
+	}
 
 	count := 0
-	err = fs.WalkDir(templates.FS, templateDir, func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(templates.FS, template, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		// Get path relative to the template root.
-		relPath, _ := filepath.Rel(templateDir, path)
+		relPath, _ := filepath.Rel(template, path)
 		if relPath == "." {
 			return nil
 		}
 
-		destPath := filepath.Join(cwd, relPath)
+		destPath := filepath.Join(projectName, relPath)
 
 		if d.IsDir() {
 			return os.MkdirAll(destPath, 0755)
