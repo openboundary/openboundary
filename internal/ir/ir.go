@@ -85,10 +85,7 @@ func AllKinds() []Kind {
 
 // IsValidKind checks if the given kind is known.
 func IsValidKind(k Kind) bool {
-	if slices.Contains(AllKinds(), k) == true {
-		return true
-	}
-	return false
+	return slices.Contains(AllKinds(), k)
 }
 
 // HTTPServerSpec contains typed fields for http.server components.

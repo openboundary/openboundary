@@ -70,10 +70,7 @@ func (v *IRValidator) validateHTTPServer(i *ir.IR, comp *ir.Component) []Validat
 	if s.Framework == "" {
 		errs = append(errs, ValidationError{ID: comp.ID, Message: "missing required field: framework"})
 	}
-	if s.Port == 0 {
-		errs = append(errs, ValidationError{ID: comp.ID, Message: "missing required field: port"})
-	}
-	if s.Port < 0 || s.Port > 65535 {
+	if s.Port < 1 || s.Port > 65535 {
 		errs = append(errs, ValidationError{ID: comp.ID, Message: "port must be between 1 and 65535"})
 	}
 

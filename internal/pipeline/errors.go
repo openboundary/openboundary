@@ -14,5 +14,5 @@ type StageError struct {
 }
 
 func (e *StageError) Error() string {
-	return fmt.Sprintf("%s (%d error(s))", e.Message, len(e.Errors))
+	return fmt.Sprintf("stage %s: %s (%d error(s))", e.Stage, e.Message, len(e.Errors))
 }

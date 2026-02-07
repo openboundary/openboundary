@@ -5,5 +5,5 @@ package templates
 
 import "embed"
 
-//go:embed blank/* basic/*
+//go:embed blank basic
 var FS embed.FS

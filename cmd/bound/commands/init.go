@@ -11,6 +11,11 @@ import (
 )
 
 func Init(projectName, template string) error {
+	// Reject path traversal or absolute paths in project name.
+	if filepath.IsAbs(projectName) || strings.Contains(projectName, "..") || strings.ContainsAny(projectName, `/\`) {
+		return fmt.Errorf("invalid project name %q: must be a simple directory name", projectName)
+	}
+
 	// Verify the template exists in the embedded filesystem.
 	entries, err := fs.ReadDir(templates.FS, template)
 	if err != nil {
