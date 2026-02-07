@@ -36,7 +36,7 @@ func (g *ContextGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		}
 
 		contextFile := g.generateServerContext(i, comp)
-		output.AddFile(serverContextPath(comp.ID), []byte(contextFile))
+		output.AddComponentFile(serverContextPath(comp.ID), []byte(contextFile), comp.ID)
 	}
 
 	return output, nil

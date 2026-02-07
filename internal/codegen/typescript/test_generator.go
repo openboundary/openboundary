@@ -33,7 +33,7 @@ func (g *TestGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindUsecase && comp.Usecase != nil {
 			testCode := g.generateUsecaseTest(i, comp)
-			output.AddFile(usecaseTestPath(comp.ID), []byte(testCode))
+			output.AddComponentFile(usecaseTestPath(comp.ID), []byte(testCode), comp.ID)
 		}
 	}
 
@@ -41,7 +41,7 @@ func (g *TestGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindMiddleware && comp.Middleware != nil {
 			testCode := g.generateMiddlewareTest(comp)
-			output.AddFile(middlewareTestPath(comp.ID), []byte(testCode))
+			output.AddComponentFile(middlewareTestPath(comp.ID), []byte(testCode), comp.ID)
 		}
 	}
 
@@ -49,7 +49,7 @@ func (g *TestGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindHTTPServer && comp.HTTPServer != nil {
 			testCode := g.generateServerTest(i, comp)
-			output.AddFile(serverTestPath(comp.ID), []byte(testCode))
+			output.AddComponentFile(serverTestPath(comp.ID), []byte(testCode), comp.ID)
 		}
 	}
 

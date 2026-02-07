@@ -53,7 +53,7 @@ func TestHonoServerGenerator_Generate_Index(t *testing.T) {
 		t.Fatal("src/index.ts not found in output")
 	}
 
-	content := string(indexContent)
+	content := string(indexContent.Content)
 	if !strings.Contains(content, "serve") {
 		t.Error("index.ts should import serve from @hono/node-server")
 	}
@@ -80,7 +80,7 @@ func TestHonoServerGenerator_Generate_ServerFile(t *testing.T) {
 		t.Fatal("server file not found in output")
 	}
 
-	content := string(serverContent)
+	content := string(serverContent.Content)
 	if !strings.Contains(content, "createHttpServerApiApp") {
 		t.Error("server file should have createHttpServerApiApp function")
 	}
@@ -102,7 +102,7 @@ func TestHonoServerGenerator_Generate_Routes(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/http-server-api.server.ts"])
+	content := string(output.Files["src/components/http-server-api.server.ts"].Content)
 
 	// Check for POST route
 	if !strings.Contains(content, "app.post('/users'") {
@@ -138,7 +138,7 @@ func TestHonoServerGenerator_Generate_MiddlewareFile(t *testing.T) {
 		t.Fatal("middleware file not found in output")
 	}
 
-	content := string(mwContent)
+	content := string(mwContent.Content)
 	if !strings.Contains(content, "createMiddleware") {
 		t.Error("middleware file should use createMiddleware")
 	}
@@ -171,7 +171,7 @@ func TestHonoServerGenerator_Generate_PostgresClient(t *testing.T) {
 		t.Fatal("postgres client file not found in output")
 	}
 
-	content := string(pgContent)
+	content := string(pgContent.Content)
 	if !strings.Contains(content, "drizzle") {
 		t.Error("postgres file should import drizzle")
 	}
@@ -345,7 +345,7 @@ func TestHonoServerGenerator_MultiServerIndexUsesUniqueLocalNames(t *testing.T) 
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	index := string(output.Files["src/index.ts"])
+	index := string(output.Files["src/index.ts"].Content)
 	if strings.Count(index, "const context =") > 0 {
 		t.Fatal("index.ts should not use a shared const context declaration for multiple servers")
 	}

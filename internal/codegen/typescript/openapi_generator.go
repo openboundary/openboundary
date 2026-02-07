@@ -34,7 +34,7 @@ func (g *OpenAPIGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindHTTPServer && comp.HTTPServer != nil {
 			spec := g.generateOpenAPISpec(i, comp)
-			output.AddFile(serverOpenAPIPath(comp.ID), []byte(spec))
+			output.AddComponentFile(serverOpenAPIPath(comp.ID), []byte(spec), comp.ID)
 		}
 	}
 

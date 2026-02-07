@@ -65,6 +65,7 @@ func TestParseStage_InvalidFile(t *testing.T) {
 	ctx := &Context{SpecPath: "/nonexistent/file.yaml"}
 	err := stage.Run(ctx)
 	require.Error(t, err)
+	// Parse stage wraps the error with "parse error"
 	assert.Contains(t, err.Error(), "parse error")
 }
 

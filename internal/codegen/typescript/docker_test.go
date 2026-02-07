@@ -221,7 +221,12 @@ func TestDockerGenerator_Generate(t *testing.T) {
 			}
 
 			if !tt.wantErr && tt.checks != nil {
-				tt.checks(t, output.Files)
+				// Convert OutputFile map to []byte map for checks function
+				files := make(map[string][]byte, len(output.Files))
+				for path, file := range output.Files {
+					files[path] = file.Content
+				}
+				tt.checks(t, files)
 			}
 		})
 	}
@@ -253,7 +258,7 @@ func TestDockerGenerator_generateDockerCompose_MultipleServers(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	compose := string(output.Files["docker-compose.yml"])
+	compose := string(output.Files["docker-compose.yml"].Content)
 
 	// Should use first server's port (admin=4000, alphabetically first) with env var template
 	if !strings.Contains(compose, ":-4000}:4000") {

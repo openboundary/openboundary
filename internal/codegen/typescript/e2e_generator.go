@@ -33,7 +33,7 @@ func (g *E2ETestGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		if comp.Kind == ir.KindHTTPServer && comp.HTTPServer != nil {
 			testCode := g.generateServerE2ETest(i, comp)
 			filename := fmt.Sprintf("e2e/%s.spec.ts", sanitizeFilename(comp.ID))
-			output.AddFile(filename, []byte(testCode))
+			output.AddComponentFile(filename, []byte(testCode), comp.ID)
 		}
 	}
 
