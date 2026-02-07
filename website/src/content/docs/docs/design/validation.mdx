@@ -1,0 +1,132 @@
+---
+title: Validation
+description: The layered validation strategy — JSON Schema, component schemas, semantic checks, and IR-level constraints.
+---
+
+Validation in OpenBoundary is split across four layers, each catching a different class of error. The layers run in order, from structural to semantic, and each layer assumes the previous one has passed. This means a validator never needs to handle malformed input that an earlier layer would have already rejected.
+
+## Validation Philosophy
+
+The compiler's validation strategy follows two rules:
+
+1. **Report as many errors as possible in a single run.** Each validation layer accumulates errors into a list rather than stopping at the first failure. A spec with three missing fields and a duplicate component ID will report all four problems at once. This matters because compilation can be slow in CI environments — making the user fix one error per run is a poor experience.
+
+2. **Validate at the right level of abstraction.** Structural problems (missing fields, wrong types) are caught by schema validation. Referential problems (broken component references, missing operations) are caught during IR construction. Semantic problems (dependency cycles, cross-component constraints) are caught by IR validation. Each layer has access to the right data to make its checks.
+
+## Validation Layers
+
+### Layer 1 — JSON Schema Validation
+
+**When:** After parsing, before IR construction.
+
+**What it checks:** The overall shape of the spec file. Is the `version` field present and in semver format? Is `name` a kebab-case string? Is `components` an array? Does each component have an `id`, `kind`, and `spec`? Are the `kind` values one of the known types? Do the kind-specific spec fields have the right types?
+
+**How it works:** The compiler embeds an `openboundary.schema.json` file (JSON Schema 2020-12 draft) as a Go embed directive. At runtime, it compiles this schema using the `santhosh-tekuri/jsonschema/v6` library, converts the parsed AST to a JSON-compatible map, and validates it against the compiled schema.
+
+The JSON schema uses conditional composition (`if`/`then` with `allOf`) to apply different spec requirements based on the component's `kind`. For example, when `kind` is `"http.server"`, the spec must have a `framework` field (enum: `"hono"`) and a `port` field (integer, 1–65535). When `kind` is `"casbin"` middleware, the spec must have `model` and `policy` fields.
+
+```json
+{
+  "if": { "properties": { "kind": { "const": "http.server" } } },
+  "then": {
+    "properties": {
+      "spec": { "$ref": "#/$defs/httpServerSpec" }
+    }
+  }
+}
+```
+
+**Why it exists:** JSON Schema validation is essentially free — the schema is declarative, the library is mature, and the same schema file can be used by editors for autocompletion and inline validation. By handling structural checks here, the rest of the compiler never needs to worry about missing fields or wrong types.
+
+### Layer 2 — Component Kind Schema Validation
+
+**When:** After JSON Schema validation, before IR construction.
+
+**What it checks:** Kind-specific structural requirements that go beyond what JSON Schema can express. Each component kind has a Go struct implementing the `Schema` interface:
+
+```go
+type Schema interface {
+    Kind() Kind
+    Validate(spec map[string]interface{}) error
+}
+```
+
+The `SchemaValidator` iterates over every component, looks up the appropriate schema from the registry, and calls `Validate()` with the component's untyped spec map. Errors include the source position (file, line, column) of the component that failed.
+
+**Current state:** Most kind-specific schemas currently pass all input, with validation logic marked as TODO. The HTTP server schema validates that a `port` field is present. As the compiler matures, these validators will enforce provider-specific constraints that are difficult to express in JSON Schema alone.
+
+### Layer 3 — Semantic Validation
+
+**When:** After schema validation, before IR construction.
+
+**What it checks:** Constraints that span across components and require understanding the spec as a whole rather than individual components in isolation:
+
+- **Unique component IDs** — No two components may share the same ID. The validator uses a set to detect duplicates, reporting the position of the second occurrence.
+- **Required top-level fields** — The `version` and `name` fields must be non-empty.
+
+```go
+names := make(map[string]bool)
+for _, comp := range spec.Components {
+    if names[comp.ID] {
+        errs = append(errs, fmt.Errorf(
+            "duplicate component name %q at %s:%d:%d",
+            comp.ID, comp.Pos().File, comp.Pos().Line, comp.Pos().Column,
+        ))
+    }
+    names[comp.ID] = true
+}
+```
+
+### Layer 4 — IR Validation
+
+**When:** After IR construction, before code generation.
+
+**What it checks:** Semantic constraints that require the fully built IR — resolved references, the materialized dependency graph, and parsed OpenAPI documents.
+
+**Cycle detection.** The validator calls `DetectCycles()` on the IR's dependency graph. If any cycles are found, each is reported as a formatted path (e.g., `A -> B -> C -> A`).
+
+**Per-component validation.** Each component kind has its own set of rules:
+
+| Kind | Rules |
+|---|---|
+| `http.server` | `framework` and `port` are required. Port must be 1–65535. All middleware references must point to `middleware` components (not servers or databases). |
+| `middleware` | `provider` is required. `better-auth` requires a `config` path. `casbin` requires `model` and `policy` paths. |
+| `postgres` | `provider` and `schema` are required. |
+| `usecase` | `binds_to` is required and must follow the `server:METHOD:/path` format. The server reference must exist and be an `http.server` component. `goal` is required. Middleware references must point to `middleware` components. |
+
+**Cross-component validation.** The validator checks constraints that involve multiple component kinds working together. The primary example is `better-auth` infrastructure requirements: if any server or use case references a `better-auth` middleware, the spec must also contain at least one `http.server` component and a `postgres` component with `provider: "drizzle"`. This is because `better-auth` requires both a server to mount its auth routes and a database to store sessions and credentials.
+
+## Why Four Layers
+
+The layering is not arbitrary. Each layer depends on guarantees from the previous one:
+
+- **Layer 2 assumes Layer 1 passed.** Component kind schemas don't need to check whether the `spec` field exists or whether `kind` is a valid string — JSON Schema already caught those.
+- **Layer 3 assumes Layer 2 passed.** The semantic validator doesn't need to check field types — the kind schemas already validated the structure.
+- **Layer 4 assumes Layers 1–3 passed and IR construction succeeded.** The IR validator can work with typed structs and resolved references. It doesn't need to handle missing fields or unknown component kinds.
+
+Collapsing these into a single validation pass would mean every check would need to handle every possible state of malformed input. Layering lets each validator trust the data it receives.
+
+## Error Accumulation vs. Fail-Fast
+
+The compiler uses error accumulation (collect all errors, report them together) rather than fail-fast (stop at the first error). However, it does fail-fast *between layers*:
+
+- If JSON Schema validation finds errors, the compiler does not proceed to IR construction.
+- If IR construction finds errors during Phase 1 (component creation), it does not attempt Phase 3 (reference resolution).
+- If IR validation finds cycles, it still continues checking per-component and cross-component constraints.
+
+This is a compromise. Within a layer, accumulating errors gives the user the most information. Between layers, stopping early avoids cascading errors — a missing component in Phase 1 would cause every reference to it in Phase 3 to fail, producing noise rather than signal.
+
+## Cross-Component Constraints
+
+Some constraints cannot be checked by looking at a single component. The `better-auth` requirement is the current example: a middleware component with `provider: "better-auth"` is valid on its own, but the system as a whole is invalid if there's no database for it to store data in.
+
+Cross-component validation runs after per-component checks and has access to the full IR. It can query the symbol table, traverse the dependency graph, and inspect any component's typed spec. This is where architectural constraints — like the planned architecture layer validation — will live as the compiler evolves.
+
+## Relevant Source Files
+
+- `internal/validator/jsonschema.go` — `JSONSchemaValidator`, JSON Schema compilation, error extraction
+- `internal/validator/openboundary.schema.json` — The embedded JSON Schema definition
+- `internal/validator/schema.go` — `SchemaValidator`, per-kind schema dispatch
+- `internal/validator/semantic.go` — `SemanticValidator`, uniqueness and required-field checks
+- `internal/ir/validate.go` — `IR.Validate()`, cycle checks, per-component rules, `better-auth` infrastructure validation
+- `internal/schema/component.go` — `Schema` interface, `Registry`, `Kind` constants

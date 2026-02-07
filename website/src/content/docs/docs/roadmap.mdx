@@ -1,47 +1,86 @@
 ---
 title: Roadmap
-description: Planned features and standards support for upcoming OpenBoundary releases.
+description: Planned features, new components, and the vision for the OpenBoundary compiler.
 ---
 
-Planned features and standards support for upcoming releases.
-
-## v0.2.0
+## Next — v0.2.0
 
 | Feature | Status | Description |
 |---------|--------|-------------|
 | Claude Code Plugin | <span class="badge badge-soon">Next</span> | IDE integration that generates code within spec-defined boundaries, preventing middleware bypass and schema violations |
 | Safezone System | <span class="badge badge-soon">Next</span> | Designated code regions preserved during regeneration. Mark custom handlers with annotations; compiler merges updates without overwriting |
 
-## Future
+## Composable DSL
 
-| Feature | Description |
-|---------|-------------|
-| TypeScript DSL | Define specs programmatically with type-safe builders |
-| Go DSL | Define specs programmatically in Go |
-| gRPC | Protocol buffer service definitions |
-| Fastify | Alternative HTTP framework for TypeScript |
-| Prisma | Alternative ORM provider |
-| CloudEvents | Event-driven architecture support |
-| AsyncAPI | Async messaging specifications |
-| Chi (Go) | Go language target support |
-| GraphQL | GraphQL schema and resolver generation |
-| Rust targets | Axum and Actix framework support |
-| IDE extensions | VS Code and JetBrains plugins for spec editing |
-| Test generation | Generate tests from acceptance criteria |
-| Plugin component system | Extensible architecture for custom component types and code generators |
+The YAML spec format is the starting point, not the end state. A programmatic DSL will replace YAML as the primary authoring experience, available in multiple languages:
+
+- **TypeScript** — Define specs with type-safe builders and full IDE autocompletion
+- **Go** — Define specs programmatically in Go
+- **Python** — Define specs in Python for data-heavy and ML-adjacent projects
+- **Any language** — The DSL compiles down to the same IR, so new language targets can be added without changing the compiler
+
+The DSL is more than a nicer syntax for YAML. Because the spec is now real code in a real language, components become composable — you can write functions that return component groups, share spec fragments across projects as packages, and use conditional logic to adapt the spec to different environments.
+
+Most importantly, the DSL opens up the ability to write domain logic directly inside the composed platform. The safe zone system (v0.2.0) designates regions of generated code that the compiler preserves across regeneration. With the DSL, those safe zones become first-class: you write your business logic within the boundaries the spec defines, and the compiler enforces that your code stays within those boundaries at compile time. The spec and the implementation live in the same file, in the same language, with the same type system.
+
+## Components
+
+New component kinds planned for the registry.
+
+| Component | Description | Status |
+|-----------|-------------|--------|
+| Webhook | Inbound webhook receiver with signature verification and payload validation | <span class="badge badge-soon">Soon</span> |
+| Stripe Webhook | Stripe-specific webhook handler with event type routing and idempotency | <span class="badge badge-soon">Soon</span> |
+| Async Processor | Background job processing with retry policies and dead letter queues | <span class="badge badge-soon">Soon</span> |
+| Transactional Outbox | Reliable event publishing — writes events to the database in the same transaction as the domain operation, then delivers them asynchronously | <span class="badge badge-soon">Soon</span> |
+| Cloudflare Video Streaming | Video upload, transcoding, and HLS/DASH streaming via Cloudflare Stream | <span class="badge badge-soon">Soon</span> |
+| Object Storage | S3-compatible object storage with presigned URLs and lifecycle policies | <span class="badge badge-soon">Soon</span> |
+| gRPC Server | Protocol buffer service definitions with type-safe handlers | <span class="badge badge-soon">Soon</span> |
+| Redis | Caching and session storage integration | <span class="badge badge-soon">Soon</span> |
+| Message Queue | Async messaging with CloudEvents and AsyncAPI support | <span class="badge badge-soon">Soon</span> |
+| GraphQL | GraphQL schema and resolver generation | <span class="badge badge-soon">Soon</span> |
+
+## Templates
+
+Pre-built specs that scaffold entire application architectures with a single command.
+
+| Template | Description | Status |
+|----------|-------------|--------|
+| Payment Processor | Stripe integration with webhook handling, subscription management, and billing portal | <span class="badge badge-soon">Soon</span> |
+| Video Streaming Platform | Cloudflare Stream-backed video upload, processing pipeline, and adaptive bitrate playback | <span class="badge badge-soon">Soon</span> |
+| Private Mentorship Platform | User authentication, scheduling, video sessions, payment processing, and role-based access control | <span class="badge badge-soon">Soon</span> |
+
+## Frameworks & Language Targets
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Fastify | Alternative HTTP framework for TypeScript | <span class="badge badge-soon">Soon</span> |
+| Chi (Go) | Go language target with Chi router | <span class="badge badge-soon">Soon</span> |
+| Rust (Axum / Actix) | Rust language targets | <span class="badge badge-soon">Soon</span> |
+| Prisma | Alternative ORM provider for TypeScript | <span class="badge badge-soon">Soon</span> |
+
+## Tooling
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Architectural Constraints | Enforce layer dependencies (Clean, Hexagonal, Vertical Slice) at compile time | <span class="badge badge-soon">Soon</span> |
+| IDE Extensions | VS Code and JetBrains plugins for spec editing, autocompletion, and inline validation | <span class="badge badge-soon">Soon</span> |
+| Test Generation | Generate tests from acceptance criteria defined in use case specs | <span class="badge badge-soon">Soon</span> |
+| Plugin Component System | Extensible architecture for custom component types and third-party code generators | <span class="badge badge-soon">Soon</span> |
 
 ## Contributing
 
-Want to contribute? Check out the [GitHub repository](https://github.com/openboundary/openboundary) to get involved. See [releases](https://github.com/openboundary/openboundary/releases) for the latest version.
+Want to contribute? Check out the [GitHub repository](https://github.com/openboundary/openboundary) to get involved.
 
 ### Priority Areas
 
 We're particularly interested in contributions for:
 
-1. **New framework targets** - Adding support for Fastify, Chi, Axum
-2. **Database providers** - Prisma integration, MySQL support
-3. **Documentation** - Examples, tutorials, best practices
-4. **Testing** - Edge cases, integration tests
+1. **New framework targets** — Adding support for Fastify, Chi, Axum
+2. **New components** — Webhook receivers, async processors, object storage
+3. **Database providers** — Prisma integration, MySQL support
+4. **Documentation** — Examples, tutorials, best practices
+5. **Testing** — Edge cases, integration tests
 
 ### How to Contribute
 

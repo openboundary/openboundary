@@ -69,6 +69,17 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Compiler Design',
+          items: [
+            { label: 'Overview', slug: 'docs/design' },
+            { label: 'Parser & AST', slug: 'docs/design/parser' },
+            { label: 'Intermediate Representation', slug: 'docs/design/ir' },
+            { label: 'Validation', slug: 'docs/design/validation' },
+            { label: 'Code Generation', slug: 'docs/design/codegen' },
+            { label: 'Error Model', slug: 'docs/design/errors' },
+          ],
+        },
+        {
           label: 'Reference',
           items: [
             { label: 'CLI', slug: 'docs/reference/cli' },
@@ -77,10 +88,11 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Roadmap',
+          label: 'Project',
           items: [
+            { label: 'Roadmap', slug: 'docs/roadmap' },
             { label: 'Architectures', slug: 'docs/architectures', badge: { text: 'Soon', variant: 'caution' } },
-            { label: 'Changelog', slug: 'docs/roadmap' },
+            { label: 'Changelog', slug: 'docs/changelog' },
           ],
         },
       ],
