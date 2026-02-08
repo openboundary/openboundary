@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/openboundary/openboundary/internal/codegen"
 	"github.com/openboundary/openboundary/internal/ir"
@@ -142,8 +143,19 @@ func Write() Stage { return &writeStage{} }
 func (s *writeStage) Name() string { return "write" }
 
 func (s *writeStage) Run(ctx *Context) error {
+	absOutput, err := filepath.Abs(ctx.OutputDir)
+	if err != nil {
+		return fmt.Errorf("failed to resolve output directory: %w", err)
+	}
+
 	for _, artifact := range ctx.Artifacts {
-		fullPath := filepath.Join(ctx.OutputDir, artifact.Path)
+		fullPath := filepath.Join(absOutput, artifact.Path)
+
+		// Prevent path traversal: ensure the resolved path stays within the output directory.
+		cleaned := filepath.Clean(fullPath)
+		if !strings.HasPrefix(cleaned, absOutput+string(filepath.Separator)) {
+			return fmt.Errorf("artifact path %q escapes output directory", artifact.Path)
+		}
 
 		dir := filepath.Dir(fullPath)
 		if err := os.MkdirAll(dir, 0755); err != nil {
