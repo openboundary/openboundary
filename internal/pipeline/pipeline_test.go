@@ -5,8 +5,11 @@ package pipeline
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/openboundary/openboundary/internal/codegen"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -101,6 +104,57 @@ func TestGenerateStage_Name(t *testing.T) {
 func TestWriteStage_Name(t *testing.T) {
 	stage := Write()
 	assert.Equal(t, "write", stage.Name())
+}
+
+func TestWriteStage_PathTraversal(t *testing.T) {
+	outDir := t.TempDir()
+
+	tests := []struct {
+		name string
+		path string
+	}{
+		{"dot-dot prefix", "../etc/passwd"},
+		{"dot-dot nested", "subdir/../../etc/passwd"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stage := Write()
+			ctx := &Context{
+				OutputDir: outDir,
+				Artifacts: []codegen.Artifact{
+					{Path: tt.path, Content: []byte("malicious")},
+				},
+			}
+			err := stage.Run(ctx)
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "escapes output directory")
+		})
+	}
+}
+
+func TestWriteStage_ValidPaths(t *testing.T) {
+	outDir := t.TempDir()
+
+	stage := Write()
+	ctx := &Context{
+		OutputDir: outDir,
+		Artifacts: []codegen.Artifact{
+			{Path: "src/index.ts", Content: []byte("console.log('hello');")},
+			{Path: "README.md", Content: []byte("# readme")},
+			{Path: "src/nested/deep/file.ts", Content: []byte("export {};")},
+		},
+	}
+	err := stage.Run(ctx)
+	require.NoError(t, err)
+
+	assert.FileExists(t, filepath.Join(outDir, "src/index.ts"))
+	assert.FileExists(t, filepath.Join(outDir, "README.md"))
+	assert.FileExists(t, filepath.Join(outDir, "src/nested/deep/file.ts"))
+
+	content, err := os.ReadFile(filepath.Join(outDir, "src/index.ts"))
+	require.NoError(t, err)
+	assert.Equal(t, "console.log('hello');", string(content))
 }
 
 func TestFullValidationPipeline(t *testing.T) {
