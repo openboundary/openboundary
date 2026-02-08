@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/openboundary/openboundary/internal/codegen"
 	"github.com/openboundary/openboundary/internal/ir"
 	"github.com/openboundary/openboundary/internal/parser"
 )
@@ -34,7 +35,7 @@ func TestUsecaseGenerator_Name(t *testing.T) {
 	}
 }
 
-func TestUsecaseGenerator_Generate_UsecaseFile(t *testing.T) {
+func TestUsecaseGenerator_Generate_TypesFile(t *testing.T) {
 	// given: IR with usecase
 	i := &ir.IR{
 		Spec: &parser.Spec{Name: "test"},
@@ -84,31 +85,109 @@ func TestUsecaseGenerator_Generate_UsecaseFile(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content, ok := output.Files["src/components/usecase-create-user.usecase.ts"]
+	// Check types file
+	typesFile, ok := output.Files["src/components/usecase-create-user.usecase.types.ts"]
 	if !ok {
-		t.Fatal("usecase file not found in output")
+		t.Fatal("types file not found in output")
 	}
 
-	contentStr := string(content.Content)
+	typesStr := string(typesFile.Content)
 
-	// Check for function name
-	if !strings.Contains(contentStr, "createUserUsecase") {
-		t.Error("usecase file should contain createUserUsecase function")
+	// Types file should have DO NOT EDIT header
+	if !strings.Contains(typesStr, "DO NOT EDIT") {
+		t.Error("types file should contain DO NOT EDIT header")
 	}
 
-	// Check for JSDoc
-	if !strings.Contains(contentStr, "Create a new user in the system") {
-		t.Error("usecase file should contain goal in JSDoc")
+	// Types file should contain the function type alias
+	if !strings.Contains(typesStr, "CreateUserUsecaseUsecaseFn") {
+		t.Error("types file should contain function type alias")
 	}
 
-	// Check for preconditions
-	if !strings.Contains(contentStr, "Email is not already registered") {
-		t.Error("usecase file should contain preconditions")
+	// Types file should contain JSDoc
+	if !strings.Contains(typesStr, "Create a new user in the system") {
+		t.Error("types file should contain goal in JSDoc")
 	}
 
-	// Check for acceptance criteria
-	if !strings.Contains(contentStr, "Password hashed") {
-		t.Error("usecase file should contain acceptance criteria")
+	// Types file should contain preconditions
+	if !strings.Contains(typesStr, "Email is not already registered") {
+		t.Error("types file should contain preconditions")
+	}
+
+	// Types file should contain acceptance criteria
+	if !strings.Contains(typesStr, "Password hashed") {
+		t.Error("types file should contain acceptance criteria")
+	}
+
+	// Types file should use WriteAlways strategy
+	if typesFile.Strategy != codegen.WriteAlways {
+		t.Errorf("types file strategy = %v, expected WriteAlways", typesFile.Strategy)
+	}
+}
+
+func TestUsecaseGenerator_Generate_ImplFile(t *testing.T) {
+	// given: IR with usecase
+	i := &ir.IR{
+		Spec: &parser.Spec{Name: "test"},
+		Components: map[string]*ir.Component{
+			"http.server.api": {
+				ID:   "http.server.api",
+				Kind: ir.KindHTTPServer,
+				HTTPServer: &ir.HTTPServerSpec{
+					Framework: "hono",
+					Port:      3000,
+				},
+			},
+			"usecase.create-user": {
+				ID:   "usecase.create-user",
+				Kind: ir.KindUsecase,
+				Usecase: &ir.UsecaseSpec{
+					BindsTo: "http.server.api:POST:/users",
+					Goal:    "Create a new user in the system",
+					Binding: &ir.Binding{
+						ServerID: "http.server.api",
+						Method:   "POST",
+						Path:     "/users",
+					},
+				},
+			},
+		},
+	}
+
+	// when
+	g := NewUsecaseGenerator()
+	output, err := g.Generate(i)
+
+	// then
+	if err != nil {
+		t.Fatalf("Generate() error = %v", err)
+	}
+
+	// Check impl file
+	implFile, ok := output.Files["src/components/usecase-create-user.usecase.ts"]
+	if !ok {
+		t.Fatal("impl file not found in output")
+	}
+
+	implStr := string(implFile.Content)
+
+	// Impl file should have the "will not be overwritten" header
+	if !strings.Contains(implStr, "This file will not be overwritten") {
+		t.Error("impl file should contain 'will not be overwritten' header")
+	}
+
+	// Impl file should import the type from types file
+	if !strings.Contains(implStr, "from './usecase-create-user.usecase.types'") {
+		t.Error("impl file should import from types file")
+	}
+
+	// Impl file should export a typed const
+	if !strings.Contains(implStr, "export const createUserUsecase: CreateUserUsecaseUsecaseFn") {
+		t.Error("impl file should contain typed const export")
+	}
+
+	// Impl file should use WriteOnce strategy
+	if implFile.Strategy != codegen.WriteOnce {
+		t.Errorf("impl file strategy = %v, expected WriteOnce", implFile.Strategy)
 	}
 }
 
@@ -150,11 +229,12 @@ func TestUsecaseGenerator_Generate_WithPathParams(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecase-get-user.usecase.ts"].Content)
+	// Path params should be in the types file
+	content := string(output.Files["src/components/usecase-get-user.usecase.types.ts"].Content)
 
 	// Check for path param in input type
 	if !strings.Contains(content, "id: string") {
-		t.Error("usecase input should include path parameter 'id'")
+		t.Error("types file input should include path parameter 'id'")
 	}
 }
 
@@ -198,11 +278,12 @@ func TestUsecaseGenerator_Generate_WithAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecase-get-user.usecase.ts"].Content)
+	// Auth context should be in the types file
+	content := string(output.Files["src/components/usecase-get-user.usecase.types.ts"].Content)
 
 	// Check for auth in context type
 	if !strings.Contains(content, "'auth'") {
-		t.Error("usecase context should include auth when middleware.authn is used")
+		t.Error("types file context should include auth when middleware.authn is used")
 	}
 }
 
@@ -304,5 +385,60 @@ func TestUsecaseGenerator_Generate_NoUsecases(t *testing.T) {
 	// Should have only 1 file (index)
 	if len(output.Files) != 1 {
 		t.Errorf("expected 1 file, got %d", len(output.Files))
+	}
+}
+
+func TestUsecaseGenerator_Generate_FileCount(t *testing.T) {
+	// given: IR with 2 usecases
+	i := &ir.IR{
+		Spec: &parser.Spec{Name: "test"},
+		Components: map[string]*ir.Component{
+			"http.server.api": {
+				ID:   "http.server.api",
+				Kind: ir.KindHTTPServer,
+				HTTPServer: &ir.HTTPServerSpec{
+					Framework: "hono",
+					Port:      3000,
+				},
+			},
+			"usecase.create-user": {
+				ID:   "usecase.create-user",
+				Kind: ir.KindUsecase,
+				Usecase: &ir.UsecaseSpec{
+					Goal: "Create user",
+					Binding: &ir.Binding{
+						ServerID: "http.server.api",
+						Method:   "POST",
+						Path:     "/users",
+					},
+				},
+			},
+			"usecase.get-user": {
+				ID:   "usecase.get-user",
+				Kind: ir.KindUsecase,
+				Usecase: &ir.UsecaseSpec{
+					Goal: "Get user",
+					Binding: &ir.Binding{
+						ServerID: "http.server.api",
+						Method:   "GET",
+						Path:     "/users/{id}",
+					},
+				},
+			},
+		},
+	}
+
+	// when
+	g := NewUsecaseGenerator()
+	output, err := g.Generate(i)
+
+	// then
+	if err != nil {
+		t.Fatalf("Generate() error = %v", err)
+	}
+
+	// 2 usecases * 2 files (types + impl) + 1 index = 5 files
+	if len(output.Files) != 5 {
+		t.Errorf("expected 5 files, got %d", len(output.Files))
 	}
 }

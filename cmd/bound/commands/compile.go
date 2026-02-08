@@ -32,7 +32,8 @@ func Compile(specFile string, outputDir string) error {
 		return err
 	}
 
-	fmt.Printf("\n✓ Generated %d files in %s/\n", len(ctx.Artifacts), outputDir)
+	fmt.Printf("\n✓ Generated %d files (%d written, %d preserved) in %s/\n",
+		len(ctx.Artifacts), ctx.Stats.Written, ctx.Stats.Skipped, outputDir)
 	return nil
 }
 

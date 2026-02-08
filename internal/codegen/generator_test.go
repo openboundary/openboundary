@@ -64,6 +64,51 @@ func TestOutput_AddComponentFile(t *testing.T) {
 	}
 }
 
+func TestOutput_AddWriteOnceFile(t *testing.T) {
+	o := NewOutput()
+	content := []byte("write once content")
+	path := "test/once.ts"
+
+	o.AddWriteOnceFile(path, content)
+
+	got, ok := o.Files[path]
+	if !ok {
+		t.Fatal("AddWriteOnceFile() did not add file")
+	}
+	if string(got.Content) != string(content) {
+		t.Errorf("AddWriteOnceFile() content = %q, expected %q", string(got.Content), string(content))
+	}
+	if got.ComponentID != "" {
+		t.Errorf("AddWriteOnceFile() componentID = %q, expected empty", got.ComponentID)
+	}
+	if got.Strategy != WriteOnce {
+		t.Errorf("AddWriteOnceFile() strategy = %v, expected WriteOnce", got.Strategy)
+	}
+}
+
+func TestOutput_AddWriteOnceComponentFile(t *testing.T) {
+	o := NewOutput()
+	content := []byte("write once component content")
+	path := "src/comp.ts"
+	compID := "my-component"
+
+	o.AddWriteOnceComponentFile(path, content, compID)
+
+	got, ok := o.Files[path]
+	if !ok {
+		t.Fatal("AddWriteOnceComponentFile() did not add file")
+	}
+	if string(got.Content) != string(content) {
+		t.Errorf("AddWriteOnceComponentFile() content = %q, expected %q", string(got.Content), string(content))
+	}
+	if got.ComponentID != compID {
+		t.Errorf("AddWriteOnceComponentFile() componentID = %q, expected %q", got.ComponentID, compID)
+	}
+	if got.Strategy != WriteOnce {
+		t.Errorf("AddWriteOnceComponentFile() strategy = %v, expected WriteOnce", got.Strategy)
+	}
+}
+
 // mockGenerator implements Generator for testing
 type mockGenerator struct {
 	name   string

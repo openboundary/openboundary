@@ -162,11 +162,21 @@ func (s *writeStage) Run(ctx *Context) error {
 			return fmt.Errorf("failed to create directory %s: %w", dir, err)
 		}
 
+		// WriteOnce: skip if the file already exists on disk
+		if artifact.Strategy == codegen.WriteOnce {
+			if _, statErr := os.Stat(fullPath); statErr == nil {
+				fmt.Printf("  ~ %s (exists, skipped)\n", artifact.Path)
+				ctx.Stats.Skipped++
+				continue
+			}
+		}
+
 		if err := os.WriteFile(fullPath, artifact.Content, 0644); err != nil {
 			return fmt.Errorf("failed to write file %s: %w", fullPath, err)
 		}
 
 		fmt.Printf("  → %s\n", artifact.Path)
+		ctx.Stats.Written++
 	}
 	return nil
 }
