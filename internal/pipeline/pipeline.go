@@ -9,6 +9,12 @@ import (
 	"github.com/openboundary/openboundary/internal/parser"
 )
 
+// WriteStats tracks how many files were written vs skipped during the write stage.
+type WriteStats struct {
+	Written int
+	Skipped int
+}
+
 // Context carries data between pipeline stages.
 type Context struct {
 	SpecPath  string
@@ -16,6 +22,7 @@ type Context struct {
 	AST       *parser.Spec
 	IR        *ir.IR
 	Artifacts []codegen.Artifact
+	Stats     WriteStats
 }
 
 // Stage is a single step in a pipeline.

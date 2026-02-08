@@ -80,6 +80,10 @@ func usecaseSourcePath(id string) string {
 	return fmt.Sprintf("src/components/%s.usecase.ts", componentIDSlug(id))
 }
 
+func usecaseTypesPath(id string) string {
+	return fmt.Sprintf("src/components/%s.usecase.types.ts", componentIDSlug(id))
+}
+
 func usecaseTestPath(id string) string {
 	return fmt.Sprintf("src/components/%s.usecase.test.ts", componentIDSlug(id))
 }

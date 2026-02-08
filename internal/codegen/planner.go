@@ -13,7 +13,8 @@ type Artifact struct {
 	Owner       string
 	Path        string
 	Content     []byte
-	ComponentID string // The component that this artifact belongs to (empty for shared artifacts)
+	ComponentID string        // The component that this artifact belongs to (empty for shared artifacts)
+	Strategy    WriteStrategy // How the write stage should handle this artifact
 }
 
 // ArtifactConflictError is returned when two generators write the same path.
@@ -43,7 +44,7 @@ func NewArtifactPlanner() *ArtifactPlanner {
 }
 
 // Add adds a single artifact to the plan.
-func (p *ArtifactPlanner) Add(owner, path string, content []byte, componentID string) error {
+func (p *ArtifactPlanner) Add(owner, path string, content []byte, componentID string, strategy WriteStrategy) error {
 	if path == "" {
 		return fmt.Errorf("artifact path cannot be empty")
 	}
@@ -64,6 +65,7 @@ func (p *ArtifactPlanner) Add(owner, path string, content []byte, componentID st
 		Path:        path,
 		Content:     artifactContent,
 		ComponentID: componentID,
+		Strategy:    strategy,
 	}
 
 	return nil
@@ -83,7 +85,7 @@ func (p *ArtifactPlanner) AddOutput(owner string, output *Output) error {
 
 	for _, path := range paths {
 		file := output.Files[path]
-		if err := p.Add(owner, path, file.Content, file.ComponentID); err != nil {
+		if err := p.Add(owner, path, file.Content, file.ComponentID, file.Strategy); err != nil {
 			return err
 		}
 	}

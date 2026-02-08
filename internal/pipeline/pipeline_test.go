@@ -157,6 +157,109 @@ func TestWriteStage_ValidPaths(t *testing.T) {
 	assert.Equal(t, "console.log('hello');", string(content))
 }
 
+func TestWriteStage_WriteOnceSkipsExisting(t *testing.T) {
+	outDir := t.TempDir()
+
+	// Pre-create a file that should be preserved
+	existingPath := filepath.Join(outDir, "src", "impl.ts")
+	require.NoError(t, os.MkdirAll(filepath.Dir(existingPath), 0755))
+	require.NoError(t, os.WriteFile(existingPath, []byte("user code"), 0644))
+
+	stage := Write()
+	ctx := &Context{
+		OutputDir: outDir,
+		Artifacts: []codegen.Artifact{
+			{Path: "src/impl.ts", Content: []byte("generated"), Strategy: codegen.WriteOnce},
+		},
+	}
+	err := stage.Run(ctx)
+	require.NoError(t, err)
+
+	// File should still contain the original user code
+	content, err := os.ReadFile(existingPath)
+	require.NoError(t, err)
+	assert.Equal(t, "user code", string(content))
+
+	// Stats should show 1 skipped, 0 written
+	assert.Equal(t, 0, ctx.Stats.Written)
+	assert.Equal(t, 1, ctx.Stats.Skipped)
+}
+
+func TestWriteStage_WriteOnceCreatesNew(t *testing.T) {
+	outDir := t.TempDir()
+
+	stage := Write()
+	ctx := &Context{
+		OutputDir: outDir,
+		Artifacts: []codegen.Artifact{
+			{Path: "src/impl.ts", Content: []byte("generated"), Strategy: codegen.WriteOnce},
+		},
+	}
+	err := stage.Run(ctx)
+	require.NoError(t, err)
+
+	// File should be created with generated content
+	content, err := os.ReadFile(filepath.Join(outDir, "src/impl.ts"))
+	require.NoError(t, err)
+	assert.Equal(t, "generated", string(content))
+
+	// Stats should show 1 written, 0 skipped
+	assert.Equal(t, 1, ctx.Stats.Written)
+	assert.Equal(t, 0, ctx.Stats.Skipped)
+}
+
+func TestWriteStage_WriteAlwaysOverwrites(t *testing.T) {
+	outDir := t.TempDir()
+
+	// Pre-create a file
+	existingPath := filepath.Join(outDir, "src", "types.ts")
+	require.NoError(t, os.MkdirAll(filepath.Dir(existingPath), 0755))
+	require.NoError(t, os.WriteFile(existingPath, []byte("old content"), 0644))
+
+	stage := Write()
+	ctx := &Context{
+		OutputDir: outDir,
+		Artifacts: []codegen.Artifact{
+			{Path: "src/types.ts", Content: []byte("new content"), Strategy: codegen.WriteAlways},
+		},
+	}
+	err := stage.Run(ctx)
+	require.NoError(t, err)
+
+	// File should be overwritten
+	content, err := os.ReadFile(existingPath)
+	require.NoError(t, err)
+	assert.Equal(t, "new content", string(content))
+
+	// Stats should show 1 written, 0 skipped
+	assert.Equal(t, 1, ctx.Stats.Written)
+	assert.Equal(t, 0, ctx.Stats.Skipped)
+}
+
+func TestWriteStage_WriteStats(t *testing.T) {
+	outDir := t.TempDir()
+
+	// Pre-create one file to be skipped
+	existingPath := filepath.Join(outDir, "src", "impl.ts")
+	require.NoError(t, os.MkdirAll(filepath.Dir(existingPath), 0755))
+	require.NoError(t, os.WriteFile(existingPath, []byte("user code"), 0644))
+
+	stage := Write()
+	ctx := &Context{
+		OutputDir: outDir,
+		Artifacts: []codegen.Artifact{
+			{Path: "src/types.ts", Content: []byte("types"), Strategy: codegen.WriteAlways},
+			{Path: "src/impl.ts", Content: []byte("generated"), Strategy: codegen.WriteOnce},
+			{Path: "src/index.ts", Content: []byte("index"), Strategy: codegen.WriteAlways},
+		},
+	}
+	err := stage.Run(ctx)
+	require.NoError(t, err)
+
+	assert.Equal(t, 2, ctx.Stats.Written)
+	assert.Equal(t, 1, ctx.Stats.Skipped)
+}
+
 func TestFullValidationPipeline(t *testing.T) {
 	p := New(
 		Parse(),
