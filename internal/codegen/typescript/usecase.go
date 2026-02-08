@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package typescript
@@ -36,7 +36,7 @@ func (g *UsecaseGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		}
 
 		usecaseCode := g.generateUsecase(i, comp)
-		output.AddFile(usecaseSourcePath(comp.ID), []byte(usecaseCode))
+		output.AddComponentFile(usecaseSourcePath(comp.ID), []byte(usecaseCode), comp.ID)
 	}
 
 	// Generate index file that exports all usecases

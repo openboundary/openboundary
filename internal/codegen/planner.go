@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package codegen
@@ -10,9 +10,10 @@ import (
 
 // Artifact represents a single planned output artifact.
 type Artifact struct {
-	Owner   string
-	Path    string
-	Content []byte
+	Owner       string
+	Path        string
+	Content     []byte
+	ComponentID string // The component that this artifact belongs to (empty for shared artifacts)
 }
 
 // ArtifactConflictError is returned when two generators write the same path.
@@ -42,7 +43,7 @@ func NewArtifactPlanner() *ArtifactPlanner {
 }
 
 // Add adds a single artifact to the plan.
-func (p *ArtifactPlanner) Add(owner, path string, content []byte) error {
+func (p *ArtifactPlanner) Add(owner, path string, content []byte, componentID string) error {
 	if path == "" {
 		return fmt.Errorf("artifact path cannot be empty")
 	}
@@ -59,9 +60,10 @@ func (p *ArtifactPlanner) Add(owner, path string, content []byte) error {
 	copy(artifactContent, content)
 
 	p.byPath[path] = Artifact{
-		Owner:   owner,
-		Path:    path,
-		Content: artifactContent,
+		Owner:       owner,
+		Path:        path,
+		Content:     artifactContent,
+		ComponentID: componentID,
 	}
 
 	return nil
@@ -80,7 +82,8 @@ func (p *ArtifactPlanner) AddOutput(owner string, output *Output) error {
 	sort.Strings(paths)
 
 	for _, path := range paths {
-		if err := p.Add(owner, path, output.Files[path]); err != nil {
+		file := output.Files[path]
+		if err := p.Add(owner, path, file.Content, file.ComponentID); err != nil {
 			return err
 		}
 	}

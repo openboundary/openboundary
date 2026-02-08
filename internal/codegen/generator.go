@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Package codegen provides code generation from the IR.
@@ -15,52 +15,38 @@ type Generator interface {
 	Generate(i *ir.IR) (*Output, error)
 }
 
+// OutputFile represents a single generated file with optional component association.
+type OutputFile struct {
+	Content     []byte
+	ComponentID string // Optional: which component this file belongs to (empty for shared files)
+}
+
 // Output represents the generated code output.
 type Output struct {
-	// Files maps relative paths to file contents.
-	Files map[string][]byte
+	// Files maps relative paths to file info.
+	Files map[string]OutputFile
 }
 
 // NewOutput creates a new Output.
 func NewOutput() *Output {
 	return &Output{
-		Files: make(map[string][]byte),
+		Files: make(map[string]OutputFile),
 	}
 }
 
-// AddFile adds a file to the output.
+// AddFile adds a file to the output without component association (shared file).
 func (o *Output) AddFile(path string, content []byte) {
-	o.Files[path] = content
-}
-
-// Registry holds all registered generators.
-type Registry struct {
-	generators map[string]Generator
-}
-
-// NewRegistry creates a new generator registry.
-func NewRegistry() *Registry {
-	return &Registry{
-		generators: make(map[string]Generator),
+	o.Files[path] = OutputFile{
+		Content:     content,
+		ComponentID: "",
 	}
 }
 
-// Register adds a generator to the registry.
-func (r *Registry) Register(g Generator) {
-	r.generators[g.Name()] = g
-}
-
-// Get returns a generator by name.
-func (r *Registry) Get(name string) (Generator, bool) {
-	g, ok := r.generators[name]
-	return g, ok
-}
-
-// All returns all registered generators.
-func (r *Registry) All() []Generator {
-	gens := make([]Generator, 0, len(r.generators))
-	for _, g := range r.generators {
-		gens = append(gens, g)
+// AddComponentFile adds a file to the output with component association.
+func (o *Output) AddComponentFile(path string, content []byte, componentID string) {
+	o.Files[path] = OutputFile{
+		Content:     content,
+		ComponentID: componentID,
 	}
-	return gens
 }
+

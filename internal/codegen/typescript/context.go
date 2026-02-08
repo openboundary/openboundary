@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package typescript
@@ -36,7 +36,7 @@ func (g *ContextGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		}
 
 		contextFile := g.generateServerContext(i, comp)
-		output.AddFile(serverContextPath(comp.ID), []byte(contextFile))
+		output.AddComponentFile(serverContextPath(comp.ID), []byte(contextFile), comp.ID)
 	}
 
 	return output, nil

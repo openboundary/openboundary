@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package typescript
@@ -304,7 +304,12 @@ func TestE2ETestGenerator_Generate(t *testing.T) {
 			}
 
 			if !tt.wantErr && tt.checks != nil {
-				tt.checks(t, output.Files)
+				// Convert OutputFile map to []byte map for checks function
+				files := make(map[string][]byte, len(output.Files))
+				for path, file := range output.Files {
+					files[path] = file.Content
+				}
+				tt.checks(t, files)
 			}
 		})
 	}
@@ -368,7 +373,7 @@ func TestE2ETestGenerator_MultipleServers(t *testing.T) {
 	}
 
 	// Check test contents are scoped correctly
-	apiTest := string(output.Files["e2e/api.spec.ts"])
+	apiTest := string(output.Files["e2e/api.spec.ts"].Content)
 	if !strings.Contains(apiTest, "GET /users") {
 		t.Error("api.spec.ts should contain GET /users")
 	}
@@ -376,7 +381,7 @@ func TestE2ETestGenerator_MultipleServers(t *testing.T) {
 		t.Error("api.spec.ts should not contain admin routes")
 	}
 
-	adminTest := string(output.Files["e2e/admin.spec.ts"])
+	adminTest := string(output.Files["e2e/admin.spec.ts"].Content)
 	if !strings.Contains(adminTest, "GET /settings") {
 		t.Error("admin.spec.ts should contain GET /settings")
 	}

@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package typescript
@@ -89,7 +89,7 @@ func TestUsecaseGenerator_Generate_UsecaseFile(t *testing.T) {
 		t.Fatal("usecase file not found in output")
 	}
 
-	contentStr := string(content)
+	contentStr := string(content.Content)
 
 	// Check for function name
 	if !strings.Contains(contentStr, "createUserUsecase") {
@@ -150,7 +150,7 @@ func TestUsecaseGenerator_Generate_WithPathParams(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecase-get-user.usecase.ts"])
+	content := string(output.Files["src/components/usecase-get-user.usecase.ts"].Content)
 
 	// Check for path param in input type
 	if !strings.Contains(content, "id: string") {
@@ -198,7 +198,7 @@ func TestUsecaseGenerator_Generate_WithAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecase-get-user.usecase.ts"])
+	content := string(output.Files["src/components/usecase-get-user.usecase.ts"].Content)
 
 	// Check for auth in context type
 	if !strings.Contains(content, "'auth'") {
@@ -260,7 +260,7 @@ func TestUsecaseGenerator_Generate_IndexFile(t *testing.T) {
 		t.Fatal("index.ts not found in output")
 	}
 
-	contentStr := string(content)
+	contentStr := string(content.Content)
 
 	// Check for exports
 	if !strings.Contains(contentStr, "export { createUserUsecase }") {

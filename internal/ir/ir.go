@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Package ir provides the typed intermediate representation for code generation.
@@ -6,6 +6,7 @@ package ir
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/openboundary/openboundary/internal/openapi"
 	"github.com/openboundary/openboundary/internal/parser"
@@ -50,6 +51,10 @@ type Component struct {
 type Kind string
 
 // Known component kinds.
+// TODO: Make kinds extendable via a KindPlugin interface so each kind ships its
+// own spec parser, reference resolver, validator, and schema fragment. Holding
+// off until a 5th kind (or a 3rd-party kind) forces the design — the abstraction
+// boundary between kinds isn't clear enough yet with only four first-party kinds.
 const (
 	KindHTTPServer Kind = "http.server"
 	KindMiddleware Kind = "middleware"
@@ -80,12 +85,7 @@ func AllKinds() []Kind {
 
 // IsValidKind checks if the given kind is known.
 func IsValidKind(k Kind) bool {
-	for _, kind := range AllKinds() {
-		if k == kind {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(AllKinds(), k)
 }
 
 // HTTPServerSpec contains typed fields for http.server components.
@@ -102,7 +102,7 @@ type HTTPServerSpec struct {
 
 // MiddlewareSpec contains typed fields for middleware components.
 type MiddlewareSpec struct {
-	Provider  string
+	Provider  string // todo - leaky abstraction - consider subtypes for authn & authz
 	Config    string
 	Model     string
 	Policy    string

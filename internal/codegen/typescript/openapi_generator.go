@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package typescript
@@ -34,7 +34,7 @@ func (g *OpenAPIGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 	for _, comp := range i.Components {
 		if comp.Kind == ir.KindHTTPServer && comp.HTTPServer != nil {
 			spec := g.generateOpenAPISpec(i, comp)
-			output.AddFile(serverOpenAPIPath(comp.ID), []byte(spec))
+			output.AddComponentFile(serverOpenAPIPath(comp.ID), []byte(spec), comp.ID)
 		}
 	}
 

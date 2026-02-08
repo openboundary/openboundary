@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Package validator provides validation for specification files.
@@ -57,16 +57,16 @@ func (v *JSONSchemaValidator) Validate(spec *parser.Spec) []ValidationError {
 	jsonBytes, err := json.Marshal(specMap)
 	if err != nil {
 		return []ValidationError{{
-			Message: fmt.Sprintf("failed to marshal spec: %v", err),
-			File:    spec.Pos().File,
+			Message:  fmt.Sprintf("failed to marshal spec: %v", err),
+			Position: spec.Pos(),
 		}}
 	}
 
 	var specData interface{}
 	if err := json.Unmarshal(jsonBytes, &specData); err != nil {
 		return []ValidationError{{
-			Message: fmt.Sprintf("failed to unmarshal spec: %v", err),
-			File:    spec.Pos().File,
+			Message:  fmt.Sprintf("failed to unmarshal spec: %v", err),
+			Position: spec.Pos(),
 		}}
 	}
 
@@ -92,16 +92,19 @@ func convertComponents(components []parser.Component) []map[string]interface{} {
 	return result
 }
 
-// ValidationError represents a schema validation error with location info.
+// ValidationError represents a validation error with location info.
+// Used by both JSON schema validation and IR semantic validation.
 type ValidationError struct {
-	Message string
-	Path    string
-	File    string
-	Line    int
-	Column  int
+	Message  string
+	ID       string          // Component ID (for IR validation)
+	Path     string          // JSON/YAML path (for schema validation)
+	Position parser.Position // Source location
 }
 
 func (e ValidationError) Error() string {
+	if e.ID != "" {
+		return fmt.Sprintf("%s: %s", e.ID, e.Message)
+	}
 	if e.Path != "" {
 		return fmt.Sprintf("%s (at %s)", e.Message, e.Path)
 	}
@@ -117,8 +120,8 @@ func convertSchemaErrors(err error, file string) []ValidationError {
 	ve, ok := err.(*jsonschema.ValidationError)
 	if !ok {
 		return []ValidationError{{
-			Message: err.Error(),
-			File:    file,
+			Message:  err.Error(),
+			Position: parser.Position{File: file},
 		}}
 	}
 
@@ -154,17 +157,17 @@ func extractValidationErrors(ve *jsonschema.ValidationError, file string) []Vali
 		}
 
 		errors = append(errors, ValidationError{
-			Message: line,
-			Path:    path,
-			File:    file,
+			Message:  line,
+			Path:     path,
+			Position: parser.Position{File: file},
 		})
 	}
 
 	// If we couldn't parse any errors, just use the full error string
 	if len(errors) == 0 {
 		errors = append(errors, ValidationError{
-			Message: errStr,
-			File:    file,
+			Message:  errStr,
+			Position: parser.Position{File: file},
 		})
 	}
 

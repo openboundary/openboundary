@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package codegen
@@ -7,7 +7,7 @@ import "testing"
 
 func TestArtifactPlanner_Add(t *testing.T) {
 	p := NewArtifactPlanner()
-	if err := p.Add("gen-a", "src/a.ts", []byte("a")); err != nil {
+	if err := p.Add("gen-a", "src/a.ts", []byte("a"), "comp-1"); err != nil {
 		t.Fatalf("Add() error = %v", err)
 	}
 
@@ -18,16 +18,19 @@ func TestArtifactPlanner_Add(t *testing.T) {
 	if artifacts[0].Owner != "gen-a" {
 		t.Errorf("owner = %q, expected %q", artifacts[0].Owner, "gen-a")
 	}
+	if artifacts[0].ComponentID != "comp-1" {
+		t.Errorf("componentID = %q, expected %q", artifacts[0].ComponentID, "comp-1")
+	}
 }
 
 func TestArtifactPlanner_Add_Conflict(t *testing.T) {
 	p := NewArtifactPlanner()
 
-	if err := p.Add("gen-a", "src/a.ts", []byte("a")); err != nil {
+	if err := p.Add("gen-a", "src/a.ts", []byte("a"), "comp-1"); err != nil {
 		t.Fatalf("first Add() error = %v", err)
 	}
 
-	err := p.Add("gen-b", "src/a.ts", []byte("b"))
+	err := p.Add("gen-b", "src/a.ts", []byte("b"), "comp-2")
 	if err == nil {
 		t.Fatal("expected conflict error")
 	}

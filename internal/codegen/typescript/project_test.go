@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package typescript
@@ -70,7 +70,7 @@ func TestProjectGenerator_Generate_PackageJSON(t *testing.T) {
 	}
 
 	var pkg PackageJSON
-	if err := json.Unmarshal(pkgContent, &pkg); err != nil {
+	if err := json.Unmarshal(pkgContent.Content, &pkg); err != nil {
 		t.Fatalf("Failed to parse package.json: %v", err)
 	}
 
@@ -120,7 +120,7 @@ func TestProjectGenerator_Generate_TSConfig(t *testing.T) {
 	}
 
 	var config TSConfig
-	if err := json.Unmarshal(tsContent, &config); err != nil {
+	if err := json.Unmarshal(tsContent.Content, &config); err != nil {
 		t.Fatalf("Failed to parse tsconfig.json: %v", err)
 	}
 
@@ -166,7 +166,7 @@ func TestProjectGenerator_Generate_OrvalConfig(t *testing.T) {
 		t.Fatal("orval.config.ts not found in output")
 	}
 
-	content := string(orvalContent)
+	content := string(orvalContent.Content)
 	if !strings.Contains(content, "./src/components/http-server-api.openapi.yaml") {
 		t.Error("orval.config.ts should contain the generated schema path")
 	}
@@ -202,7 +202,7 @@ func TestProjectGenerator_Generate_DrizzleDependencies(t *testing.T) {
 
 	pkgContent := output.Files["package.json"]
 	var pkg PackageJSON
-	if err := json.Unmarshal(pkgContent, &pkg); err != nil {
+	if err := json.Unmarshal(pkgContent.Content, &pkg); err != nil {
 		t.Fatalf("Failed to parse package.json: %v", err)
 	}
 
@@ -241,7 +241,7 @@ func TestProjectGenerator_Generate_BetterAuthDependencies(t *testing.T) {
 
 	pkgContent := output.Files["package.json"]
 	var pkg PackageJSON
-	if err := json.Unmarshal(pkgContent, &pkg); err != nil {
+	if err := json.Unmarshal(pkgContent.Content, &pkg); err != nil {
 		t.Fatalf("Failed to parse package.json: %v", err)
 	}
 
@@ -278,7 +278,7 @@ func TestProjectGenerator_Generate_CasbinDependencies(t *testing.T) {
 
 	pkgContent := output.Files["package.json"]
 	var pkg PackageJSON
-	if err := json.Unmarshal(pkgContent, &pkg); err != nil {
+	if err := json.Unmarshal(pkgContent.Content, &pkg); err != nil {
 		t.Fatalf("Failed to parse package.json: %v", err)
 	}
 
@@ -308,7 +308,7 @@ func TestProjectGenerator_Generate_GitIgnore(t *testing.T) {
 		t.Fatal(".gitignore not found in output")
 	}
 
-	content := string(gitignore)
+	content := string(gitignore.Content)
 	if !strings.Contains(content, "node_modules") {
 		t.Error(".gitignore should contain node_modules")
 	}

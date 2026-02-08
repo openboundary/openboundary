@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Package typescript provides TypeScript code generation.
@@ -40,10 +40,10 @@ func (g *HonoServerGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 
 		// Generate the server file
 		serverCode := g.generateServer(i, comp)
-		output.AddFile(serverSourcePath(comp.ID), []byte(serverCode))
+		output.AddComponentFile(serverSourcePath(comp.ID), []byte(serverCode), comp.ID)
 	}
 
-	// Generate main index.ts that wires everything
+	// Generate main index.ts that wires everything (shared file)
 	indexCode := g.generateIndex(i)
 	output.AddFile("src/index.ts", []byte(indexCode))
 
@@ -55,14 +55,14 @@ func (g *HonoServerGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 
 		mwCode := g.generateMiddleware(comp)
 		if mwCode != "" {
-			output.AddFile(middlewareSourcePath(comp.ID), []byte(mwCode))
+			output.AddComponentFile(middlewareSourcePath(comp.ID), []byte(mwCode), comp.ID)
 		}
 
 		// Generate additional files for better-auth
 		if comp.Middleware.Provider == "better-auth" {
 			// Generate auth schema
 			schemaCode := g.generateBetterAuthSchema()
-			output.AddFile(middlewareSchemaPath(comp.ID), []byte(schemaCode))
+			output.AddComponentFile(middlewareSchemaPath(comp.ID), []byte(schemaCode), comp.ID)
 		}
 	}
 
@@ -73,10 +73,10 @@ func (g *HonoServerGenerator) Generate(i *ir.IR) (*codegen.Output, error) {
 		}
 
 		pgCode := g.generatePostgresClient(comp)
-		output.AddFile(postgresSourcePath(comp.ID), []byte(pgCode))
+		output.AddComponentFile(postgresSourcePath(comp.ID), []byte(pgCode), comp.ID)
 	}
 
-	// Generate postgres client type file
+	// Generate postgres client type file (shared)
 	output.AddFile(postgresClientPath(), []byte(postgresClientType))
 
 	return output, nil
@@ -178,16 +178,16 @@ func (g *HonoServerGenerator) generateRoute(sb *strings.Builder, i *ir.IR, uc *i
 	// Convert path params from {id} to :id for Hono
 	honoPath := convertPathParams(path)
 
-	sb.WriteString(fmt.Sprintf("\n  // %s - %s\n", uc.ID, uc.Usecase.Goal))
+	fmt.Fprintf(sb, "\n  // %s - %s\n", uc.ID, uc.Usecase.Goal)
 
 	// Routes rely on the middleware matrix for execution
-	sb.WriteString(fmt.Sprintf("  app.%s('%s', async (c) => {\n", method, honoPath))
+	fmt.Fprintf(sb, "  app.%s('%s', async (c) => {\n", method, honoPath)
 
 	// Extract path parameters
 	pathParams := extractPathParams(path)
 	if len(pathParams) > 0 {
 		for _, param := range pathParams {
-			sb.WriteString(fmt.Sprintf("    const %s = c.req.param('%s');\n", param, param))
+			fmt.Fprintf(sb, "    const %s = c.req.param('%s');\n", param, param)
 		}
 	}
 
@@ -204,7 +204,7 @@ func (g *HonoServerGenerator) generateRoute(sb *strings.Builder, i *ir.IR, uc *i
 	if hasInput {
 		sb.WriteString("    const input = {\n")
 		for _, param := range pathParams {
-			sb.WriteString(fmt.Sprintf("      %s,\n", param))
+			fmt.Fprintf(sb, "      %s,\n", param)
 		}
 		if hasBody {
 			sb.WriteString("      ...body,\n")
@@ -233,9 +233,9 @@ func (g *HonoServerGenerator) generateRoute(sb *strings.Builder, i *ir.IR, uc *i
 
 	// Call usecase
 	if hasInput {
-		sb.WriteString(fmt.Sprintf("    const result = await %s(input, context);\n", funcName))
+		fmt.Fprintf(sb, "    const result = await %s(input, context);\n", funcName)
 	} else {
-		sb.WriteString(fmt.Sprintf("    const result = await %s(undefined as void, context);\n", funcName))
+		fmt.Fprintf(sb, "    const result = await %s(undefined as void, context);\n", funcName)
 	}
 
 	// Return response
@@ -502,9 +502,9 @@ func (g *HonoServerGenerator) writeMiddlewareMatrix(sb *strings.Builder, server 
 	sb.WriteString("const middlewareMatrix: Record<string, MiddlewareRoute[]> = {\n")
 	for _, mwID := range middlewareRefs {
 		routes := g.collectRoutesForMiddleware(usecases, server, mwID)
-		sb.WriteString(fmt.Sprintf("  %s: [\n", strconv.Quote(mwID)))
+		fmt.Fprintf(sb, "  %s: [\n", strconv.Quote(mwID))
 		for _, route := range routes {
-			sb.WriteString(fmt.Sprintf("    { method: '%s', path: %s },\n", route.method, route.regexLiteral))
+			fmt.Fprintf(sb, "    { method: '%s', path: %s },\n", route.method, route.regexLiteral)
 		}
 		sb.WriteString("  ],\n")
 	}

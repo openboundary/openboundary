@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 package typescript
@@ -76,7 +76,7 @@ func TestTestGenerator_Generate_UsecaseTestFile(t *testing.T) {
 		t.Fatal("usecase test file not found in output")
 	}
 
-	contentStr := string(content)
+	contentStr := string(content.Content)
 
 	// Check for vitest imports
 	if !strings.Contains(contentStr, "import { describe, it, expect, vi, beforeEach } from 'vitest'") {
@@ -139,7 +139,7 @@ func TestTestGenerator_Generate_UsecaseWithPathParams(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecase-get-user.usecase.test.ts"])
+	content := string(output.Files["src/components/usecase-get-user.usecase.test.ts"].Content)
 
 	// Should have test for path params
 	if !strings.Contains(content, "should accept path parameters in input") {
@@ -188,7 +188,7 @@ func TestTestGenerator_Generate_UsecaseWithAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/usecase-get-profile.usecase.test.ts"])
+	content := string(output.Files["src/components/usecase-get-profile.usecase.test.ts"].Content)
 
 	// Should have auth context test
 	if !strings.Contains(content, "should have access to auth context") {
@@ -226,7 +226,7 @@ func TestTestGenerator_Generate_MiddlewareTestFile(t *testing.T) {
 		t.Fatal("middleware test file not found in output")
 	}
 
-	contentStr := string(content)
+	contentStr := string(content.Content)
 
 	// Check for describe block
 	if !strings.Contains(contentStr, "describe('middlewareAuthnMiddleware'") {
@@ -275,7 +275,7 @@ func TestTestGenerator_Generate_CasbinMiddlewareTest(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/middleware-authz.middleware.test.ts"])
+	content := string(output.Files["src/components/middleware-authz.middleware.test.ts"].Content)
 
 	// Check for casbin specific test
 	if !strings.Contains(content, "should check authorization using enforcer") {
@@ -337,7 +337,7 @@ func TestTestGenerator_Generate_ServerTestFile(t *testing.T) {
 		t.Fatal("server test file not found in output")
 	}
 
-	contentStr := string(content)
+	contentStr := string(content.Content)
 
 	// Check for describe block
 	if !strings.Contains(contentStr, "describe('createHttpServerApiApp'") {
@@ -379,7 +379,7 @@ func TestTestGenerator_Generate_TestSetupFile(t *testing.T) {
 		t.Fatal("test setup file not found in output")
 	}
 
-	contentStr := string(content)
+	contentStr := string(content.Content)
 
 	// Check for mock context creator
 	if !strings.Contains(contentStr, "createMockContext") {
@@ -460,7 +460,7 @@ func TestTestGenerator_Generate_ServerWithAuthMiddleware(t *testing.T) {
 		t.Fatalf("Generate() error = %v", err)
 	}
 
-	content := string(output.Files["src/components/http-server-api.server.test.ts"])
+	content := string(output.Files["src/components/http-server-api.server.test.ts"].Content)
 
 	// Should have auth mock in createMockDeps
 	if !strings.Contains(content, "auth:") {

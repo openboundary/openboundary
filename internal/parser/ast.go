@@ -1,4 +1,4 @@
-// Copyright 2026 Open Boundary Contributors
+// Copyright 2026 OpenBoundary Contributors
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 // Package parser provides YAML parsing with position tracking and AST definitions.
@@ -34,9 +34,9 @@ func (s *Spec) Pos() Position {
 // Component represents a single component in the specification.
 // ID follows the pattern: type.subtype.name (e.g., "http.server.api", "middleware.authn")
 type Component struct {
-	ID   string                 `yaml:"id" json:"id"`
-	Kind string                 `yaml:"kind" json:"kind"`
-	Spec map[string]interface{} `yaml:"spec" json:"spec"`
+	ID   string         `yaml:"id" json:"id"`
+	Kind string         `yaml:"kind" json:"kind"`
+	Spec map[string]any `yaml:"spec" json:"spec"`
 
 	position Position
 }
